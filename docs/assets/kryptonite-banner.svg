@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="title desc">
+  <title id="title">Kryptonite — Speed Demon 2026</title>
+  <desc id="desc">C++20 implementations for Track A Ingest, Track C Join and Track B Index.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1220"/>
+      <stop offset="1" stop-color="#111e29"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#34d399" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#34d399" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6ee7b7"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="320" rx="20" fill="url(#background)"/>
+  <rect x="0.5" y="0.5" width="1199" height="319" rx="19.5" fill="none" stroke="#263547"/>
+  <ellipse cx="935" cy="140" rx="300" ry="260" fill="url(#glow)"/>
+  <path d="M64 54h42" stroke="url(#accent)" stroke-width="4" stroke-linecap="round"/>
+  <text x="124" y="60" fill="#9fb1c1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" letter-spacing="3">SPEED DEMON / 2026</text>
+  <text x="60" y="149" fill="#f1f5f9" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="76" font-weight="800" letter-spacing="-2">KRYPTONITE</text>
+  <text x="64" y="193" fill="#c5d3de" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="21">Exact results. Measured optimizations.</text>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="14" font-weight="600">
+    <rect x="64" y="237" width="92" height="32" rx="7" fill="#173b35" stroke="#2a6756"/>
+    <text x="110" y="258" fill="#9bf1cd" text-anchor="middle">C++20</text>
+    <rect x="168" y="237" width="231" height="32" rx="7" fill="#162331" stroke="#344454"/>
+    <text x="283.5" y="258" fill="#cad7e2" text-anchor="middle">0 THIRD-PARTY RUNTIME DEPS</text>
+    <rect x="411" y="237" width="68" height="32" rx="7" fill="#162331" stroke="#344454"/>
+    <text x="445" y="258" fill="#cad7e2" text-anchor="middle">MIT</text>
+  </g>
+  <path d="M800 57v210" stroke="#304451"/>
+  <g font-family="Inter, Segoe UI, Arial, sans-serif">
+    <text x="849" y="97" fill="#6ee7b7" font-size="29" font-weight="700">A</text>
+    <text x="900" y="96" fill="#e2e8f0" font-size="21" font-weight="600">INGEST</text>
+    <text x="900" y="117" fill="#94a9b9" font-size="13">Exact log aggregation</text>
+    <text x="849" y="165" fill="#6ee7b7" font-size="29" font-weight="700">C</text>
+    <text x="900" y="164" fill="#e2e8f0" font-size="21" font-weight="600">JOIN</text>
+    <text x="900" y="185" fill="#94a9b9" font-size="13">Quote-aware CSV processing</text>
+    <text x="849" y="233" fill="#6ee7b7" font-size="29" font-weight="700">B</text>
+    <text x="900" y="232" fill="#e2e8f0" font-size="21" font-weight="600">INDEX</text>
+    <text x="900" y="253" fill="#94a9b9" font-size="13">Query-driven text search</text>
+  </g>
+</svg>

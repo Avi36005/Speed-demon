@@ -55,3 +55,7 @@ account step is missing. Make the recorded source public by the stated deadline.
 No algorithm experiment is active. Future candidates: B phrase/vocabulary lookup
 cost and A exact multi-selection on the real scoring CPU. Stop tuning paths that
 produce inconclusive gains and retain a final verification window.
+
+## README and entrant handoff refresh
+
+Updated 2026-11-01T14:48:17.608921+00:00. Root README redesigned with a local SVG banner, track navigation, evidence tables, honest ARM64 measurements, build/run commands and leaderboard instructions. `SUBMISSION_DETAILS.txt` supplies copy-ready team-form values and official links. GitHub Markdown rendering, relative links/anchors and SVG preview pass. Runtime/build/metadata hashes remain identical to the verified manifest. A Git source ZIP is prepared under ignored `.work/deliverables/` for direct download; the board still consumes the GitHub branch, and registration/App/form state remains unconfirmed.

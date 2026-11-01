@@ -1,0 +1,54 @@
+KRYPTONITE — SPEED DEMON 2026
+Copy these values into the team submission form.
+
+Team name: Kryptonite
+GitHub repository: https://github.com/Avi36005/Speed-demon
+Submission branch: speed-demon
+Languages: C++
+
+Tracks to select:
+[x] A — Ingest
+[x] B — Index
+[x] C — Join
+[ ] D — Traverse
+
+Contact email: Enter your preferred real contact email.
+Team members: Enter the full names of all 1–4 registered members.
+Registration, app installation and form submission are not confirmed by this file.
+
+DO THESE STEPS
+
+1. Each team member registers:
+   https://tally.so/r/q4redG
+
+2. Install the organisers' Board App on Avi36005/Speed-demon:
+   https://github.com/apps/speed-demon-board
+
+3. Submit the team/repository form using the values above:
+   https://tally.so/r/Ar7g9z
+   Confirm each attestation only after it is true. Latest response counts if
+   you resubmit the form to change the repository or tracks.
+
+4. Watch the live leaderboard after registry/queue processing:
+   https://speeddemon.dev/board/
+
+FILES ALREADY PUSHED IN THE ENTRY
+
+track-a/main.cpp, Dockerfile, .speed-demon.toml, README.md, PERF.md
+track-b/main.cpp, Dockerfile, .speed-demon.toml, README.md, PERF.md
+track-c/main.cpp, Dockerfile, .speed-demon.toml, README.md, PERF.md
+LICENSE, SUBMISSION_REPORT.md and verification evidence.
+
+The team form asks for the GitHub repository URL. The board builds and runs
+the track folders directly from the speed-demon branch. A downloadable source
+archive is a convenient copy; it does not register the team on the board.
+
+DEADLINES — INDIA STANDARD TIME
+
+Final source push observed before: 2 November 2026, 20:30 IST
+Recorded source public under MIT by: 2 November 2026, 21:30 IST
+Keep the Board App installed through code freeze.
+
+Official setup instructions: https://speeddemon.dev/kickstart/
+Complete checklist: SUBMISSION_CHECKLIST.md
+Technical evidence and commands: SUBMISSION_REPORT.md

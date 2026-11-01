@@ -38,13 +38,15 @@ struct Input {
 };
 
 struct Group {
-    std::vector<uint32_t> values;
-    uint64_t errors = 0;
+    uint32_t count = 0, errors = 0, cursor = 0;
 };
 
 using Table = std::unordered_map<std::string_view, std::array<Group, 72>>;
+struct Row { uint32_t group, latency; };
 struct Worker {
-    Table endpoints;
+    std::unordered_map<std::string_view, uint32_t> endpoints;
+    std::vector<Group> groups;
+    std::vector<Row> rows;
     std::array<std::string_view, 72> hours{};
 };
 
@@ -59,6 +61,8 @@ struct ThreadGroup {
 
 void parse(const char* p, const char* end, Worker& worker) {
     worker.endpoints.reserve(2048);
+    worker.groups.reserve(2048 * 72);
+    worker.rows.reserve(static_cast<size_t>(end - p) / 64 + 1);
     while (p < end) {
         // The frozen grammar fixes UTC timestamps and this 72-hour span.
         int day = p[6] == '0' ? (p[8] - '0') * 10 + p[9] - '0' - 30 : p[9] - '0' + 1;
@@ -74,9 +78,13 @@ void parse(const char* p, const char* end, Worker& worker) {
         uint32_t latency = 0;
         while (*p != '\n') latency = latency * 10 + static_cast<unsigned>(*p++ - '0');
         ++p;
-        auto& group = worker.endpoints[endpoint][hour];
-        group.values.push_back(latency);
+        auto [it, inserted] = worker.endpoints.try_emplace(endpoint, worker.endpoints.size());
+        if (inserted) worker.groups.resize(worker.groups.size() + 72);
+        uint32_t id = it->second * 72 + hour;
+        auto& group = worker.groups[id];
+        ++group.count;
         group.errors += error;
+        worker.rows.push_back({id, latency});
     }
 }
 
@@ -108,30 +116,59 @@ int main(int argc, char** argv) {
             });
         parse(input.data, input.data + boundaries[1], partial[0]);
         threads.join();  // every worker finishes before any merging
-        Table endpoints = std::move(partial[0].endpoints);
+        Table endpoints;
         std::array<std::string_view, 72> hours{};
         for (size_t i = 0; i < worker_count; ++i) {
             for (size_t h = 0; h < 72; ++h)
                 if (!partial[i].hours[h].empty()) hours[h] = partial[i].hours[h];
-            if (i == 0) continue;
-            for (auto& [endpoint, groups] : partial[i].endpoints) {
+            for (auto [endpoint, id] : partial[i].endpoints) {
                 auto& target = endpoints[endpoint];
                 for (size_t h = 0; h < 72; ++h) {
                     auto& to = target[h];
-                    auto& from = groups[h];
+                    const auto& from = partial[i].groups[id * 72 + h];
                     to.errors += from.errors;
-                    if (to.values.empty()) to.values = std::move(from.values);
-                    else to.values.insert(to.values.end(), from.values.begin(), from.values.end());
+                    to.count += from.count;
                 }
             }
         }
-        partial.clear();
         using Endpoint = std::pair<std::string_view, std::array<Group, 72>*>;
         std::vector<Endpoint> order;
         for (auto& [key, groups] : endpoints) order.emplace_back(key, &groups);
         std::sort(order.begin(), order.end(), [](const auto& a, const auto& b) {
             return a.first < b.first;  // ASCII byte order, prefixes first
         });
+        // Count/prefix/scatter replaces hundreds of thousands of tiny latency
+        // vectors. Each worker receives a disjoint slice of every global group.
+        uint32_t total = 0;  // the frozen full scale has 3,100,000 rows
+        for (size_t h = 0; h < hours.size(); ++h)
+            for (auto [key, groups] : order) {
+                auto& group = (*groups)[h];
+                group.cursor = total;
+                total += group.count;
+            }
+        std::vector<uint32_t> values(total);
+        for (auto& worker : partial)
+            for (auto [endpoint, id] : worker.endpoints) {
+                auto& target = endpoints.at(endpoint);
+                for (size_t h = 0; h < 72; ++h) {
+                    auto& local = worker.groups[id * 72 + h];
+                    local.cursor = target[h].cursor;
+                    target[h].cursor += local.count;
+                }
+            }
+        // Global cursors now hold exclusive group ends; local cursors advance
+        // only within the slices just assigned, so scatter requires no atomics.
+        auto scatter = [&](size_t i) {
+            auto& worker = partial[i];
+            for (auto row : worker.rows)
+                values[worker.groups[row.group].cursor++] = row.latency;
+        };
+        threads.values.clear();
+        for (size_t i = 1; i < worker_count; ++i)
+            threads.values.emplace_back(scatter, i);
+        scatter(0);
+        threads.join();
+        partial.clear();
         // Different hours own disjoint vectors and output strings. The map is
         // complete before these workers start; no shared lookup or insertion.
         std::array<std::string, 72> outputs;
@@ -143,18 +180,18 @@ int main(int argc, char** argv) {
             auto& output = outputs[h];
             for (auto [endpoint, groups] : order) {
                 auto& group = (*groups)[h];
-                auto& values = group.values;
-                if (values.empty()) continue;
-                std::sort(values.begin(), values.end());
-                uint64_t n = values.size();
+                if (!group.count) continue;
+                auto* first = values.data() + group.cursor - group.count;
+                std::sort(first, values.data() + group.cursor);
+                uint64_t n = group.count;
                 output.append(hours[h]);
                 output += ":00:00Z ";
                 output.append(endpoint);
                 output += ' ' + std::to_string(n);
                 for (uint64_t percentile : {50, 95, 99})
-                    output += ' ' + std::to_string(values[(percentile * n + 99) / 100 - 1]);
+                    output += ' ' + std::to_string(first[(percentile * n + 99) / 100 - 1]);
                 output += ' ' + std::to_string(group.errors);
-                output += ' ' + std::to_string(group.errors * 1000000 / n) + '\n';
+                output += ' ' + std::to_string(uint64_t{group.errors} * 1000000 / n) + '\n';
             }
           }
         };

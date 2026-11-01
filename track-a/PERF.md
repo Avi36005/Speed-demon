@@ -100,3 +100,14 @@ all ten output hashes matched. Raw evidence: comparisons.jsonl, A2 hypothesis.
 Worked/edge/empty/targeted sanitizer cases, sample seed 42, full seed 7 and
 full public worker counts 1/2/4/6/12 all pass. This ARM result is provisional
 until an actual new board run. No candidate K or points are inferred.
+
+## A3 provisionally retained — contiguous latency storage
+
+Count/prefix/scatter replaces small per-worker group vectors with contiguous
+row and latency arrays. Worker scatter slices are disjoint; global cursors
+become exclusive ends before independent hour sorts. All five alternating
+public full outputs match; A2 middle-three 0.168248 s vs A3 0.128075 s.
+Peak local wait4 RSS 301,891,584 vs 296,796,160 B. Raw comparisons.jsonl.
+Worked/edge/empty/targeted sanitizer cases and sample 42 at twelve workers
+pass. Independent full seed 7 at six workers also passes. Broader worker sweep
+and amd64 proof pending.

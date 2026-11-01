@@ -1,7 +1,10 @@
 # Kryptonite — Speed Demon entry status
 
 Updated 2026-11-01T14:30:04.325811+00:00. Local implementation and available verification COMPLETE.
-Branch: `speed-demon`; no remote configured; nothing published or pushed. MIT licence.
+Branch: `speed-demon`; entrant destination confirmed as
+`https://github.com/Avi36005/Speed-demon`. User authorized pushing this entry.
+The target was verified empty/private with admin access; publication import is
+being prepared. Actual import commit times will be used. MIT licence.
 Clean runtime/build inputs verified from commit `47bb5276e4296119b3774b564a72f13a3692ffd0`.
 Later commits contain delivery documentation and evidence; exact runtime hashes
 are pinned in `benchmarks/runtime-manifest.json`. Use `git rev-parse HEAD` for the
@@ -30,17 +33,19 @@ No official board run IDs, scoring-machine T/M/K, judge scores or submission are
 This ARM64 Mac/Docker Desktop supports emulated sandbox/process-timer checks,
 but the full official harness requires Linux-host/Colima cgroup access unavailable
 here. Native i5-13500 performance and official cgroup memory remain outstanding.
-Registration, entrant GitHub repository URL, team form and Board App state are unknown.
-Pushing/publication/forms need the user-owned destination and authorization.
+Entrant repository: `Avi36005/Speed-demon` (private). Registration, team form and
+Board App access remain unconfirmed. Source push is authorized; changing
+visibility, installing the app and submitting forms have not been requested.
 Freeze: 2026-11-02 20:30 IST; recorded source must be public under MIT by 21:30 IST.
 
 ## Resume
 
 Read `SUBMISSION_REPORT.md`, `benchmarks/DECISIONS.md` and per-track PERF.md.
 Next local reproduction command: `python3.13 tools/final_check.py` (reuses matching
-current-source proof); full commands are in the report. Next external step: identify
-the entrant GitHub repository and registration/App state, then obtain any required
-publication/push authorization. Preserve the verified runtime revision and evidence.
+current-source proof); full commands are in the report. Current publication step:
+import the verified files with current timestamps, preserve the original development
+history, verify identical runtime hashes, then push `speed-demon` to the confirmed
+entrant repository. See `SUBMISSION_CHECKLIST.md` for remaining account/form steps.
 No algorithm experiment is active. Future candidates: B phrase/vocabulary lookup
 cost and A exact multi-selection on the real scoring CPU. Stop tuning paths that
 produce inconclusive gains and retain a final verification window.

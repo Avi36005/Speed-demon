@@ -6,7 +6,11 @@ Base commit at generation: `47bb5276e4296119b3774b564a72f13a3692ffd0` on `speed-
 Clean archived build inputs: `47bb5276e4296119b3774b564a72f13a3692ffd0`. The runtime manifest below
 pins the exact source/build/metadata bytes verified from that archive.
 Documentation/evidence may be committed after this snapshot; `git rev-parse HEAD`
-identifies the final local delivery commit. No remote is configured and nothing was pushed.
+identifies the final delivery commit. The entrant destination is now confirmed:
+`https://github.com/Avi36005/Speed-demon`, branch `speed-demon`. The user authorized
+the push. The repository was empty/private when inspected. Publication is being
+prepared with actual commit times and the original verified history preserved;
+see `SUBMISSION_CHECKLIST.md` for the remaining registration and app steps.
 
 ## Implementation
 
@@ -87,9 +91,10 @@ run records are in `benchmarks/track-X/`. Large local artifacts are in `.work/`.
 - The unmodified full scoring harness requires Linux-host/Colima cgroup access.
   This Mac has no `/sys/fs/cgroup` host filesystem and no Colima; Docker Desktop
   uses cgroup v2 inside its VM. Official cgroup M and native i5-13500 measurements remain outstanding.
-- Entrant GitHub repository URL, registration, team form and Board App installation: unknown.
-  Publishing, pushing and submitting forms require the user-owned destination and authorization.
-- After authorization, configure only the entrant remote and push `speed-demon`.
+- Entrant repository is `https://github.com/Avi36005/Speed-demon`; source push is authorized.
+  Registration, team form and Board App repository access remain unconfirmed.
+  Changing visibility, installing the app and submitting forms have not been requested.
+- Push the verified entry to the confirmed entrant remote's `speed-demon` branch.
   Confirm the board observed the intended commit before freeze, 2026-11-02 20:30 IST.
   The recorded source must be public under MIT by 21:30 IST that day.
 

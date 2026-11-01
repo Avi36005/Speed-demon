@@ -2,6 +2,9 @@
 
 Independent C++20 entries for Track A (Ingest), Track C (Join), and Track B
 (Index), implemented in that order. Branch: `speed-demon`. MIT licence.
+Entrant repository: https://github.com/Avi36005/Speed-demon.
+See [SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md) for the registration,
+team submission form and Board App steps needed to appear on the leaderboard.
 Each track folder contains all its runtime/build inputs and has zero third-party
 runtime dependencies. Default paths are `/data` and `/out` as the frozen specs
 require. No generated datasets, answers or development binaries enter the images.

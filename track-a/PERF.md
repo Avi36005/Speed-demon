@@ -5,7 +5,7 @@ bucket sorting, one worker. Measurements will be recorded by `tools/dev.py` in
 `benchmarks/track-a/experiments.jsonl`, including source digest and commands.
 
 Official board runs: none. Official T, M, S, K and points: unknown.
-Container/runtime validation pending. Local RSS is not cgroup memory.
+Final container/runtime validation has passed; local RSS is not cgroup memory.
 
 ## 2026-11-01 native baseline
 
@@ -49,3 +49,20 @@ joining resolved it. Twelve-worker small fixtures pass ASan/UBSan. Worker counts
 1/2/4/6/12 match full seed 1 repeatedly; twelve workers match full seed 7.
 Official source/dependency axes and final container evidence are recorded
 separately. Official T/M/K/points and board IDs remain unknown.
+
+Final offline linux/amd64 build and five full seed 1 sandbox runs pass using the
+unchanged official process timer under ARM emulation. Library inspection finds
+only libc/libm/loader, with libstdc++ and libgcc linked into the executable.
+The final image is about 30 MB. `static-final.json` records S=187 via the official
+formatter/count tooling; D=1, basis `declared, unverified`. This is a local static
+measurement, not an official board result. Final default-worker sample seeds
+2/3/42 also match the unchanged reference.
+
+## Final native verification snapshot
+
+Final source `283d027c9aaa46b6e07fcd7b38c3be70f4ceb4294165f28d4a2e9033f24df4ec`. Public full seed 1 repeated five times with
+exact hashes: local middle-three mean 0.250590 s; peak wait4 RSS
+311,558,144 bytes. Raw times: 0.255074, 0.256713, 0.252603, 0.243396, 0.244094.
+Current-source tiny/sample seed 1, samples 2/3/42, independent full seed 7,
+worked/targeted fixtures and small sanitizer checks all pass. Final native
+verification is serial; these remain ARM64 process measurements, not board T/M.

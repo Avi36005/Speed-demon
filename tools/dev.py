@@ -52,10 +52,14 @@ def main():
     work = SUB / ".work" / f"track-{args.track}" / safe
     work.mkdir(parents=True)
     commands = []
+    default_workers = re.search(r"size_t worker_count = (\d+);", (track / "main.cpp").read_text())
+    effective_workers = args.workers if args.workers is not None else (int(default_workers[1]) if default_workers else 1)
     record = {"utc": stamp, "track": args.track, "dataset": args.label,
               "data": str(args.data.resolve()), "architecture": platform.machine(),
-              "platform": platform.platform(), "source_sha256": digest(track / "main.cpp"),
-              "workers": args.workers, "board_run_id": None, "official": False,
+              "platform": platform.platform(), "source_sha256": None if args.binary else digest(track / "main.cpp"),
+              "working_source_sha256": digest(track / "main.cpp"),
+              "workers": None if args.binary and args.workers is None else effective_workers,
+              "requested_workers": args.workers, "board_run_id": None, "official": False,
               "artifact_dir": str(work.relative_to(SUB)), "commands": commands,
               "time_samples_s": [], "memory_method": None, "peak_rss_bytes": None}
     try:

@@ -45,7 +45,8 @@ def main():
             command += ["--workers", str(args.workers)]
         proc = subprocess.run(command, capture_output=True, text=True)
         records.append({"argv": command, "exit": proc.returncode, "stdout": proc.stdout, "stderr": proc.stderr})
-        print(command[-1], "PASS" if proc.returncode == 0 else "FAIL", flush=True)
+        label = command[command.index("--label") + 1] if "--label" in command else command[-1]
+        print(label, "PASS" if proc.returncode == 0 else "FAIL", flush=True)
         if proc.returncode:
             print(proc.stdout, proc.stderr, flush=True)
             passed = False

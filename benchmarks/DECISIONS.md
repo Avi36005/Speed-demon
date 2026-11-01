@@ -76,7 +76,7 @@ all measurements above are ARM64. Scalar construction remains available with
 `--workers 1`. A rejected jthread build is retained; explicit thread ownership
 works on this Mac's libc++ and GCC.
 
-B3 kept: six-worker paired means 9.293824 s → 2.764384 s (see exact raw values
+B3 kept: six-worker paired means 9.294215 s → 2.764396 s (see exact raw values
 in comparisons.jsonl; prose rounded). Twelve-worker candidate 3.273262 s.
 One worker regressed; six chosen provisionally. Stop tuning and finish release
 verification. No x86 or official score improvement is inferred.

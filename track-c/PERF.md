@@ -33,3 +33,18 @@ The candidate passes all worked/rule/header-only fixtures, ASan/UBSan on small
 fixtures, tiny seeds 2/3/42 and full seeds 1/7 against unchanged references.
 Full seed 7 output: `da8b48aef3c54504a45cd4a8952916f4968ff5319a35fe2664e57b30655043db`.
 The preserved scalar baseline also passed sample seeds 2/3/42 and full seed 7.
+
+Final optimized offline linux/amd64 build and five full seed 1 sandbox runs pass
+under ARM-host emulation. Runtime library inspection succeeds. See containers.jsonl
+for build duration, exact image bytes, all timer records and output hashes.
+Official tooling locally measures S=218 and declared D=1 (unverified basis),
+recorded in static-final.json. This is not an official board performance run.
+
+## Final native verification snapshot
+
+Final source `1e8d10a65d2c5cdc1501ba3eb91da428cf653af822800d093e3765c1ac0f3bab`. Public full seed 1 repeated five times with
+exact hashes: local middle-three mean 0.885086 s; peak wait4 RSS
+220,971,008 bytes. Raw times: 0.875835, 0.919559, 0.933564, 0.859863, 0.845779.
+Current-source tiny/sample seed 1, samples 2/3/42, independent full seed 7,
+worked/targeted fixtures and small sanitizer checks all pass. Final native
+verification is serial; these remain ARM64 process measurements, not board T/M.

@@ -30,8 +30,9 @@ def main():
     ap.add_argument("--expected")
     ap.add_argument("--runs", type=int, default=5)
     ap.add_argument("--skip-build", action="store_true")
+    ap.add_argument("--context", type=Path, help="build from an archived clean track folder")
     args = ap.parse_args()
-    track = SUB / f"track-{args.track}"
+    track = (args.context or SUB / f"track-{args.track}").resolve()
     data = (args.data or ROOT / f"data/track-{args.track}/full-seed1").resolve()
     manifest = json.loads((ROOT / "docs/SHA256SUMS.json").read_text())["tracks"][args.track]
     name = manifest["output"]
@@ -40,6 +41,7 @@ def main():
     record = {"utc": datetime.datetime.now(datetime.timezone.utc).isoformat(), "official": False,
               "environment": "linux/amd64 emulated on ARM64 Docker Desktop",
               "track": args.track, "source_sha256": sha(track / "main.cpp"),
+              "build_context": str(track),
               "dockerfile_sha256": sha(track / "Dockerfile"), "data": str(data),
               "expected_sha256": expected, "commands": [], "runs": [],
               "official_cgroup_memory": None, "board_run_id": None}

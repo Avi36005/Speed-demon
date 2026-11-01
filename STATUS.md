@@ -1,28 +1,24 @@
-# Speed Demon entry status
+# Kryptonite — Speed Demon entry status
 
-Started 2026-11-01 13:03 UTC (18:33 IST). Freeze: 2026-11-02 15:00 UTC.
+Updated 2026-11-01T14:15:50.866136+00:00.
+Freeze: 2026-11-02 15:00 UTC / 20:30 IST; public-source deadline 21:30 IST.
 
-- New entrant repository on `speed-demon`; no remote configured. MIT licence retained.
-- Order: A baseline and evidence, C baseline and evidence, B baseline and evidence, measured tuning, final review.
-- Host: Darwin ARM64; Apple Clang 17; Python 3.13.12.
-- Docker engine initially stopped. Container, Linux amd64, official static S, cgroup memory, and board checks pending.
-- Confirmed team name: Kryptonite. Entrant GitHub URL unknown. Registration/app/form/account state unknown.
-- Official checkouts unchanged; public input provenance in `../docs/download-verification.json`.
-- Track A exact public full hash, tiny/sample, worked/edge/targeted/empty checks passed. ASan/UBSan small checks passed. First timing attempt failed due to sandbox sysctl; rerunning with wait4.
-- Track C public full/reference, tiny/sample and worked/rule/header-only checks pass; small sanitizer checks pass.
-- Track A baseline preserved at 886e42b. Track C baseline being archived.
-- Current work: Track B query-driven baseline and regression matrix. Docker engine started; pinned amd64 bases downloading.
-- Next command: `python3.13 tools/dev.py a --data ../data/track-a/tiny-seed1 --label tiny-seed1`
+- Entrant workspace: this directory; branch `speed-demon`, no remotes. MIT licence.
+- Team confirmed: Kryptonite. Registration, entrant GitHub URL, Board App and team form state unknown.
+- All three C++20 entries are implemented; official checkouts unchanged.
+- A: six line-boundary workers selected after 1/2/4/6/12 sweep; full seed 1/7, fixtures and small sanitizer checks pass. Final public amd64 offline build and five sandbox runs pass. Official tooling locally measures S=187, declared D=1 (unverified).
+- C: global exact name IDs and country bitsets kept (673bb07); full seeds 1/7, fixtures and small sanitizer checks pass. Final public amd64 offline build and five sandbox runs pass. S=218, declared D=1 (unverified).
+- B: baselines preserved at a45c753, hybrid Boolean at f63225a, parallel indexing at e9fc252. B3 parallel queries kept at a3adf36. Worker comparisons 1/2/4/6/12 pass; six selected. Final-source native matrix is running serially; no further algorithm changes planned.
+- Host ARM64 macOS; Apple Clang 17; Python 3.13.12. Docker Desktop engine running. Pinned GCC 15.3.0 and Debian 13 images prepared; final builds offline for linux/amd64 emulated on ARM64.
+- No official T/M/K/points or board IDs exist. Local RSS is not cgroup M. Full official harness memory checks require Linux-host/Colima cgroup access unavailable on this Mac.
 
-All A/C/B baselines match published full hashes and untouched references.
-A/C five-run amd64 emulated sandbox checks pass; builds 8.37/9.33 s, images ~30 MB.
-Official cgroup memory/board evidence remains unavailable. B baseline is being archived.
-Additional sample seeds 2/3/42 and full seed 7 for A/C running serially.
-Current experiment: phase profiles to guide allocation and query representation changes.
+Remaining local work:
+1. B3 tuning complete. Finish `tools/final_check.py` and inspect its retained evidence.
+2. Run final-source tiny/sample seed 1, additional samples 2/3/42, full seed 7 and five full seed 1 runs for all tracks. Reuse valid evidence where source digest matches.
+3. Final B amd64 offline build, five sandbox checks, official static S/D; representative full seed 7 containers for A/C/B.
+4. Complete README/PERF and generate report with `python3.13 tools/report.py`. Validate report assertions, final runtime manifest and clean checkout builds. Commit only task-owned files.
 
-2026-11-01 13:28 UTC checkpoint:
-- C1 interned-name/bitset optimization kept at 673bb07; full 1/7 and small sanitizer fixtures pass.
-- A1 worker sweep complete: default six, full 1 repeatedly and full 7 at 12 workers pass. Final default/additional samples running.
-- B1 hybrid preserved at f63225a. B2 parallel indexing is under fixture/full-seed validation; next compare against f63225a with workers 1/2/4/6/12.
-- Official static tools prepared. A baseline S=127 through official tool; final S/D pending for each track.
-- Next: finish B2 correctness, run serialized B2 worker comparisons, then final offline/container/static checks and submission report.
+Current command: `python3.13 tools/final_check.py > .work/final-native-progress.txt`. Updated 2026-11-01T14:21:50.711058+00:00.
+Raw evidence: `benchmarks/track-*/`; large artifacts, inputs, outputs and binaries: ignored `.work/`.
+
+2026-11-01T14:26:49.439169+00:00 — Final native matrix PASS for A/C/B. All final source digests pass required examples, targeted/sanitizer fixtures, tiny/sample/full seed 1, sample seeds 2/3/42, full seed 7 and five deterministic full runs. Next: archive committed source, clean offline amd64 builds/sandbox runs, final static tools and report.

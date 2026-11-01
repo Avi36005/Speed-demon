@@ -70,3 +70,12 @@ no K or official score claim is possible. This ends the tuning phase.
 
 Final-source required matrix, native five-run samples and amd64 clean offline
 checks follow in the structured evidence and SUBMISSION_REPORT.md.
+
+## Final native verification snapshot
+
+Final source `a27d48c237bbe733d395daead4a70b544498624c0394805d27f95fe0ce4bd8cf`. Public full seed 1 repeated five times with
+exact hashes: local middle-three mean 2.230760 s; peak wait4 RSS
+521,912,320 bytes. Raw times: 2.615541, 2.207020, 2.190346, 2.161126, 2.294912.
+Current-source tiny/sample seed 1, samples 2/3/42, independent full seed 7,
+worked/targeted fixtures and small sanitizer checks all pass. Final native
+verification is serial; these remain ARM64 process measurements, not board T/M.

@@ -19,7 +19,8 @@ equality. No public-seed answer tables or endpoint catalogue is compiled in.
 Build: `g++ -std=c++20 -O3 -DNDEBUG -pthread main.cpp -o solution`.
 The offline Docker build statically links the GCC C++ and compiler support
 libraries to avoid requiring the build compiler's libstdc++ in the runtime image;
-glibc remains supplied by Debian 13. Final container compatibility must be tested.
+glibc remains supplied by Debian 13. Final amd64 emulated container compatibility
+and five full-input sandbox runs have passed.
 
 Dependencies: zero non-standard-library runtime dependencies (declared D=1;
 the harness marks this declaration unverified). MIT, see repository LICENSE.

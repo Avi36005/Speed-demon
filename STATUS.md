@@ -1,10 +1,13 @@
 # Kryptonite — Speed Demon entry status
 
-Updated 2026-11-01T14:30:04.325811+00:00. Local implementation and available verification COMPLETE.
-Branch: `speed-demon`; entrant destination confirmed as
-`https://github.com/Avi36005/Speed-demon`. User authorized pushing this entry.
-The target was verified empty/private with admin access; publication import is
-being prepared. Actual import commit times will be used. MIT licence.
+Updated 2026-11-01T14:39:13.939441+00:00. Local implementation and available verification COMPLETE.
+Branch: `speed-demon`; remote `https://github.com/Avi36005/Speed-demon`.
+Source push confirmed on 2026-11-01T14:39:13.939441+00:00; first acknowledged remote tip
+`9ba13f4a2ca0b7693c9da1f5699c642126767fdd` contained 69 commits, including 56 nonempty file imports.
+Original development history and actual timestamps are preserved. The import
+commits use their real creation times. Runtime track files match verified
+`90a353b` byte for byte. Repository visibility remains PRIVATE; default branch
+is `speed-demon`. See `benchmarks/publication.json`. MIT licence.
 Clean runtime/build inputs verified from commit `47bb5276e4296119b3774b564a72f13a3692ffd0`.
 Later commits contain delivery documentation and evidence; exact runtime hashes
 are pinned in `benchmarks/runtime-manifest.json`. Use `git rev-parse HEAD` for the
@@ -34,7 +37,7 @@ This ARM64 Mac/Docker Desktop supports emulated sandbox/process-timer checks,
 but the full official harness requires Linux-host/Colima cgroup access unavailable
 here. Native i5-13500 performance and official cgroup memory remain outstanding.
 Entrant repository: `Avi36005/Speed-demon` (private). Registration, team form and
-Board App access remain unconfirmed. Source push is authorized; changing
+Board App access remain unconfirmed. Source push has succeeded; changing
 visibility, installing the app and submitting forms have not been requested.
 Freeze: 2026-11-02 20:30 IST; recorded source must be public under MIT by 21:30 IST.
 
@@ -42,10 +45,13 @@ Freeze: 2026-11-02 20:30 IST; recorded source must be public under MIT by 21:30 
 
 Read `SUBMISSION_REPORT.md`, `benchmarks/DECISIONS.md` and per-track PERF.md.
 Next local reproduction command: `python3.13 tools/final_check.py` (reuses matching
-current-source proof); full commands are in the report. Current publication step:
-import the verified files with current timestamps, preserve the original development
-history, verify identical runtime hashes, then push `speed-demon` to the confirmed
-entrant repository. See `SUBMISSION_CHECKLIST.md` for remaining account/form steps.
+current-source proof); full commands are in the report. Source is pushed and the local branch tracks `origin/speed-demon`.
+Next external steps: complete/confirm each member's registration, grant the Board
+App access to `Avi36005/Speed-demon`, and submit Kryptonite / C++ / A+B+C / this
+repo URL in the team form. Links and copyable values are in
+`SUBMISSION_CHECKLIST.md`. The public board feed checked at
+2026-11-01T14:38:06Z did not yet contain Kryptonite; that does not prove which
+account step is missing. Make the recorded source public by the stated deadline.
 No algorithm experiment is active. Future candidates: B phrase/vocabulary lookup
 cost and A exact multi-selection on the real scoring CPU. Stop tuning paths that
 produce inconclusive gains and retain a final verification window.

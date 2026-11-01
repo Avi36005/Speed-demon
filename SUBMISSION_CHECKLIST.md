@@ -21,7 +21,7 @@ Tracks: **A · Ingest, B · Index, C · Join**
    email and all 1–4 registered team members. Confirm the form's attestations
    only after they are true. Resubmit this form to change details; latest counts.
 4. The board watches the registered repository's `speed-demon` branch. The entry
-   has been prepared for that branch. Once the app and team registry are ready,
+   has been pushed to that branch. Once the app and team registry are ready,
    check https://speeddemon.dev/board/ for Kryptonite's queue/build/run state.
 5. Record actual run IDs, commit IDs and measured results in each `PERF.md` after
    runs exist. Local timings do not establish a leaderboard result.

@@ -8,9 +8,12 @@ pins the exact source/build/metadata bytes verified from that archive.
 Documentation/evidence may be committed after this snapshot; `git rev-parse HEAD`
 identifies the final delivery commit. The entrant destination is now confirmed:
 `https://github.com/Avi36005/Speed-demon`, branch `speed-demon`. The user authorized
-the push. The repository was empty/private when inspected. Publication is being
-prepared with actual commit times and the original verified history preserved;
-see `SUBMISSION_CHECKLIST.md` for the remaining registration and app steps.
+the push. The first push succeeded at remote commit `9ba13f4a2ca0b7693c9da1f5699c642126767fdd`
+with 69 reachable commits, including 56 nonempty file imports. The original
+verified development history is preserved; imports use their actual creation
+times. The repo is private and `speed-demon` is its default branch. See
+`benchmarks/publication.json` and `SUBMISSION_CHECKLIST.md` for evidence and the
+remaining registration/app steps. Later receipt/documentation commits may follow.
 
 ## Implementation
 
@@ -94,7 +97,7 @@ run records are in `benchmarks/track-X/`. Large local artifacts are in `.work/`.
 - Entrant repository is `https://github.com/Avi36005/Speed-demon`; source push is authorized.
   Registration, team form and Board App repository access remain unconfirmed.
   Changing visibility, installing the app and submitting forms have not been requested.
-- Push the verified entry to the confirmed entrant remote's `speed-demon` branch.
+- The verified entry is now pushed to the entrant remote's `speed-demon` branch.
   Confirm the board observed the intended commit before freeze, 2026-11-02 20:30 IST.
   The recorded source must be public under MIT by 21:30 IST that day.
 

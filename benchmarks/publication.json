@@ -1,0 +1,252 @@
+{
+  "checked_at_utc": "2026-11-01T14:39:13.939441+00:00",
+  "repository": "https://github.com/Avi36005/Speed-demon",
+  "branch": "speed-demon",
+  "first_confirmed_remote_tip": "9ba13f4a2ca0b7693c9da1f5699c642126767fdd",
+  "repository_visibility_at_check": "PRIVATE",
+  "default_branch_at_check": "speed-demon",
+  "first_push_reachable_commits": 69,
+  "commits_in_last_three_hours_at_check": 69,
+  "file_import_commits": [
+    {
+      "commit": "c9f45867f013e743caffc08190bf33065fe612d8",
+      "path": "LICENSE"
+    },
+    {
+      "commit": "39f9fb8e8178e329a1de99f1b6ff8cf5a9ea3152",
+      "path": ".gitignore"
+    },
+    {
+      "commit": "8bd0ae3bd3cffa93de3c7bda4fd32bf5a9608521",
+      "path": "README.md"
+    },
+    {
+      "commit": "c97a26d6f1e3bf965ef1895429d5fe4e2b03988d",
+      "path": "SUBMISSION_CHECKLIST.md"
+    },
+    {
+      "commit": "e44700dc706066c69e4c7cdcabc0c342b5f94f59",
+      "path": "track-a/main.cpp"
+    },
+    {
+      "commit": "b55ef960f76a012c79fd7565e912a0c911413c82",
+      "path": "track-a/Dockerfile"
+    },
+    {
+      "commit": "33989d3c114244cdabe8dfce4779332622d9cf16",
+      "path": "track-a/.speed-demon.toml"
+    },
+    {
+      "commit": "843ef928b495048dea013731d876e285b85920b4",
+      "path": "track-a/README.md"
+    },
+    {
+      "commit": "2b4ff61c045cdd20a3b993a88512a589587768f6",
+      "path": "track-a/PERF.md"
+    },
+    {
+      "commit": "0cac37407e8c536ca0122f9e38ea052bd52681df",
+      "path": "track-c/main.cpp"
+    },
+    {
+      "commit": "47ffbb6fb3d85b97f2066a085eed81de4e890258",
+      "path": "track-c/Dockerfile"
+    },
+    {
+      "commit": "7578ac67aecfe5760e676d167a6087c35073dd58",
+      "path": "track-c/.speed-demon.toml"
+    },
+    {
+      "commit": "1c7c64b90d6fd3b771825e45dc60fd0033259743",
+      "path": "track-c/README.md"
+    },
+    {
+      "commit": "ebf80eabb0dbe52d84de045317133f3ed4056051",
+      "path": "track-c/PERF.md"
+    },
+    {
+      "commit": "0fded2b2ae641a5b42591eceb2094cbf4c8ec77f",
+      "path": "track-b/main.cpp"
+    },
+    {
+      "commit": "86ae54c229a2638e4881d916fa2eb82e3f6bcb2c",
+      "path": "track-b/Dockerfile"
+    },
+    {
+      "commit": "330ad32cd758c37531dffc423742d2b4238bda86",
+      "path": "track-b/.speed-demon.toml"
+    },
+    {
+      "commit": "d4242fade7aee47e278e82d377210ba6669e3869",
+      "path": "track-b/README.md"
+    },
+    {
+      "commit": "373bb5e108ad9bf18602185a4ae2d8040add477b",
+      "path": "track-b/PERF.md"
+    },
+    {
+      "commit": "42f3a98e70139b93c1b64a60d5f1b460b4e52047",
+      "path": "STATUS.md"
+    },
+    {
+      "commit": "b6643d0978dbd19b2ff04aeb751655779d21f73c",
+      "path": "SUBMISSION_REPORT.md"
+    },
+    {
+      "commit": "ecd926f847c315cb56746e6bec5e09245fbe6901",
+      "path": "benchmarks/DECISIONS.md"
+    },
+    {
+      "commit": "8ef1b95c0010003573625d0fe105ba226fa50687",
+      "path": "benchmarks/docker-environment.txt"
+    },
+    {
+      "commit": "4f34a925f707f22a1f303185a66e37004615271e",
+      "path": "benchmarks/final-native.jsonl"
+    },
+    {
+      "commit": "67d18944808b73fc5fccb5d52bb43f4be5ae31c1",
+      "path": "benchmarks/gcc-version.txt"
+    },
+    {
+      "commit": "aa75adde5e37ebda61a0c1a7b9b65043e737171a",
+      "path": "benchmarks/hand-fixtures.json"
+    },
+    {
+      "commit": "2aab98ae55207ffe954f9c4e25f5a06712ca5983",
+      "path": "benchmarks/runtime-manifest.json"
+    },
+    {
+      "commit": "c7979bfef3773a780b1ed6d3209bceb27a2b1617",
+      "path": "benchmarks/track-a/comparisons.jsonl"
+    },
+    {
+      "commit": "58291fe95e0a63bd9e3aab90998eb45f46c4976f",
+      "path": "benchmarks/track-a/containers.jsonl"
+    },
+    {
+      "commit": "fa4f164a845623fe5cec2db90e420d6562f321bb",
+      "path": "benchmarks/track-a/experiments.jsonl"
+    },
+    {
+      "commit": "19b9bcd1e80c685e40972fc06c2d5d3b75c19dd7",
+      "path": "benchmarks/track-a/profiles.jsonl"
+    },
+    {
+      "commit": "0db439944a05f126ca8a86c4d0de2add078dcf4e",
+      "path": "benchmarks/track-a/static-baseline.json"
+    },
+    {
+      "commit": "c45c3a69b2e6ffc35e7824894ca5e922d63a8bce",
+      "path": "benchmarks/track-a/static-final.json"
+    },
+    {
+      "commit": "9d90bc0dddd8d1db4e5dbf128027e962b1edcf5e",
+      "path": "benchmarks/track-a/suites.jsonl"
+    },
+    {
+      "commit": "7ed91b757197910c21b6ef4f1fe074f5f7217384",
+      "path": "benchmarks/track-b/comparisons.jsonl"
+    },
+    {
+      "commit": "bb9f93164e89ced6ddf588ea635e61d9bfe881ca",
+      "path": "benchmarks/track-b/containers.jsonl"
+    },
+    {
+      "commit": "985fe0dfe9a09a327bd78bb9c7bfd0b990bbf4a5",
+      "path": "benchmarks/track-b/experiments.jsonl"
+    },
+    {
+      "commit": "fcfa96df4dca8c35713b2f104bf16a7a68c088ea",
+      "path": "benchmarks/track-b/profiles.jsonl"
+    },
+    {
+      "commit": "2308c0953162370da739e0196d4f22589bde4474",
+      "path": "benchmarks/track-b/static-final.json"
+    },
+    {
+      "commit": "2a849447b320c7ddf8063662e8e263d347a0989d",
+      "path": "benchmarks/track-b/suites.jsonl"
+    },
+    {
+      "commit": "b2f257433a6ebd2b82e50b3def7c1e9146be70b9",
+      "path": "benchmarks/track-c/comparisons.jsonl"
+    },
+    {
+      "commit": "93770b4ce860b76836a84762fd59638112c3b65f",
+      "path": "benchmarks/track-c/containers.jsonl"
+    },
+    {
+      "commit": "d3ea9630a3257f438bc2839e137ae721a4521bb4",
+      "path": "benchmarks/track-c/experiments.jsonl"
+    },
+    {
+      "commit": "c718648d22fee87ee32da315e5a7488180fede31",
+      "path": "benchmarks/track-c/profiles.jsonl"
+    },
+    {
+      "commit": "0ce1a8432d63ee659b8a1ea2f9ed86694f6b0870",
+      "path": "benchmarks/track-c/static-final.json"
+    },
+    {
+      "commit": "05e337d0405140630712c545529481fcf06af959",
+      "path": "benchmarks/track-c/suites.jsonl"
+    },
+    {
+      "commit": "e09b79a230a2c00c368174a67c823339b44d1b99",
+      "path": "check.py"
+    },
+    {
+      "commit": "de873d02e90da2ac213860156f1ae2f2bb3455b1",
+      "path": "tests/README.md"
+    },
+    {
+      "commit": "88b69a709b7569f47e8ab334059cea0836fcb8fe",
+      "path": "tests/fixtures.py"
+    },
+    {
+      "commit": "a8824aeaca3e6ab317618ae42d7aff12b88a578d",
+      "path": "tools/compare.py"
+    },
+    {
+      "commit": "094600d22c35e577348789fd76b002ad944824a0",
+      "path": "tools/container_check.py"
+    },
+    {
+      "commit": "32be36b55e177b89443ab550933a1ee07f2b3610",
+      "path": "tools/dev.py"
+    },
+    {
+      "commit": "1dd110448c027ae1a2447b182b09d88d73cc492c",
+      "path": "tools/final_check.py"
+    },
+    {
+      "commit": "d4f5272ed27e5f7e9126ecac05c80b0e8d430b4b",
+      "path": "tools/profile.py"
+    },
+    {
+      "commit": "36477b221ac59cbca83dba2d9a22c1d6fa5a2c32",
+      "path": "tools/report.py"
+    },
+    {
+      "commit": "2935f383d796545aa2cd7d09115294113a2427a8",
+      "path": "tools/suite.py"
+    }
+  ],
+  "preserved_original_development_tip": "90a353b9a77263f908b498514b7e11183aa12de5",
+  "commit_date_policy": "Original development timestamps preserved; file-import and publication commits use their actual creation times. No synthetic earlier dates.",
+  "runtime_tracks_unchanged_from_verified_delivery": "90a353b9a77263f908b498514b7e11183aa12de5",
+  "runtime_manifest_sha256": "3e63857226b311ef2ccab827a95fb4d2ae2b1c05d6f8ba5039086c9b87557ba1",
+  "board_feed_snapshot": {
+    "checked_at_utc": "2026-11-01T14:38:06.505032+00:00",
+    "url": "https://s3.amazonaws.com/raptors.dev/speeddemon.dev/2026/board/board.json",
+    "feed_generated_at": "2026-11-01T14:37:50Z",
+    "matching_teams": [],
+    "matching_team_count": 0,
+    "note": "Absence from this feed snapshot does not establish registration or app installation state."
+  },
+  "board_app_repository_access": "unconfirmed; OAuth CLI cannot list GitHub App installations",
+  "individual_registration": "unknown",
+  "team_form": "unknown",
+  "note": "Later receipt/documentation commits may follow this first confirmed push; git ls-remote origin refs/heads/speed-demon identifies the latest remote delivery."
+}

@@ -1,0 +1,7 @@
+.work/
+.out/
+data/
+__pycache__/
+*.pyc
+.DS_Store
+benchmarks/**/artifacts/

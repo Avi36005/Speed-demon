@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <fcntl.h>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <iterator>
 #include <numeric>
@@ -14,7 +15,6 @@
 #include <sys/stat.h>
 #include <thread>
 #include <unistd.h>
-#include <unordered_map>
 #include <vector>
 
 struct Input {
@@ -60,7 +60,44 @@ struct Query {
     std::vector<char> ops;
 };
 
-using Vocabulary = std::unordered_map<std::string_view, uint32_t>;
+// Query-backed keys remain mapped throughout the run. A compact probing table
+// avoids a separately allocated hash node for every corpus-token lookup.
+// Fingerprints only filter probes: complete byte equality resolves collisions.
+class Vocabulary {
+    struct Slot { uint32_t fingerprint = 0, id = 0; };
+    std::vector<Slot> slots = std::vector<Slot>(1024);
+    std::vector<std::string_view> keys;
+    size_t locate(std::string_view key, size_t hash) const {
+        size_t pos = hash & (slots.size() - 1);
+        uint32_t fingerprint = static_cast<uint32_t>(hash >> 32);
+        while (slots[pos].id &&
+               (slots[pos].fingerprint != fingerprint || keys[slots[pos].id - 1] != key))
+            pos = (pos + 1) & (slots.size() - 1);
+        return pos;
+    }
+public:
+    size_t size() const { return keys.size(); }
+    uint32_t find(std::string_view key) const {
+        auto id = slots[locate(key, std::hash<std::string_view>{}(key))].id;
+        return id ? id - 1 : UINT32_MAX;
+    }
+    uint32_t intern(std::string_view key) {
+        if ((keys.size() + 1) * 2 > slots.size()) {
+            slots.assign(slots.size() * 2, Slot{});
+            for (uint32_t id = 0; id < keys.size(); ++id) {
+                size_t hash = std::hash<std::string_view>{}(keys[id]);
+                slots[locate(keys[id], hash)] = {static_cast<uint32_t>(hash >> 32), id + 1};
+            }
+        }
+        size_t hash = std::hash<std::string_view>{}(key);
+        auto& slot = slots[locate(key, hash)];
+        if (!slot.id) {
+            keys.push_back(key);
+            slot = {static_cast<uint32_t>(hash >> 32), static_cast<uint32_t>(keys.size())};
+        }
+        return slot.id - 1;
+    }
+};
 using Posting = std::vector<uint32_t>;
 
 struct ThreadGroup {
@@ -72,9 +109,8 @@ struct ThreadGroup {
 bool phrase_matches(std::string_view text, const Query& query, const Vocabulary& vocabulary) {
     Posting sequence;
     tokenize(text, [&](std::string_view token) {
-        auto it = vocabulary.find(token);
         // Unneeded tokens must still occupy positions: dropping one would invent adjacency.
-        sequence.push_back(it == vocabulary.end() ? UINT32_MAX : it->second);
+        sequence.push_back(vocabulary.find(token));
     });
     return std::search(sequence.begin(), sequence.end(), query.terms.begin(), query.terms.end())
            != sequence.end();
@@ -202,8 +238,7 @@ int main(int argc, char** argv) {
                 size_t split = words.find(' ');
                 auto word = words.substr(0, split);
                 if (term) {
-                    auto [it, inserted] = vocabulary.try_emplace(word, static_cast<uint32_t>(vocabulary.size()));
-                    query.terms.push_back(it->second);
+                    query.terms.push_back(vocabulary.intern(word));
                 } else query.ops.push_back(word[0]);
                 if (!query.phrase) term = !term;
                 if (split == std::string_view::npos) break;
@@ -234,9 +269,9 @@ int main(int argc, char** argv) {
             size_t last = documents.size() * (worker + 1) / worker_count;
             for (size_t doc = first; doc < last; ++doc) {
                 tokenize(documents[doc], [&](std::string_view token) {
-                    auto it = needed.find(token);
-                    if (it == needed.end()) return;
-                    auto& posting = local[it->second];
+                    uint32_t term = needed.find(token);
+                    if (term == UINT32_MAX) return;
+                    auto& posting = local[term];
                     if (posting.empty() || posting.back() != doc) posting.push_back(static_cast<uint32_t>(doc));
                 });
             }

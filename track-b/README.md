@@ -4,7 +4,9 @@ C++20, standard library and POSIX mmap, zero third-party runtime dependencies.
 Read `/data/docs.txt` and `/data/queries.txt`; write `/out/results.txt`.
 Native testing supports `--data DIR --out DIR`. MIT; see ../LICENSE.
 
-Queries are parsed first and their actual terms interned with exact equality.
+Queries are parsed first and their actual terms interned in a compact probing
+table. A fingerprint filters probes; complete byte equality resolves every
+collision. Query-backed keys remain mapped for the whole run.
 Only those terms receive postings. Documents are scanned in ID order; the last
 ID in each posting suppresses repeated occurrences within a document. All
 postings stay sorted. Workers build private postings for ordered document-ID
@@ -32,7 +34,8 @@ Pinned allowlisted GCC 15 builds offline, with libstdc++/libgcc linked staticall
 Debian 13 supplies glibc. See ../STATUS.md for final runtime and board evidence.
 The official tooling locally measures S=350 and declared D=1 (unverified basis).
 The clean amd64 image passes five full public sandbox runs and full seed 7;
-these are ARM-host emulation checks. Official board performance is unknown.
+these are ARM-host emulation checks. The original baseline passed the official live board; updated candidate
+measurements and checks appear in PERF.md.
 
 With another 24 hours: profile vocabulary lookup and phrase re-tokenization,
 compare direct token matching with ID lookup inside candidate documents, and

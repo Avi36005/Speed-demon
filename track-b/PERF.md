@@ -99,3 +99,13 @@ native scoring box: T=2.585927 s, cgroup M=222,953,472 B,
 S=350, D=1, K=6.028846, machine points=39.011708.
 This is the live board's single public-data run, not the final five-run holdout
 or judging. Raw receipt: `../benchmarks/board/2026-11-01-first-public-run.json`.
+
+## B4 retained provisionally for the next exact-data experiment
+
+Compact exact query-vocabulary lookup: five alternating native full-seed-1
+middle-three means 2.429215 s (b4f7240) and 1.878239 s candidate. Peak local
+wait4 RSS 515,375,104 and 519,028,736 B. All ten hashes match. Worked and
+adversarial sanitizer fixtures, wide-sum case, sample seed 42 at twelve workers
+and independently generated full seed 7 at six workers pass. Fingerprints
+never substitute for complete string equality; the map is immutable before
+index/query threads read it. Candidate static/amd64/board proof still pending.

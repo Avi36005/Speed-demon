@@ -11,7 +11,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 struct Input {
@@ -91,7 +90,8 @@ struct Country {
     uint64_t count = 0, ids = 0, name_bytes = 0, note_bytes = 0;
     int64_t sum = 0, min = std::numeric_limits<int64_t>::max();
     int64_t max = std::numeric_limits<int64_t>::min();
-    std::unordered_set<std::string> names;
+    std::vector<uint64_t> names;
+    uint64_t distinct = 0;
     explicit Country(std::string key) : code(std::move(key)) {}
 };
 
@@ -137,6 +137,8 @@ int main(int argc, char** argv) {
         csv.bom();
         while (csv.p < csv.end && *csv.p++ != '\n') {}  // header has no quotes
         std::string name;
+        std::unordered_map<std::string, uint32_t> names;
+        names.reserve(131072);
         while (csv.p < csv.end) {
             csv.bom();  // this is a true record boundary, never an embedded LF
             uint64_t id = csv.integer();
@@ -157,7 +159,17 @@ int main(int argc, char** argv) {
             country.max = std::max(country.max, amount);
             country.name_bytes += name_bytes;
             country.note_bytes += note_bytes;
-            country.names.insert(name);
+            // Interning compares decoded bytes exactly. Membership bits share
+            // those IDs across countries; they do not stand in for name hashes.
+            auto [it, inserted] = names.try_emplace(name, static_cast<uint32_t>(names.size()));
+            uint32_t name_id = it->second;
+            size_t word = name_id / 64;
+            if (word >= country.names.size()) country.names.resize(word + 1, 0);
+            uint64_t mask = uint64_t{1} << (name_id % 64);
+            if (!(country.names[word] & mask)) {
+                country.names[word] |= mask;
+                ++country.distinct;
+            }
         }
         std::sort(countries.begin(), countries.end(), [](const Country& a, const Country& b) {
             return a.code < b.code;
@@ -167,7 +179,7 @@ int main(int argc, char** argv) {
             if (!country.count) continue;
             out << country.code << ' ' << country.count << ' ' << country.ids << ' '
                 << money(country.sum) << ' ' << money(country.min) << ' ' << money(country.max)
-                << ' ' << country.names.size() << ' ' << country.name_bytes << ' '
+                << ' ' << country.distinct << ' ' << country.name_bytes << ' '
                 << country.note_bytes << '\n';
         }
         if (!out) throw std::runtime_error("output write failed");

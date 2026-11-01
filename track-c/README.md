@@ -12,8 +12,10 @@ retain trailing spaces; the two empty encodings decode to the same string.
 Notes are counted while scanning without materializing their text.
 
 A dense uint16 region table maps known IDs to dynamically discovered country
-IDs. Holes and above-range IDs map to `_UNMATCHED`. Each country maintains an
-exact string set, 64-bit totals, and min/max initialized from integer extremes.
+IDs. Holes and above-range IDs map to `_UNMATCHED`. Decoded names are interned
+globally with exact string equality. Each country uses a dynamically sized bitset
+of those IDs to count distinct names, plus 64-bit totals and min/max initialized
+from integer extremes. The bitsets represent exact name IDs rather than hashes.
 Money uses integer cents throughout, including negative fractional amounts.
 Hash collisions use exact string equality. Countries without records are omitted.
 
@@ -22,6 +24,7 @@ libstdc++ and libgcc for runtime compatibility. Final container checks and
 official scoring are tracked in ../STATUS.md. The harness treats the declared
 D=1 as unverified; no official S measurement is claimed.
 
-With another 24 hours: profile name-set allocation, compare global exact name
-interning and per-country bitsets, then measure parallel parsing with proven
-quote-aware record boundaries. The baseline uses one worker and no chunk splits.
+With another 24 hours: profile the remaining scanning and hashing costs, then
+measure parallel parsing with proven quote-aware record boundaries. The selected
+implementation uses one worker and no chunk splits, so there is no assumption
+that physical newlines identify records.

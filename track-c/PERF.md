@@ -16,3 +16,20 @@ Small rule fixtures pass ASan/UBSan. Five ARM64 native full samples:
 4.511893, 4.764031, 4.183076, 3.323238, 2.572642 s; peak wait4 RSS 403,685,376 B.
 The large spread overlaps image preparation; no controlled optimization claim
 is based on these samples. Compiler: Apple Clang 17, C++20, O3, NDEBUG, pthread.
+
+## C1 retained — global exact name IDs and country bitsets
+
+Diagnostic lookup time was 0.0135 s versus 3.0318 s for parsing/aggregation.
+Hypothesis: replacing per-country string nodes with globally interned names and
+exact country membership bits reduces allocation and random node access.
+Controlled alternating comparison against cc0f0e3 on the same full seed 1,
+compiler and flags: local middle-three mean 3.056656 s → 1.126529 s;
+max process RSS 405,258,240 → 219,250,688 bytes. All ten timed outputs match.
+Raw samples, both source digests and exact commands: `comparisons.jsonl` in
+`benchmarks/track-c/`. These are native ARM64 results; official memory and K are
+unknown. The mapping contributes to RSS, so this is not an estimate of cgroup M.
+
+The candidate passes all worked/rule/header-only fixtures, ASan/UBSan on small
+fixtures, tiny seeds 2/3/42 and full seeds 1/7 against unchanged references.
+Full seed 7 output: `da8b48aef3c54504a45cd4a8952916f4968ff5319a35fe2664e57b30655043db`.
+The preserved scalar baseline also passed sample seeds 2/3/42 and full seed 7.

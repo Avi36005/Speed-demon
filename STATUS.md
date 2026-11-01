@@ -13,3 +13,9 @@ Started 2026-11-01 13:03 UTC (18:33 IST). Freeze: 2026-11-02 15:00 UTC.
 - Track A baseline preserved at 886e42b. Track C baseline being archived.
 - Current work: Track B query-driven baseline and regression matrix. Docker engine started; pinned amd64 bases downloading.
 - Next command: `python3.13 tools/dev.py a --data ../data/track-a/tiny-seed1 --label tiny-seed1`
+
+All A/C/B baselines match published full hashes and untouched references.
+A/C five-run amd64 emulated sandbox checks pass; builds 8.37/9.33 s, images ~30 MB.
+Official cgroup memory/board evidence remains unavailable. B baseline is being archived.
+Additional sample seeds 2/3/42 and full seed 7 for A/C running serially.
+Current experiment: phase profiles to guide allocation and query representation changes.

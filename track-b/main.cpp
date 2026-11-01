@@ -1,0 +1,174 @@
+#include <algorithm>
+#include <cstdint>
+#include <fcntl.h>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+#include <numeric>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <unordered_map>
+#include <vector>
+
+struct Input {
+    const char* data = "";
+    size_t size = 0;
+    explicit Input(const std::string& path) {
+        int fd = open(path.c_str(), O_RDONLY);
+        if (fd < 0) throw std::runtime_error("cannot open " + path);
+        struct stat st{};
+        if (fstat(fd, &st) != 0) { close(fd); throw std::runtime_error("fstat failed"); }
+        size = static_cast<size_t>(st.st_size);
+        if (size) {
+            void* mapping = mmap(nullptr, size, PROT_READ, MAP_PRIVATE, fd, 0);
+            close(fd);
+            if (mapping == MAP_FAILED) throw std::runtime_error("mmap failed");
+            data = static_cast<const char*>(mapping);
+        } else close(fd);
+    }
+    ~Input() { if (size) munmap(const_cast<char*>(data), size); }
+    Input(const Input&) = delete;
+    Input& operator=(const Input&) = delete;
+};
+
+template<class Callback>
+void tokenize(std::string_view text, Callback callback) {
+    char token[32];  // frozen maximum token length, in bytes
+    size_t length = 0;
+    for (unsigned char byte : text) {
+        if (byte >= 'A' && byte <= 'Z') byte += 'a' - 'A';
+        if ((byte >= 'a' && byte <= 'z') || (byte >= '0' && byte <= '9')) {
+            token[length++] = static_cast<char>(byte);
+        } else if (length) {
+            callback(std::string_view(token, length));
+            length = 0;
+        }
+    }
+    if (length) callback(std::string_view(token, length));
+}
+
+struct Query {
+    bool phrase;
+    std::vector<uint32_t> terms;
+    std::vector<char> ops;
+};
+
+using Vocabulary = std::unordered_map<std::string_view, uint32_t>;
+using Posting = std::vector<uint32_t>;
+
+bool phrase_matches(std::string_view text, const Query& query, const Vocabulary& vocabulary) {
+    Posting sequence;
+    tokenize(text, [&](std::string_view token) {
+        auto it = vocabulary.find(token);
+        // Unneeded tokens must still occupy positions: dropping one would invent adjacency.
+        sequence.push_back(it == vocabulary.end() ? UINT32_MAX : it->second);
+    });
+    return std::search(sequence.begin(), sequence.end(), query.terms.begin(), query.terms.end())
+           != sequence.end();
+}
+
+Posting evaluate(const Query& query, const std::vector<Posting>& index,
+                 const std::vector<std::string_view>& documents, const Vocabulary& vocabulary) {
+    if (query.phrase) {
+        auto anchor = *std::min_element(query.terms.begin(), query.terms.end(), [&](auto a, auto b) {
+            return index[a].size() < index[b].size();
+        });
+        Posting result;
+        for (auto doc : index[anchor]) {
+            bool present = true;
+            for (auto term : query.terms) {
+                if (!std::binary_search(index[term].begin(), index[term].end(), doc)) {
+                    present = false;
+                    break;
+                }
+            }
+            if (present && phrase_matches(documents[doc], query, vocabulary)) result.push_back(doc);
+        }
+        return result;
+    }
+    Posting result = index[query.terms[0]], next;
+    for (size_t i = 0; i < query.ops.size(); ++i) {
+        const auto& rhs = index[query.terms[i + 1]];
+        next.clear();
+        if (query.ops[i] == 'A')
+            std::set_intersection(result.begin(), result.end(), rhs.begin(), rhs.end(), std::back_inserter(next));
+        else if (query.ops[i] == 'O')
+            std::set_union(result.begin(), result.end(), rhs.begin(), rhs.end(), std::back_inserter(next));
+        else
+            std::set_difference(result.begin(), result.end(), rhs.begin(), rhs.end(), std::back_inserter(next));
+        result.swap(next);
+    }
+    return result;
+}
+
+int main(int argc, char** argv) {
+    try {
+        std::string data_dir = "/data", out_dir = "/out";
+        for (int i = 1; i < argc; ++i) {
+            std::string arg = argv[i];
+            if (i + 1 < argc && arg == "--data") data_dir = argv[++i];
+            else if (i + 1 < argc && arg == "--out") out_dir = argv[++i];
+            else throw std::runtime_error("usage: solution [--data DIR] [--out DIR]");
+        }
+        Input query_file(data_dir + "/queries.txt");
+        Vocabulary vocabulary;
+        std::vector<Query> queries;
+        const char* p = query_file.data;
+        const char* end = p + query_file.size;
+        while (p < end) {
+            const char* start = p;
+            while (*p != '\n') ++p;
+            std::string_view line(start, p++ - start);
+            Query query{line.starts_with("PHRASE"), {}, {}};
+            auto words = query.phrase ? line.substr(8, line.size() - 9) : line.substr(5);
+            bool term = true;
+            while (!words.empty()) {
+                size_t split = words.find(' ');
+                auto word = words.substr(0, split);
+                if (term) {
+                    auto [it, inserted] = vocabulary.try_emplace(word, static_cast<uint32_t>(vocabulary.size()));
+                    query.terms.push_back(it->second);
+                } else query.ops.push_back(word[0]);
+                if (!query.phrase) term = !term;
+                if (split == std::string_view::npos) break;
+                words.remove_prefix(split + 1);
+            }
+            queries.push_back(std::move(query));
+        }
+        std::vector<Posting> index(vocabulary.size());
+        Input corpus(data_dir + "/docs.txt");
+        std::vector<std::string_view> documents;
+        p = corpus.data;
+        end = p + corpus.size;
+        while (p < end) {
+            while (*p++ != '\t') {}  // ids are dense and ascending
+            const char* start = p;
+            while (*p != '\n') ++p;
+            std::string_view text(start, p++ - start);
+            uint32_t doc = static_cast<uint32_t>(documents.size());
+            documents.push_back(text);
+            tokenize(text, [&](std::string_view token) {
+                auto it = vocabulary.find(token);
+                if (it == vocabulary.end()) return;
+                auto& posting = index[it->second];
+                if (posting.empty() || posting.back() != doc) posting.push_back(doc);
+            });
+        }
+        std::ofstream out(out_dir + "/results.txt", std::ios::binary);
+        for (const auto& query : queries) {
+            Posting result = evaluate(query, index, documents, vocabulary);
+            uint64_t sum = std::accumulate(result.begin(), result.end(), uint64_t{0});
+            out << result.size() << ' ' << sum;
+            for (size_t i = 0; i < std::min(size_t{10}, result.size()); ++i) out << ' ' << result[i];
+            out << '\n';
+        }
+        if (!out) throw std::runtime_error("output write failed");
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << '\n';
+        return 1;
+    }
+}

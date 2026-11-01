@@ -9,5 +9,7 @@ Started 2026-11-01 13:03 UTC (18:33 IST). Freeze: 2026-11-02 15:00 UTC.
 - Confirmed team name: Kryptonite. Entrant GitHub URL unknown. Registration/app/form/account state unknown.
 - Official checkouts unchanged; public input provenance in `../docs/download-verification.json`.
 - Track A exact public full hash, tiny/sample, worked/edge/targeted/empty checks passed. ASan/UBSan small checks passed. First timing attempt failed due to sandbox sysctl; rerunning with wait4.
-- Current work: Track C scalar parser baseline; Docker engine started, preparing pinned images.
+- Track C public full/reference, tiny/sample and worked/rule/header-only checks pass; small sanitizer checks pass.
+- Track A baseline preserved at 886e42b. Track C baseline being archived.
+- Current work: Track B query-driven baseline and regression matrix. Docker engine started; pinned amd64 bases downloading.
 - Next command: `python3.13 tools/dev.py a --data ../data/track-a/tiny-seed1 --label tiny-seed1`

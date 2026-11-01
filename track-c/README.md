@@ -1,0 +1,27 @@
+# Track C — exact CSV join
+
+C++20 with zero third-party runtime dependencies. Read `/data/records.csv` and
+`/data/regions.csv`; write `/out/aggregates.txt`. Native checks support
+`--data DIR --out DIR`. MIT; see ../LICENSE.
+
+The scalar parser consumes a whole quoted field before interpreting record
+terminators. Escaped quote pairs count as one decoded byte. A BOM is skipped
+only at the start of a record, so embedded BOMs and LFs remain field data.
+Both LF and CRLF and an unterminated final record are supported. Name strings
+retain trailing spaces; the two empty encodings decode to the same string.
+Notes are counted while scanning without materializing their text.
+
+A dense uint16 region table maps known IDs to dynamically discovered country
+IDs. Holes and above-range IDs map to `_UNMATCHED`. Each country maintains an
+exact string set, 64-bit totals, and min/max initialized from integer extremes.
+Money uses integer cents throughout, including negative fractional amounts.
+Hash collisions use exact string equality. Countries without records are omitted.
+
+The Dockerfile uses pinned allowlisted GCC 15 and Debian 13, statically linking
+libstdc++ and libgcc for runtime compatibility. Final container checks and
+official scoring are tracked in ../STATUS.md. The harness treats the declared
+D=1 as unverified; no official S measurement is claimed.
+
+With another 24 hours: profile name-set allocation, compare global exact name
+interning and per-country bitsets, then measure parallel parsing with proven
+quote-aware record boundaries. The baseline uses one worker and no chunk splits.

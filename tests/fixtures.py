@@ -47,8 +47,36 @@ def make_c():
     return cases
 
 
+def make_b():
+    mod = load("b", "b_index")
+    cases = {"worked": (mod.EXAMPLE_DOCS, mod.EXAMPLE_QUERIES)}
+    class Capture(mod.EdgeCases):
+        def check(self, texts, checks):
+            cases[self.label] = (mod.docs_file(texts), "".join(q + "\n" for q, _ in checks).encode())
+    capture = Capture()
+    for method in dir(mod.EdgeCases):
+        if method.startswith("test_"):
+            capture.label = method[5:]
+            getattr(capture, method)()
+    # Exercise revival after an empty intermediate, duplicates, maximal length
+    # tokens, a real gap between phrase terms, and an ID sum exceeding uint32.
+    cases["targeted"] = (
+        mod.docs_file(["a", "b", "x x x x x x x x", "a gap b", "z"*32, ""]),
+        b'BOOL missing AND a OR b\nBOOL a NOT a OR b\nBOOL a NOT a OR b\n'
+        b'PHRASE "x x x x x x x x"\nPHRASE "a b"\nBOOL ' + b'z'*32 + b'\n')
+    cases["wide-sum"] = (mod.docs_file(["common"]*100000), b"BOOL common\nBOOL common NOT missing\n")
+    for label, (docs, queries) in cases.items():
+        data = SUB / ".work/fixtures/b" / label
+        data.mkdir(parents=True, exist_ok=True)
+        (data / "docs.txt").write_bytes(docs)
+        (data / "queries.txt").write_bytes(queries)
+    return cases
+
+
 if __name__ == "__main__":
     if sys.argv[1] == "a":
         print(list(make_a()))
     elif sys.argv[1] == "c":
         print(list(make_c()))
+    elif sys.argv[1] == "b":
+        print(list(make_b()))

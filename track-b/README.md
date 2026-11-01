@@ -28,7 +28,11 @@ tokens can cross blocks, including the 32-byte limit; no block reads past its
 document view. ASCII A–Z alone are lowercased, ASCII letters/digits form tokens,
 every other byte separates. Stopwords and zero-padded numbers retain their literal identity.
 
-Sorted results give count, a 64-bit full ID sum, and the ten smallest IDs.
+Sparse/phrase results accumulate exact counts and 64-bit ID sums. Dense final
+bitmaps are summarized directly: popcounts give counts, six bit-position masks
+sum IDs exactly, and only the ten smallest IDs are enumerated. The x86 summary
+function enables POPCNT, available on the published Intel scoring CPU; ARM uses
+its normal C++20 popcount implementation.
 Input-backed keys and document views live as long as their mappings. Hash
 collisions compare actual term bytes. All index work happens in the timed run.
 Six workers build the index, then independently claim small query batches over

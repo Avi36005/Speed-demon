@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <bit>
 #include <cstdint>
@@ -166,7 +167,45 @@ bool phrase_matches(std::string_view text, const Query& query, const Vocabulary&
     return found;
 }
 
-Posting evaluate(const Query& query, const std::vector<Posting>& index,
+struct Summary {
+    uint64_t count = 0, sum = 0;
+    std::array<uint32_t, 10> first{};
+    void add(uint32_t id) {
+        if (count < first.size()) first[count] = id;
+        ++count;
+        sum += id;
+    }
+};
+
+#if defined(__x86_64__)
+__attribute__((target("popcnt")))
+#endif
+Summary summarize_bits(const std::vector<uint64_t>& bitmap) {
+    Summary result;
+    for (size_t word = 0; word < bitmap.size(); ++word) {
+        uint64_t bits = bitmap[word];
+        uint64_t count = std::popcount(bits);
+        // The six masks sum the six binary digits of every set-bit position.
+        // This computes exact id sums without materializing a dense posting.
+        result.sum += word * 64 * count;
+        result.sum += std::popcount(bits & 0xaaaaaaaaaaaaaaaaULL);
+        result.sum += 2ULL * std::popcount(bits & 0xccccccccccccccccULL);
+        result.sum += 4ULL * std::popcount(bits & 0xf0f0f0f0f0f0f0f0ULL);
+        result.sum += 8ULL * std::popcount(bits & 0xff00ff00ff00ff00ULL);
+        result.sum += 16ULL * std::popcount(bits & 0xffff0000ffff0000ULL);
+        result.sum += 32ULL * std::popcount(bits & 0xffffffff00000000ULL);
+        uint64_t ids = bits;
+        size_t first = std::min(result.count, uint64_t{10});
+        while (ids && first < result.first.size()) {
+            result.first[first++] = static_cast<uint32_t>(word * 64 + std::countr_zero(ids));
+            ids &= ids - 1;
+        }
+        result.count += count;
+    }
+    return result;
+}
+
+Summary evaluate(const Query& query, const std::vector<Posting>& index,
                  const std::vector<std::string_view>& documents, const Vocabulary& vocabulary,
                  const std::vector<std::vector<uint64_t>>& bitmaps,
                  const std::vector<uint32_t>& frequencies) {
@@ -174,7 +213,7 @@ Posting evaluate(const Query& query, const std::vector<Posting>& index,
         auto anchor = *std::min_element(query.terms.begin(), query.terms.end(), [&](auto a, auto b) {
             return frequencies[a] < frequencies[b];
         });
-        Posting result;
+        Summary result;
         auto consider = [&](uint32_t doc) {
             for (auto term : query.terms) {
                 const auto& bits = bitmaps[term];
@@ -183,7 +222,7 @@ Posting evaluate(const Query& query, const std::vector<Posting>& index,
                     : ((bits[doc / 64] >> (doc % 64)) & 1) != 0;
                 if (!present) return;
             }
-            if (phrase_matches(documents[doc], query, vocabulary)) result.push_back(doc);
+            if (phrase_matches(documents[doc], query, vocabulary)) result.add(doc);
         };
         if (bitmaps[anchor].empty()) {
             for (auto doc : index[anchor]) consider(doc);
@@ -259,17 +298,10 @@ Posting evaluate(const Query& query, const std::vector<Posting>& index,
         result.swap(next);
         if (result.size() > threshold) make_dense();
     }
-    if (dense) {
-        result.clear();
-        for (size_t w = 0; w < bits.size(); ++w) {
-            uint64_t value = bits[w];
-            while (value) {
-                result.push_back(static_cast<uint32_t>(w * 64 + std::countr_zero(value)));
-                value &= value - 1;
-            }
-        }
-    }
-    return result;
+    if (dense) return summarize_bits(bits);
+    Summary summary;
+    for (uint32_t id : result) summary.add(id);
+    return summary;
 }
 
 int main(int argc, char** argv) {
@@ -426,12 +458,11 @@ int main(int argc, char** argv) {
                 size_t first = next_query.fetch_add(16, std::memory_order_relaxed);
                 if (first >= queries.size()) break;
                 for (size_t q = first; q < std::min(first + 16, queries.size()); ++q) {
-                    Posting result = evaluate(queries[q], index, documents, vocabulary, bitmaps, frequencies);
-                    uint64_t sum = std::accumulate(result.begin(), result.end(), uint64_t{0});
+                    Summary result = evaluate(queries[q], index, documents, vocabulary, bitmaps, frequencies);
                     auto& answer = answers[q];
-                    answer = std::to_string(result.size()) + ' ' + std::to_string(sum);
-                    for (size_t i = 0; i < std::min(size_t{10}, result.size()); ++i)
-                        answer += ' ' + std::to_string(result[i]);
+                    answer = std::to_string(result.count) + ' ' + std::to_string(result.sum);
+                    for (size_t i = 0; i < std::min(uint64_t{10}, result.count); ++i)
+                        answer += ' ' + std::to_string(result.first[i]);
                     answer += '\n';
                 }
             }

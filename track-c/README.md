@@ -16,22 +16,27 @@ A dense region lookup maps known IDs to discovered country IDs and holes or
 above-range IDs to `_UNMATCHED`. Each worker owns numeric country aggregates
 with 64-bit counts/sums and integer cents, including negative fractions.
 
-Decoded names are owned once in an exact table partitioned across independent
-locks. Fingerprints only filter probes; complete string equality resolves
-collisions. A name's country-membership bits are protected by its shard lock.
-Exactly the first insertion of each name/country pair increments one worker's
-private distinct count; joining and summing the private counts is therefore
-exact across workers. Membership stride follows the actual country count.
-No replicated name-pool translation or global distinct-count approximation is
-used. All table construction and queries run inside the timed process.
+Decoded names are copied into private parser arenas and published in one
+shared exact table. Immutable entries and keys remain alive until all threads
+join. Atomic bucket slots use release/acquire publication; full byte equality
+resolves hash collisions. Buckets have monotonic overflow chains, so name count
+is not capped by the initial root-table allocation.
+
+Country-membership bits only change from zero to one. Exactly the first atomic
+fetch-or for a name/country pair increments a worker's private distinct count;
+joining and summing those counts is exact. Membership stride follows the actual
+country count. No name pool, country catalogue or public answer table is
+compiled in. Construction, parsing and lookup run inside the timed process.
 
 GCC 15 and Debian 13 are pinned to allowed digests; builds are offline and C++
-runtime libraries link statically. The current candidate passes native hostile
-grammar/sanitizer/fresh-seed checks and three exact restricted amd64 public
-container runs. These local runs are ARM-host emulation. Official T/M/S/K and
-real run IDs are in PERF.md for each recorded commit.
+runtime libraries link statically. This arena/publication trial passes native
+hostile grammar and full-seed7 checks, twelve-worker native and x86 sanitizer
+fixtures, forced overflow contention, a clean offline amd64 build, five exact
+public-full sandbox runs and independent full7. Docker runs here use ARM-host
+emulation. Actual scoring-box effect remains pending; see PERF.md for real run
+IDs and all earlier source versions.
 
-The shared-table version is a measured memory/time tradeoff trial: it is slower
-locally than replicated private tables but uses substantially less process RSS.
-The real cgroup-memory score must decide whether it stays. Next: profile lock
-traffic and numeric parsing, then select workers on the scoring machine.
+Next: compare synchronization and numeric parsing costs on the scoring CPU.
+Arena storage trades the original per-name allocation/destruction overhead for
+bulk lifetime management. The previous sharded implementation remains in git
+for direct time/memory/source comparisons and recovery.

@@ -1,0 +1,151 @@
+{
+  "utc": "2026-11-01T19:56:23.493644+00:00",
+  "scope": "verified candidate for an official public-board experiment, not final92 handoff",
+  "parent_board_commit": "f95f20526f97cb3f0d59ce38a730540aba614e23",
+  "target_achieved": false,
+  "tracks": {
+    "a": {
+      "build_inputs_sha256": {
+        "a_ingest.py": "d82b43b8f617016808f85cbe9be86af1fee8466296a0848ab8e6908ee3c4b0b4",
+        "Dockerfile": "11435202a739b9f7a57a7c82b21cef8e95a70f1e99059337912f6f6c21845a1f",
+        ".speed-demon.toml": "b2b684e6fff97846ada04662eb0f8850b7786039925e30cdb1a8c010ea501564",
+        "main.cpp": "187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade"
+      },
+      "container_artifacts": [
+        ".work/containers/a-80d30e99bf",
+        ".work/containers/a-fe64ea8a0f"
+      ],
+      "static_axes": "benchmarks/track-a/static-round6.json",
+      "official_effect": "pending for A13/B11/C9, D3 unchanged"
+    },
+    "b": {
+      "build_inputs_sha256": {
+        "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+        ".speed-demon.toml": "625871dfe8f3cc66517f22cfc910583968e36f3a958e562dda4d831366dbddea",
+        "main.cpp": "75c672d83881197badeb0b42942e6e768e620b25b78d0a7fefcde47de9e3aada"
+      },
+      "container_artifacts": [
+        ".work/containers/b-00cdbc0462",
+        ".work/containers/b-cee6db5583"
+      ],
+      "static_axes": "benchmarks/track-b/static-round5.json",
+      "official_effect": "pending for A13/B11/C9, D3 unchanged"
+    },
+    "c": {
+      "build_inputs_sha256": {
+        "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+        ".speed-demon.toml": "82561d3cf9545bb00643eeefd7b29b1fb3e4c636831858ac1eac013927e94ad8",
+        "main.cpp": "1a73ea5c2e86dbb209cd8a6bb51caa2614ea5eaa54163cfb5bbcc5a2fe100b3f"
+      },
+      "container_artifacts": [
+        ".work/containers/c-500ece2446",
+        ".work/containers/c-3ca610565e"
+      ],
+      "static_axes": "benchmarks/track-c/static-round5.json",
+      "official_effect": "pending for A13/B11/C9, D3 unchanged"
+    },
+    "d": {
+      "build_inputs_sha256": {
+        "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+        ".speed-demon.toml": "4d9ffc87eddf41682b837f8bc3ef497ef008685ff322662a4f67ccd5442e624f",
+        "main.cpp": "10d03e6f17ee6df7f44e11816f767b8daf8f37e73873c2e9c267e4eb41d1332a"
+      },
+      "container_artifacts": [
+        ".work/containers/d-e845297277",
+        ".work/containers/d-638e3df206"
+      ],
+      "static_axes": "benchmarks/track-d/static-round4.json",
+      "official_effect": "pending for A13/B11/C9, D3 unchanged"
+    }
+  },
+  "native_matrix": {
+    "utc": "2026-11-01T19:54:59.020436+00:00",
+    "passed": true,
+    "sources": {
+      "a": "187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade",
+      "c": "1a73ea5c2e86dbb209cd8a6bb51caa2614ea5eaa54163cfb5bbcc5a2fe100b3f",
+      "b": "75c672d83881197badeb0b42942e6e768e620b25b78d0a7fefcde47de9e3aada",
+      "d": "10d03e6f17ee6df7f44e11816f767b8daf8f37e73873c2e9c267e4eb41d1332a"
+    },
+    "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)\nTarget: arm64-apple-darwin24.6.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin",
+    "commands": [
+      {
+        "argv": [
+          "/opt/homebrew/opt/python@3.13/bin/python3.13",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/tools/dev.py",
+          "a",
+          "--data",
+          "/Users/avinashgehi3/projects/Speed Demon/data/track-a/tiny-seed1",
+          "--label",
+          "tiny-seed1",
+          "--reuse-reference"
+        ],
+        "exit": 0,
+        "stdout": "{\n  \"utc\": \"2026-11-01T19:54:53.166573+00:00\",\n  \"track\": \"a\",\n  \"dataset\": \"tiny-seed1\",\n  \"data\": \"/Users/avinashgehi3/projects/Speed Demon/data/track-a/tiny-seed1\",\n  \"architecture\": \"arm64\",\n  \"platform\": \"macOS-15.8.2-arm64-arm-64bit-Mach-O\",\n  \"source_sha256\": \"187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade\",\n  \"compiled_source\": \"/Users/avinashgehi3/projects/Speed Demon/submission/track-a/main.cpp\",\n  \"working_source_sha256\": \"187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade\",\n  \"workers\": 12,\n  \"requested_workers\": null,\n  \"board_run_id\": null,\n  \"official\": false,\n  \"artifact_dir\": \".work/track-a/2026-11-01T19_54_53.166573_00_00-tiny-seed1\",\n  \"time_samples_s\": [],\n  \"memory_method\": null,\n  \"peak_rss_bytes\": null,\n  \"compiler\": \"Apple clang version 17.0.0 (clang-1700.0.13.5)\\nTarget: arm64-apple-darwin24.6.0\\nThread model: posix\\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\",\n  \"flags\": [\n    \"-std=c++20\",\n    \"-pthread\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Wpedantic\",\n    \"-O3\",\n    \"-DNDEBUG\"\n  ],\n  \"binary_sha256\": \"4195c5a21b459b78dae6cb05173b87dbf35dca0cc81cfe666ef3fed67586142d\",\n  \"reference_provenance\": {\n    \"mode\": \"reused exact untouched-reference output\",\n    \"prior_record_utc\": \"2026-11-01T14:20:45.006097+00:00\",\n    \"prior_record_sha256\": \"c75753830c2c9adb1929d7467d3d3f883d755fcdb58f8ae62a0a4f41b1b21e0e\",\n    \"reference_command\": {\n      \"argv\": [\n        \"/opt/homebrew/opt/python@3.13/bin/python3.13\",\n        \"/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/reference/a_ingest.py\",\n        \"--data\",\n        \"/Users/avinashgehi3/projects/Speed Demon/data/track-a/tiny-seed1\",\n        \"--out\",\n        \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/track-a/2026-11-01T14_20_45.006097_00_00-tiny-seed1/reference\"\n      ],\n      \"exit\": 0,\n      \"stdout\": \"\",\n      \"stderr\": \"\"\n    },\n    \"reference_output\": \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/track-a/2026-11-01T14_20_45.006097_00_00-tiny-seed1/reference/summary.txt\",\n    \"inputs_sha256_match\": true\n  },\n  \"output_sha256\": \"c24fa507c963eaeac9224fd8435019b4f4e8c002ece7e32f316681a3957eb92f\",\n  \"expected_sha256\": \"c24fa507c963eaeac9224fd8435019b4f4e8c002ece7e32f316681a3957eb92f\",\n  \"correctness_passed\": true,\n  \"passed\": true\n}\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "/opt/homebrew/opt/python@3.13/bin/python3.13",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/tools/dev.py",
+          "a",
+          "--data",
+          "/Users/avinashgehi3/projects/Speed Demon/data/track-a/sample-seed1",
+          "--label",
+          "sample-seed1",
+          "--reuse-reference"
+        ],
+        "exit": 0,
+        "stdout": "{\n  \"utc\": \"2026-11-01T19:54:54.074943+00:00\",\n  \"track\": \"a\",\n  \"dataset\": \"sample-seed1\",\n  \"data\": \"/Users/avinashgehi3/projects/Speed Demon/data/track-a/sample-seed1\",\n  \"architecture\": \"arm64\",\n  \"platform\": \"macOS-15.8.2-arm64-arm-64bit-Mach-O\",\n  \"source_sha256\": \"187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade\",\n  \"compiled_source\": \"/Users/avinashgehi3/projects/Speed Demon/submission/track-a/main.cpp\",\n  \"working_source_sha256\": \"187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade\",\n  \"workers\": 12,\n  \"requested_workers\": null,\n  \"board_run_id\": null,\n  \"official\": false,\n  \"artifact_dir\": \".work/track-a/2026-11-01T19_54_54.074943_00_00-sample-seed1\",\n  \"time_samples_s\": [],\n  \"memory_method\": null,\n  \"peak_rss_bytes\": null,\n  \"compiler\": \"Apple clang version 17.0.0 (clang-1700.0.13.5)\\nTarget: arm64-apple-darwin24.6.0\\nThread model: posix\\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\",\n  \"flags\": [\n    \"-std=c++20\",\n    \"-pthread\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Wpedantic\",\n    \"-O3\",\n    \"-DNDEBUG\"\n  ],\n  \"binary_sha256\": \"4195c5a21b459b78dae6cb05173b87dbf35dca0cc81cfe666ef3fed67586142d\",\n  \"reference_provenance\": {\n    \"mode\": \"reused exact untouched-reference output\",\n    \"prior_record_utc\": \"2026-11-01T14:20:47.358877+00:00\",\n    \"prior_record_sha256\": \"ba6639199ea900e2edea4440ada5fb38b570b80befbb593db59ea6aaf97f3863\",\n    \"reference_command\": {\n      \"argv\": [\n        \"/opt/homebrew/opt/python@3.13/bin/python3.13\",\n        \"/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/reference/a_ingest.py\",\n        \"--data\",\n        \"/Users/avinashgehi3/projects/Speed Demon/data/track-a/sample-seed1\",\n        \"--out\",\n        \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/track-a/2026-11-01T14_20_47.358877_00_00-sample-seed1/reference\"\n      ],\n      \"exit\": 0,\n      \"stdout\": \"\",\n      \"stderr\": \"\"\n    },\n    \"reference_output\": \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/track-a/2026-11-01T14_20_47.358877_00_00-sample-seed1/reference/summary.txt\",\n    \"inputs_sha256_match\": true\n  },\n  \"output_sha256\": \"ca6311bbeb536fa55d85265bf6fd3d24cc9586f13de1ac73bd2a23ac3893aac3\",\n  \"expected_sha256\": \"ca6311bbeb536fa55d85265bf6fd3d24cc9586f13de1ac73bd2a23ac3893aac3\",\n  \"correctness_passed\": true,\n  \"passed\": true\n}\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "/opt/homebrew/opt/python@3.13/bin/python3.13",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/tools/dev.py",
+          "a",
+          "--data",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-a/sample-seed2",
+          "--label",
+          "sample-seed2",
+          "--reuse-reference"
+        ],
+        "exit": 0,
+        "stdout": "{\n  \"utc\": \"2026-11-01T19:54:54.986642+00:00\",\n  \"track\": \"a\",\n  \"dataset\": \"sample-seed2\",\n  \"data\": \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-a/sample-seed2\",\n  \"architecture\": \"arm64\",\n  \"platform\": \"macOS-15.8.2-arm64-arm-64bit-Mach-O\",\n  \"source_sha256\": \"187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade\",\n  \"compiled_source\": \"/Users/avinashgehi3/projects/Speed Demon/submission/track-a/main.cpp\",\n  \"working_source_sha256\": \"187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade\",\n  \"workers\": 12,\n  \"requested_workers\": null,\n  \"board_run_id\": null,\n  \"official\": false,\n  \"artifact_dir\": \".work/track-a/2026-11-01T19_54_54.986642_00_00-sample-seed2\",\n  \"time_samples_s\": [],\n  \"memory_method\": null,\n  \"peak_rss_bytes\": null,\n  \"compiler\": \"Apple clang version 17.0.0 (clang-1700.0.13.5)\\nTarget: arm64-apple-darwin24.6.0\\nThread model: posix\\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\",\n  \"flags\": [\n    \"-std=c++20\",\n    \"-pthread\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Wpedantic\",\n    \"-O3\",\n    \"-DNDEBUG\"\n  ],\n  \"binary_sha256\": \"4195c5a21b459b78dae6cb05173b87dbf35dca0cc81cfe666ef3fed67586142d\",\n  \"reference_provenance\": {\n    \"mode\": \"reused exact untouched-reference output\",\n    \"prior_record_utc\": \"2026-11-01T13:28:31.798888+00:00\",\n    \"prior_record_sha256\": \"3cff9276745ec59bbbedf9fa532c4ab666ccc18b5eac8d285a31e19e2d9a3ad3\",\n    \"reference_command\": {\n      \"argv\": [\n        \"/opt/homebrew/opt/python@3.13/bin/python3.13\",\n        \"/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/reference/a_ingest.py\",\n        \"--data\",\n        \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-a/sample-seed2\",\n        \"--out\",\n        \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/track-a/2026-11-01T13_28_31.798888_00_00-sample-seed2/reference\"\n      ],\n      \"exit\": 0,\n      \"stdout\": \"\",\n      \"stderr\": \"\"\n    },\n    \"reference_output\": \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/track-a/2026-11-01T13_28_31.798888_00_00-sample-seed2/reference/summary.txt\",\n    \"inputs_sha256_match\": true\n  },\n  \"output_sha256\": \"fd26778fa5e70fac2905a0a0f0142bd26ca4e6f510dfe182a881e525286ff12f\",\n  \"expected_sha256\": \"fd26778fa5e70fac2905a0a0f0142bd26ca4e6f510dfe182a881e525286ff12f\",\n  \"correctness_passed\": true,\n  \"passed\": true\n}\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "/opt/homebrew/opt/python@3.13/bin/python3.13",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/tools/dev.py",
+          "a",
+          "--data",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-a/sample-seed3",
+          "--label",
+          "sample-seed3",
+          "--reuse-reference"
+        ],
+        "exit": 0,
+        "stdout": "{\n  \"utc\": \"2026-11-01T19:54:55.895396+00:00\",\n  \"track\": \"a\",\n  \"dataset\": \"sample-seed3\",\n  \"data\": \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-a/sample-seed3\",\n  \"architecture\": \"arm64\",\n  \"platform\": \"macOS-15.8.2-arm64-arm-64bit-Mach-O\",\n  \"source_sha256\": \"187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade\",\n  \"compiled_source\": \"/Users/avinashgehi3/projects/Speed Demon/submission/track-a/main.cpp\",\n  \"working_source_sha256\": \"187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade\",\n  \"workers\": 12,\n  \"requested_workers\": null,\n  \"board_run_id\": null,\n  \"official\": false,\n  \"artifact_dir\": \".work/track-a/2026-11-01T19_54_55.895396_00_00-sample-seed3\",\n  \"time_samples_s\": [],\n  \"memory_method\": null,\n  \"peak_rss_bytes\": null,\n  \"compiler\": \"Apple clang version 17.0.0 (clang-1700.0.13.5)\\nTarget: arm64-apple-darwin24.6.0\\nThread model: posix\\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\",\n  \"flags\": [\n    \"-std=c++20\",\n    \"-pthread\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Wpedantic\",\n    \"-O3\",\n    \"-DNDEBUG\"\n  ],\n  \"binary_sha256\": \"4195c5a21b459b78dae6cb05173b87dbf35dca0cc81cfe666ef3fed67586142d\",\n  \"reference_provenance\": {\n    \"mode\": \"reused exact untouched-reference output\",\n    \"prior_record_utc\": \"2026-11-01T13:28:43.727811+00:00\",\n    \"prior_record_sha256\": \"c76eab886233081ff66a3c28b35d8447ad57e2875f2b53d84470ce2eb846a3e7\",\n    \"reference_command\": {\n      \"argv\": [\n        \"/opt/homebrew/opt/python@3.13/bin/python3.13\",\n        \"/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/reference/a_ingest.py\",\n        \"--data\",\n        \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-a/sample-seed3\",\n        \"--out\",\n        \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/track-a/2026-11-01T13_28_43.727811_00_00-sample-seed3/reference\"\n      ],\n      \"exit\": 0,\n      \"stdout\": \"\",\n      \"stderr\": \"\"\n    },\n    \"reference_output\": \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/track-a/2026-11-01T13_28_43.727811_00_00-sample-seed3/reference/summary.txt\",\n    \"inputs_sha256_match\": true\n  },\n  \"output_sha256\": \"db28ff42849be9f28fcc7cbac23b6c292e2c0810c054056a2bdbffe6f7321dac\",\n  \"expected_sha256\": \"db28ff42849be9f28fcc7cbac23b6c292e2c0810c054056a2bdbffe6f7321dac\",\n  \"correctness_passed\": true,\n  \"passed\": true\n}\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "/opt/homebrew/opt/python@3.13/bin/python3.13",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/tools/dev.py",
+          "a",
+          "--data",
+          "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1",
+          "--label",
+          "full-seed1",
+          "--reuse-reference",
+          "--repeat",
+          "5"
+        ],
+        "exit": 0,
+        "stdout": "{\n  \"utc\": \"2026-11-01T19:54:57.011004+00:00\",\n  \"track\": \"a\",\n  \"dataset\": \"full-seed1\",\n  \"data\": \"/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1\",\n  \"architecture\": \"arm64\",\n  \"platform\": \"macOS-15.8.2-arm64-arm-64bit-Mach-O\",\n  \"source_sha256\": \"187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade\",\n  \"compiled_source\": \"/Users/avinashgehi3/projects/Speed Demon/submission/track-a/main.cpp\",\n  \"working_source_sha256\": \"187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade\",\n  \"workers\": 12,\n  \"requested_workers\": null,\n  \"board_run_id\": null,\n  \"official\": false,\n  \"artifact_dir\": \".work/track-a/2026-11-01T19_54_57.011004_00_00-full-seed1\",\n  \"time_samples_s\": [\n    0.05244895798387006,\n    0.048114834004081786,\n    0.05213470902526751,\n    0.05256054102210328,\n    0.051342958002351224\n  ],\n  \"memory_method\": \"wait4 ru_maxrss; local process RSS, not cgroup memory\",\n  \"peak_rss_bytes\": 305020928,\n  \"compiler\": \"Apple clang version 17.0.0 (clang-1700.0.13.5)\\nTarget: arm64-apple-darwin24.6.0\\nThread model: posix\\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\",\n  \"flags\": [\n    \"-std=c++20\",\n    \"-pthread\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Wpedantic\",\n    \"-O3\",\n    \"-DNDEBUG\"\n  ],\n  \"binary_sha256\": \"4195c5a21b459b78dae6cb05173b87dbf35dca0cc81cfe666ef3fed67586142d\",\n  \"reference_provenance\": {\n    \"mode\": \"reused exact untouched-reference output\",\n    \"prior_record_utc\": \"2026-11-01T14:21:45.888063+00:00\",\n    \"prior_record_sha256\": \"677c051bdf78ea81d987653761c611bef4cdf37d055896cdf0e44fc2cce1d505\",\n    \"reference_command\": {\n      \"argv\": [\n        \"/opt/homebrew/opt/python@3.13/bin/python3.13\",\n        \"/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/reference/a_ingest.py\",\n        \"--data\",\n        \"/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1\",\n        \"--out\",\n        \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/track-a/2026-11-01T14_21_45.888063_00_00-full-seed1/reference\"\n      ],\n      \"exit\": 0,\n      \"stdout\": \"\",\n      \"stderr\": \"\"\n    },\n    \"reference_output\": \"/Users/avinashgehi3/projects/Speed Demon/submission/.work/track-a/2026-11-01T14_21_45.888063_00_00-full-seed1/reference/summary.txt\",\n    \"inputs_sha256_match\": true\n  },\n  \"output_sha256\": \"495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3\",\n  \"expected_sha256\": \"495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3\",\n  \"correctness_passed\": true,\n  \"passed\": true\n}\n",
+        "stderr": ""
+      }
+    ]
+  }
+}

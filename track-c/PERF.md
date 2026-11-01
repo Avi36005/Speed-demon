@@ -208,3 +208,13 @@ T=0.206900 s, cgroup M=16,121,856 B, S=348, D=1,
 K=13.100695, machine points=55.864717. Registered=True.
 Raw receipt `../benchmarks/board/2026-11-01T192637.287985Z.json`.
 Single public live run; final holdout/judging remain separate.
+
+### Actual board receipt — f95f205
+
+Run `run-bec25f0cbcb3`: T0.234699s, cgroup M15,962,112B, S348, D1, K12.324914, machine points54.539195; all gates passed. Receipt benchmarks/board/2026-11-01T195245.141719Z.json. Only A build inputs changed since1429e2e. A score +.229959 in one run is within observed run variation; PGO benefit remains uncertain. B/C/D changes here are run variation because their runtime inputs are identical. D remains unregistered.
+
+### Round-six candidate proof — 2026-11-01T19:56:23.493644+00:00
+
+C9 combines the independently tested C8 immutable atomic publication/country membership with private parser arenas. C8 five ARM pairs .088182 ->.081063s vsC6; C9 paired againstC8 .085414 ->.073596s. C9 RSS221,233,152B. All native fixtures/samples/full1/full7 matrix, new independently aggregated contention fixture, forced one-bucket overflow under sanitizers, x86 sanitizer fixtures, clean offline build, five sandbox full1 plus full7 pass. S390/D1. Table size is a growth heuristic with unbounded overflow, never a seed lookup/cap. Entries/key bytes/bits outlive all worker lookups. Official memory/time effect pending; C6 preserved at1429e2e.
+
+Source/build-input hashes and exact proof references: benchmarks/round6-manifest.json. Raw paired samples and commands remain in comparisons.jsonl.

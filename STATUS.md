@@ -1,14 +1,15 @@
 # Kryptonite — current checkpoint
 
-Updated 2026-11-01 19:46 UTC. Target: **92 overall live-board machine points**.
-Actual registered overall: **56.089310**. Target not achieved. The user requested
+Updated 2026-11-01 19:56 UTC. Target: **92 overall live-board machine points**.
+Registered best-per-track overall: **56.155708** (calculated geometric mean).
+Latest f95f205 run overall:55.249768; the best scores include older B/C runs. Target not achieved. The user requested
 no new file/ZIP handoff until 92 is measured. Existing project ZIP is an outdated
 historical release; do not present it as current.
 
 ## Repository and deadline
 
 - Entrant repo: https://github.com/Avi36005/Speed-demon.git, branch `speed-demon`.
-- Latest pushed/board-tested commit: `1429e2ebfbf01e46c24a09d209ee9a206df23e15`.
+- Latest pushed/board-tested commit: `f95f20526f97cb3f0d59ce38a730540aba614e23`.
 - A/B/C registered. D is implemented, passed, and scored, but registered:false.
 - Repository private at last check. MIT notice retained. No visibility change or
   new form submission performed. Do not attest to unverified registration facts.
@@ -51,42 +52,42 @@ worked/edge/sanitizer/tiny/sample1/2/3/42/full1/full7, deterministic repeats,
 worker sweeps, clean offline amd64 image builds and five restricted full-public
 container runs plus independent full7. B SSE2 also passed actual x86 sanitizer
 fixtures. Mac process RSS/emulated Docker times are never official measurements.
-New concurrent-name-membership fixture was added after that matrix; currentC6
-still needs its explicit check before refreshing final-native manifest.
+New concurrency and bitmap-summary fixtures are included in the latest candidate
+native matrix; the original1429 manifest remains immutable.
 
-## Isolated experiments (not selected yet)
+## Current candidate — round-six proof passed
 
-- `.work/pgo-a/`: exact A12 main, pinned Python build-only training stage with
-  byte-identical official a_ingest.py, generated sample seed8675309. GCC atomic
-  profile generation then strict profile use, only binary copied into Debian.
-  Clean offline image build, five full1 and one full7 sandbox runs, every small
-  fixture, tiny1/sample1/2/3/42 pass. S248/D1; generator excluded as published
-  copy, root MIT retains required notice. Training input SHA and generator SHA
-  recorded in track-a/PERF.md. Separate tag kryptonite/track-a:pgo-experiment.
-  Actual track-a now contains the verified PGO build and generator. Its clean
-  build and five full1 sandbox runs passed, with all context hashes retained in
-  benchmarks/pgo-a-trial-manifest.json. Next: commit/push the controlled trial
-  and wait for the real board result before retaining it. No x86 gain claimed.
-- `.work/candidates/c8.cpp`: immutable exact-name entries release-published in
-  monotonic overflow buckets with atomic country membership; no fixed name cap.
-  All small grammar/ASan/UBSan/sample42 at12workers pass. New high-contention
-  fixture and forced-one-bucket collision copy pass. Five alternating full1
-  runs: C6 .088182 -> C8 .081063 s (ARM); RSS218.76 ->221.18MB. Source SHA
-  8411ed03757a55c9a2381bd5df43ab9d5d99e60813e641f8dc033067db9ae201.
-  Next: full7, x86 sanitizer and clean image checks before real-box trial.
-- D3 diagnostic phase profile: graph construction .174475 s, queries .335458 s,
-  write .000240 s (instrumented ARM; output matches full1). No new D change.
-- `.work/candidates/c9.cpp` now keeps C8 lookup semantics but uses private
-  parser arenas for immutable entries/keys/membership. All fixtures plus
-  sample42 sanitizer checks pass; five pairs C8 .085414 -> C9 .073596s,
-  RSS221.17 ->221.23MB (ARM). Full7/x86/clean image proof still pending.
-- `.work/candidates/b11.cpp` summarizes dense Boolean results directly using
-  exact popcount-weighted id sums and ten-smallest extraction; all small
-  fixture checks have passed, sample42 and paired full1 comparison in progress.
+Latest pushed is now f95f20526f97cb3f0d59ce38a730540aba614e23, A12 build-time
+PGO only. Official A run-dfae251f9662 passed with .086905s/63,033,344B/S248/
+64.905010 points. Small+.229959 vspriorA remains within known run variation.
+All four gates passed. B/C/D runtime inputs were identical to1429, so their
+new measurements are run variation. Immutable receipt195245.141719Z.
 
-Rejected/unselected experiments are preserved under .work/candidates and raw
-comparisons: A4/A5, B9/B10, C7; B6 AVX2 stalled under emulation, root cause
-unproven. Do not benchmark two CPU jobs concurrently. Preserve1429 fallback.
+Working runtime changes, fully checked, pending next push:
+- A13 exact ascending nearest-rank multi-selection with offline PGO. Native
+  paired .052602 ->.049621s, S254/D1. Independent full7 five repeats pass.
+- B11 dense bitmap exact count/sum/top-ten summaries. Time inconclusive
+  .580397 ->.578411s, RSS441.04 ->420.43MB; explicit official tradeoff trial.
+  S545/D1. New bitmap-boundary/partial-word/wide-sum fixtures pass native and
+  x86 sanitizers at12workers.
+- C9 immutable exact-name atomic publication with parser arenas. Two isolated
+  mechanisms C8 thenC9 each improved ARM paired time; C9 .073596s vsC8 .085414.
+  Full7 five repeats, contention fixture, forced one-bucket overflow sanitizer
+  and x86 sanitizers pass. S390/D1. No fixed name-count limit.
+- D3 unchanged. D4 monotone radix-frontier experiment passed semantics but
+  regressed locally .493666 ->.553765s, higher RSS; rejected.
+
+All candidate A/B/C runtime digests match clean offline amd64 builds, five
+restricted full1 and one full7 sandbox runs plus a current final native matrix.
+Exact context hashes/proof references: benchmarks/round6-manifest.json.
+Next: diff review, commit/push the verified round-six trial; retain or revert
+using actual board time/memory/source points. Target92 not achieved, no newZIP.
+
+Isolated `.work/candidates/b12.cpp` tests early tokenization exit after a phrase
+match; suite/sample42 passed; five pairs .555767 ->.552742s are inconclusive. It
+remains unselected; stop this small query-microoptimization path for now.
+Prior rejected/unselected candidates remain outside track folders. Preserve
+1429 and f95f205 fallback commits. Do not benchmark two CPU jobs concurrently.
 
 ## Tooling and resumption
 

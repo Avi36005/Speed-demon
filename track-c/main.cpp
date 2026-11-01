@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <array>
 #include <functional>
-#include <mutex>
+#include <atomic>
+#include <memory>
+#include <memory_resource>
 #include <thread>
 #include <cstdint>
 #include <cstring>
@@ -119,56 +121,89 @@ struct Country {
     explicit Country(std::string key) : code(std::move(key)) {}
 };
 
-// A name/country membership is inserted under exactly one shard lock. The
-// caller adds its first-membership count to private numeric aggregates, so
-// duplicate names across parser workers are counted once without a large merge.
+// Entries are immutable after release-publication and remain alive until all
+// parser threads join. Membership bits only change from zero to one. Thus a
+// normal lookup needs no shard mutex, and exactly one fetch_or counts each pair.
 class Names {
-    struct Slot { uint32_t fingerprint = 0, id = 0; };
-    struct alignas(64) Shard {
-        std::mutex mutex;
-        std::vector<Slot> slots = std::vector<Slot>(32);
-        std::vector<std::string> keys;
-        std::vector<uint64_t> memberships;
-        size_t locate(std::string_view key, size_t hash) const {
-            size_t pos = (hash >> 8) & (slots.size() - 1);
-            while (slots[pos].id &&
-                   (slots[pos].fingerprint != static_cast<uint32_t>(hash >> 32) ||
-                    keys[slots[pos].id - 1] != key))
-                pos = (pos + 1) & (slots.size() - 1);
-            return pos;
+    struct Entry {
+        std::string_view key;
+        size_t hash;
+        std::atomic<uint64_t>* bits;
+        Entry(std::string_view value, size_t h, size_t words, std::pmr::memory_resource& arena)
+            : hash(h) {
+            char* text = static_cast<char*>(arena.allocate(std::max(value.size(), size_t{1}), alignof(char)));
+            std::memcpy(text, value.data(), value.size());
+            key = {text, value.size()};
+            bits = static_cast<std::atomic<uint64_t>*>(arena.allocate(words * sizeof(*bits), alignof(std::atomic<uint64_t>)));
+            for (size_t i = 0; i < words; ++i) std::construct_at(bits + i, uint64_t{0});
         }
     };
-    std::array<Shard, 256> shards;
+    struct Bucket {
+        std::array<std::atomic<Entry*>, 4> slots{};
+        std::atomic<Bucket*> next{nullptr};
+    };
+    static constexpr size_t bucket_count = 131072;
+    std::unique_ptr<Bucket[]> roots;
     size_t words;
+    static bool mark(Entry* entry, uint16_t country) {
+        auto& word = entry->bits[country / 64];
+        uint64_t mask = uint64_t{1} << (country % 64);
+        if (word.load(std::memory_order_relaxed) & mask) return false;
+        return !(word.fetch_or(mask, std::memory_order_relaxed) & mask);
+    }
 public:
-    explicit Names(size_t countries) : words((countries + 63) / 64) {}
-    bool add(std::string_view key, uint16_t country) {
-        size_t hash = std::hash<std::string_view>{}(key);
-        auto& shard = shards[hash & 255];
-        std::lock_guard lock(shard.mutex);
-        if ((shard.keys.size() + 1) * 2 > shard.slots.size()) {
-            shard.slots.assign(shard.slots.size() * 2, Slot{});
-            for (uint32_t id = 0; id < shard.keys.size(); ++id) {
-                size_t old_hash = std::hash<std::string_view>{}(shard.keys[id]);
-                shard.slots[shard.locate(shard.keys[id], old_hash)] = {
-                    static_cast<uint32_t>(old_hash >> 32), id + 1};
+    explicit Names(size_t countries)
+        : roots(std::make_unique<Bucket[]>(bucket_count)), words((countries + 63) / 64) {}
+    ~Names() {
+        for (size_t i = 0; i < bucket_count; ++i) {
+            Bucket* bucket = &roots[i];
+            while (bucket) {
+                Bucket* next = bucket->next.load(std::memory_order_relaxed);
+                if (bucket != &roots[i]) delete bucket;
+                bucket = next;
             }
         }
-        auto& slot = shard.slots[shard.locate(key, hash)];
-        if (!slot.id) {
-            shard.keys.emplace_back(key);
-            shard.memberships.resize(shard.keys.size() * words, 0);
-            slot = {static_cast<uint32_t>(hash >> 32), static_cast<uint32_t>(shard.keys.size())};
+    }
+    bool add(std::string_view key, uint16_t country, std::pmr::memory_resource& arena) {
+        size_t hash = std::hash<std::string_view>{}(key);
+        Bucket* bucket = &roots[hash & (bucket_count - 1)];
+        Entry* candidate = nullptr;
+        for (;;) {
+            for (auto& slot : bucket->slots) {
+                Entry* found = slot.load(std::memory_order_acquire);
+                if (!found) {
+                    if (!candidate) {
+                        void* storage = arena.allocate(sizeof(Entry), alignof(Entry));
+                        candidate = std::construct_at(static_cast<Entry*>(storage), key, hash, words, arena);
+                    }
+                    Entry* expected = nullptr;
+                    if (slot.compare_exchange_strong(expected, candidate,
+                                                     std::memory_order_acq_rel, std::memory_order_acquire))
+                        found = candidate;
+                    else found = expected;
+                }
+                if (found->hash == hash && found->key == key) return mark(found, country);
+            }
+            // Slots never become empty. Advancing only after seeing a full
+            // bucket makes insertion unique even when overflow creation races.
+            Bucket* next = bucket->next.load(std::memory_order_acquire);
+            if (!next) {
+                auto extra = std::make_unique<Bucket>();
+                Bucket* expected = nullptr;
+                if (bucket->next.compare_exchange_strong(expected, extra.get(),
+                                                         std::memory_order_acq_rel, std::memory_order_acquire))
+                    next = extra.release();
+                else next = expected;
+            }
+            bucket = next;
         }
-        auto& word = shard.memberships[(slot.id - 1) * words + country / 64];
-        uint64_t mask = uint64_t{1} << (country % 64);
-        bool inserted = !(word & mask);
-        word |= mask;
-        return inserted;
     }
 };
 
 struct Worker {
+    // One allocator per parser: published immutable storage survives every
+    // lookup and is released in bulk only after all parser threads have joined.
+    std::pmr::monotonic_buffer_resource arena;
     std::vector<Country> countries;
 };
 
@@ -241,9 +276,9 @@ int main(int argc, char** argv) {
             }
             boundaries[i] = cut;
         }
-        Names names(countries.size());
         std::vector<Worker> partial(worker_count);
         for (auto& worker : partial) worker.countries = countries;
+        Names names(countries.size());
         auto parse = [&](size_t i) {
             auto& worker = partial[i];
             Parser csv{boundaries[i], boundaries[i + 1]};
@@ -270,7 +305,7 @@ int main(int argc, char** argv) {
             country.max = std::max(country.max, amount);
             country.name_bytes += name_bytes;
             country.note_bytes += note_bytes;
-            country.distinct += names.add(name_view, country_id);
+            country.distinct += names.add(name_view, country_id, worker.arena);
         }
         };
         Threads threads;

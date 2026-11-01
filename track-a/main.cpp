@@ -182,14 +182,21 @@ int main(int argc, char** argv) {
                 auto& group = (*groups)[h];
                 if (!group.count) continue;
                 auto* first = values.data() + group.cursor - group.count;
-                std::sort(first, values.data() + group.cursor);
+                auto* last = values.data() + group.cursor;
+                auto* remaining = first;
                 uint64_t n = group.count;
                 output.append(hours[h]);
                 output += ":00:00Z ";
                 output.append(endpoint);
                 output += ' ' + std::to_string(n);
-                for (uint64_t percentile : {50, 95, 99})
-                    output += ' ' + std::to_string(first[(percentile * n + 99) / 100 - 1]);
+                for (uint64_t percentile : {50, 95, 99}) {
+                    auto* rank = first + (percentile * n + 99) / 100 - 1;
+                    if (rank >= remaining) {
+                        std::nth_element(remaining, rank, last);
+                        remaining = rank + 1;
+                    }
+                    output += ' ' + std::to_string(*rank);
+                }
                 output += ' ' + std::to_string(group.errors);
                 output += ' ' + std::to_string(uint64_t{group.errors} * 1000000 / n) + '\n';
             }

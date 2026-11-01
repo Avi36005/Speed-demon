@@ -5,10 +5,17 @@ registered A/B/C. All four track runs passed check/build/correctness/timeout/
 sandbox. The requested92 machine-point target remains unmet; this is an
 intermediate engineering checkpoint, not the requested final file handoff.
 
-The current change is an isolated **A build-time PGO trial**. Its exact inputs,
-training provenance and clean image proof are pinned in
-[the trial manifest](benchmarks/pgo-a-trial-manifest.json). The PGO build has
-not yet been scored by the board. B/C/D runtime sources remain1429e2e.
+The working candidate is **A13 exact percentile selection with offline PGO,
+B11 direct dense-result summaries, and C9 atomic exact-name publication with
+private parser arenas**. Their complete source/build-input digests, current
+native matrix, clean offline amd64 builds, five public sandbox runs and fresh
+full7 checks are pinned in [the candidate manifest](benchmarks/round6-manifest.json).
+Their official effects remain pending. D3 is preserved unchanged.
+
+The A-only PGO trial atf95f205 passed all official gates. A scored64.905010
+with .086905s/63,033,344B/S248. Its +.229959 point change remains within
+observed run variation; B/C/D runtime inputs were unchanged. See the
+[immutable trial receipt](benchmarks/board/2026-11-01T195245.141719Z.json).
 
 ## Verified runtime
 
@@ -41,12 +48,14 @@ Only the binary enters the Debian runtime. Prototype tiny/sample1/2/3/42,
 fixtures, five public-full and independent full7 checks passed. Rebuilding the
 actual submitted track context offline/no-cache passed five public-full sandbox
 runs; context digests, runtime libraries and empty filesystem diffs are retained.
-S248/D1 was measured on byte-identical build inputs by the official static tool;
+The original PGO trial measured S248/D1; current A13 measures S254/D1 with
+the official static tool;
 its published-copy rule excludes the byte-identical generator. Official effect
 is pending. No input-derived training answers or data enter the final image.
 
-C8/C9 and B11 remain isolated, unselected development experiments. Their tests
-and comparisons do not certify the submitted source. STATUS.md records the
+C8 was an isolated mechanism test; the selected C9 and B11 now have their own
+complete native/container evidence. B12 and D4 remain isolated experiments;
+D4 was rejected after a local regression. STATUS.md records the
 next concrete checks and raw evidence locations. Original oracle checkouts are
 unchanged. The old report generator refuses to reuse stale release hashes.
 

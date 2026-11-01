@@ -103,3 +103,16 @@ T=1.259096 s, cgroup M=210,563,072 B, S=239, D=1,
 K=7.842636, machine points=44.723104. Registered=False.
 Raw receipt `../benchmarks/board/2026-11-01T192637.287985Z.json`.
 Single public live run; final holdout/judging remain separate.
+
+### D4 radix-frontier experiment — rejected locally
+
+Hypothesis: each directional heap has monotone uint64 keys under nonnegative
+weights, so65 radix buckets might reduce binary-heap comparisons. All semantic
+fixtures, random all-pairs, ASan/UBSan at12workers and sample42 passed. Five
+alternating ARM public-full pairs regressed from .493666 to .553765s; peak
+process RSS223,690,752 ->226,557,952B. Keep D3. No x86 benefit or new official
+score is claimed. Source/cmds/raw samples retained in comparisons.jsonl.
+
+### Actual board receipt — f95f205
+
+Run `run-848af1be5c83`: T1.229514s, cgroup M210,100,224B, S239, D1, K7.939916, machine points44.990795; all gates passed. Receipt benchmarks/board/2026-11-01T195245.141719Z.json. Only A build inputs changed since1429e2e. A score +.229959 in one run is within observed run variation; PGO benefit remains uncertain. B/C/D changes here are run variation because their runtime inputs are identical. D remains unregistered.

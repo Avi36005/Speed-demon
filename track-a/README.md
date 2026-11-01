@@ -6,7 +6,9 @@ C++20, standard library and POSIX mmap only. Read `/data/requests.log` and write
 The program parses the documented timestamp fields directly, discovers endpoint
 strings from the input, and stores unsigned 32-bit latencies in contiguous endpoint/hour slices. Twelve workers in the current scoring-box trial (override with `--workers 1..12`) parse independent
 whole-line ranges into private count tables and row buffers. Prefix sums assign
-disjoint slices, then workers scatter exact latencies into one contiguous array. Hour tasks then sort disjoint buckets and format independent strings in parallel.
+disjoint slices, then workers scatter exact latencies into one contiguous array. Hour tasks then select the three exact ranks within disjoint buckets and format
+independent strings in parallel. Ascending nth_element calls reuse the proven
+right partition; repeated ranks reuse the selected value.
 The final write visits those strings chronologically. Each bucket yields the
 three exact nearest ranks.
 Errors are precisely 500–599; counts and ppm arithmetic use 64 bits. Endpoints
@@ -36,6 +38,6 @@ Dependencies: zero non-standard-library runtime dependencies (declared D=1;
 the harness marks this declaration unverified). MIT, see repository LICENSE.
 Native Mac timings are not scoring-box evidence. See PERF.md and ../STATUS.md.
 
-With another 24 hours: compare exact multi-selection with full sorting and
-measure the 1/2/4/6/12 worker sweep on the scoring CPU. The selected worker count
+With another 24 hours: compare allocation and output costs and
+repeat the 1/2/4/6/12 worker sweep on the scoring CPU. The selected worker count
 comes from native ARM64 measurements, so its x86 optimum remains unknown.

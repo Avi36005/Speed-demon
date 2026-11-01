@@ -234,3 +234,20 @@ T=1.063800 s, cgroup M=159,985,664 B, S=515, D=1,
 K=9.479339, machine points=48.838903. Registered=True.
 Raw receipt `../benchmarks/board/2026-11-01T192637.287985Z.json`.
 Single public live run; final holdout/judging remain separate.
+
+### Actual board receipt — f95f205
+
+Run `run-8d2bb9188ba0`: T1.183653s, cgroup M161,325,056B, S515, D1, K8.971637, machine points47.643585; all gates passed. Receipt benchmarks/board/2026-11-01T195245.141719Z.json. Only A build inputs changed since1429e2e. A score +.229959 in one run is within observed run variation; PGO benefit remains uncertain. B/C/D changes here are run variation because their runtime inputs are identical. D remains unregistered.
+
+### Round-six candidate proof — 2026-11-01T19:56:23.493644+00:00
+
+B11 summarizes final dense Boolean bitmaps without materializing all matching IDs. Six position masks plus exact popcounts compute the uint64 id sum; only the smallest ten are enumerated. Sparse/phrase summaries remain exact. Five ARM pairs .580397 ->.578411s are inconclusive in time; RSS441,040,896 ->420,429,824B motivates a scoring-box memory tradeoff trial. New independent bitmap-boundary/partial-word and wide-sum fixtures, native/x86 sanitizers at12workers, full7 five repeats, full native matrix, clean offline build, five sandbox full1 plus full7 pass. S545/D1. No official gain claimed yet.
+
+Source/build-input hashes and exact proof references: benchmarks/round6-manifest.json. Raw paired samples and commands remain in comparisons.jsonl.
+
+### B12 early phrase-tokenization exit — unselected
+
+All small semantic/native sanitizer fixtures and sample42 passed. Five paired
+ARM full1 runs againstB11: .555767 ->.552742s, RSS422,674,432 ->419,299,328B.
+The time change is within observed run variation; do not select or claim an
+x86 speedup. Keep B11 for the controlled scoring-box tradeoff trial.

@@ -121,6 +121,24 @@ def make_b():
            b"44 2838 0 3 6 9 12 15 18 21 24 27\n"
            b"86 5547 1 2 4 5 7 8 10 11 13 14\n"
            b"44 2838 0 3 6 9 12 15 18 21 24 27\n")
+    # A partial final bitmap word plus every six-bit id-position boundary.
+    # Expected sets are built from fixture values independently of bitmap math.
+    populations = {
+        "even": set(range(0, 513, 2)), "odd": set(range(1, 513, 2)),
+        "edge": {0, 63, 64, 127, 128, 255, 256, 511, 512},
+    }
+    checks = [("BOOL even", populations["even"]),
+              ("BOOL odd", populations["odd"]),
+              ("BOOL even OR odd", set(range(513))),
+              ("BOOL even OR odd NOT edge", set(range(513)) - populations["edge"]),
+              ("BOOL even OR odd AND edge", populations["edge"]),
+              ("BOOL even NOT even OR odd", populations["odd"])]
+    cases["bitmap-summary"] = (mod.docs_file([
+        " ".join(term for term, ids in populations.items() if doc in ids)
+        for doc in range(513)]), "".join(q + "\n" for q, _ in checks).encode())
+    answer("b", "bitmap-summary", "".join(
+        " ".join(map(str, [len(ids), sum(ids), *sorted(ids)[:10]])) + "\n"
+        for _, ids in checks))
     answer("b", "targeted", b"2 4 1 3\n2 4 1 3\n2 4 1 3\n1 2 2\n0 0\n1 4 4\n")
     answer("b", "wide-sum", b"100000 4999950000 0 1 2 3 4 5 6 7 8 9\n"*2)
     for label, (docs, queries) in cases.items():

@@ -99,3 +99,33 @@ Peak local wait4 RSS 220,528,640 -> 225,165,312 B. All five pairs improve and
 all hashes match. Worked/general-grammar/empty sanitizer fixtures, sample 42
 and independent full seed 7 pass. Candidate official/static/container axes
 remain pending. Raw comparison `.work/compare/c-ebcf8831b5/record.json`.
+
+## C5 retained locally — proven CSV chunk boundaries and exact parallel merge
+
+Quote parity over the actual bytes locates true record terminators, including
+inside hostile grammar fixtures. Private exact dictionaries/aggregates parse
+independently; local name IDs translate into a merged exact dictionary, and
+country tasks OR translated name bits without races.
+
+Five alternating C4/six-worker C5 public full runs: middle-three 0.717647 ->
+0.262658 s, peak local wait4 RSS 222,707,712 -> 304,381,952 B. Exploratory
+three-run blocks: two workers 0.683946 -> 0.448330 s, RSS 247,660,544 B; four
+workers 0.721393 -> 0.329487 s, RSS 276,987,904 B. The three-run estimator
+includes a cold first sample; do not compare it directly to middle-three-of-five.
+Four selected provisionally to limit private-table memory; actual scoring-box
+tradeoff is pending. Every hash passes. Twelve-worker grammar/empty/sample42
+sanitizer checks and independent full seed 7 at four workers also pass.
+Changing the default from six to four does not change the algorithm, but final
+default-specific repeated/container/official measurements remain required.
+
+## Intermediate Linux/runtime proof — 2026-11-01
+
+Current source `4b3a997f06ba1ce96e6256375758370cd372cc067e684f0124578a0f587fe914`. Clean offline/no-cache amd64 build
+passed in 9.455 s; image 30,392,968 B. One full public
+run passed under uid65534, read-only root/data, no network, 8GB/no swap,
+PID/scratch restrictions, exact output/hash and no unexpected filesystem diff.
+Runtime libraries resolve. This is ARM-host amd64 emulation; no official
+T/M/K is inferred. Raw `containers.jsonl`, artifact `.work/containers/c-6ea23756d2`.
+Unchanged official static tools now measure S=373, D=1
+(declared/unverified dependency basis). Final candidate repeated sandbox and
+fresh-data release checks remain separate from this intermediate checkpoint.

@@ -14,7 +14,9 @@ Tracks to select:
 
 Contact email: Enter your preferred real contact email.
 Team members: Enter the full names of all 1–4 registered members.
-Registration, app installation and form submission are not confirmed by this file.
+A/B/C registration and Board App read access are evidenced by the first scored
+board runs. D is a new local baseline; select D in an updated team form only
+after its remaining verification is complete.
 
 DO THESE STEPS
 

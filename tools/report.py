@@ -19,6 +19,13 @@ def rows(path):
 
 
 def main():
+    historical = json.loads((SUB / 'benchmarks/runtime-manifest.json').read_text())
+    for track, files in historical['tracks'].items():
+        for name, expected in files.items():
+            if sha(SUB / f'track-{track}' / name) != expected:
+                raise SystemExit('The initial-release generator cannot certify changed runtime files. '
+                                 'Use STATUS.md and the current optimization checkpoint report; '
+                                 'the historical runtime manifest is preserved.')
     now = datetime.datetime.now(datetime.timezone.utc).isoformat()
     commit = subprocess.run(['git', '-C', str(SUB), 'rev-parse', 'HEAD'], capture_output=True,
                             text=True, check=True).stdout.strip()

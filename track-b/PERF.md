@@ -122,3 +122,15 @@ and candidate agreed (document 0 also contains a b a). Its expected count
 was corrected; corrected overlap and all 32 token-block offsets pass the
 untouched reference and hand bytes with twelve-worker ASan/UBSan.
 Official candidate publication still requires container checks.
+
+## Intermediate Linux/runtime proof — 2026-11-01
+
+Current source `078c200f83687009cf5f84e7d994fd09a3fdb0dd0f73a8aca2e779d764f9dc5e`. Clean offline/no-cache amd64 build
+passed in 8.454 s; image 30,382,113 B. One full public
+run passed under uid65534, read-only root/data, no network, 8GB/no swap,
+PID/scratch restrictions, exact output/hash and no unexpected filesystem diff.
+Runtime libraries resolve. This is ARM-host amd64 emulation; no official
+T/M/K is inferred. Raw `containers.jsonl`, artifact `.work/containers/b-6cfd2971de`.
+Unchanged official static tools now measure S=404, D=1
+(declared/unverified dependency basis). Final candidate repeated sandbox and
+fresh-data release checks remain separate from this intermediate checkpoint.

@@ -111,3 +111,15 @@ Peak local wait4 RSS 301,891,584 vs 296,796,160 B. Raw comparisons.jsonl.
 Worked/edge/empty/targeted sanitizer cases and sample 42 at twelve workers
 pass. Independent full seed 7 at six workers also passes. Broader worker sweep
 and amd64 proof pending.
+
+## Intermediate Linux/runtime proof — 2026-11-01
+
+Current source `2af732d7e2b6c2bcdeea34521cf3f391033859e1e81c43e1026b48ed58994f99`. Clean offline/no-cache amd64 build
+passed in 7.495 s; image 30,383,456 B. One full public
+run passed under uid65534, read-only root/data, no network, 8GB/no swap,
+PID/scratch restrictions, exact output/hash and no unexpected filesystem diff.
+Runtime libraries resolve. This is ARM-host amd64 emulation; no official
+T/M/K is inferred. Raw `containers.jsonl`, artifact `.work/containers/a-34c90de37e`.
+Unchanged official static tools now measure S=238, D=1
+(declared/unverified dependency basis). Final candidate repeated sandbox and
+fresh-data release checks remain separate from this intermediate checkpoint.

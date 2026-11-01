@@ -1,4 +1,7 @@
 #include <algorithm>
+#include <atomic>
+#include <bit>
+#include <thread>
 #include <cstdint>
 #include <cstring>
 #include <fcntl.h>
@@ -131,6 +134,8 @@ class Names {
         return pos;
     }
 public:
+    size_t size() const { return keys.size(); }
+    std::string_view word(uint32_t id) const { return keys[id]; }
     uint32_t intern(std::string_view key) {
         if ((keys.size() + 1) * 2 > slots.size()) {
             slots.assign(slots.size() * 2, Slot{});
@@ -149,6 +154,18 @@ public:
     }
 };
 
+struct Worker {
+    std::vector<Country> countries;
+    Names names;
+    std::vector<uint32_t> translation;
+};
+
+struct Threads {
+    std::vector<std::thread> values;
+    void join() { for (auto& t : values) if (t.joinable()) t.join(); }
+    ~Threads() { join(); }
+};
+
 std::string money(int64_t value) {
     std::string sign = value < 0 ? "-" : "";
     uint64_t magnitude = value < 0 ? uint64_t(-(value + 1)) + 1 : uint64_t(value);
@@ -160,12 +177,15 @@ std::string money(int64_t value) {
 int main(int argc, char** argv) {
     try {
         std::string data_dir = "/data", out_dir = "/out";
+        size_t worker_count = 4;
         for (int i = 1; i < argc; ++i) {
             std::string arg = argv[i];
             if (i + 1 < argc && arg == "--data") data_dir = argv[++i];
             else if (i + 1 < argc && arg == "--out") out_dir = argv[++i];
-            else throw std::runtime_error("usage: solution [--data DIR] [--out DIR]");
+            else if (i + 1 < argc && arg == "--workers") worker_count = std::stoul(argv[++i]);
+            else throw std::runtime_error("usage: solution [--data DIR] [--out DIR] [--workers 1..12]");
         }
+        if (!worker_count || worker_count > 12) throw std::runtime_error("workers must be 1..12");
         std::vector<Country> countries;
         countries.emplace_back("_UNMATCHED");
         std::unordered_map<std::string, uint16_t> codes;
@@ -187,11 +207,34 @@ int main(int argc, char** argv) {
             }
         }
         Input records(data_dir + "/records.csv");
-        Parser csv{records.data, records.data + records.size};
-        csv.bom();
-        while (csv.p < csv.end && *csv.p++ != '\n') {}  // header has no quotes
-        std::string name;
-        Names names;
+        const char* end = records.data + records.size;
+        Parser header{records.data, end};
+        header.bom();
+        while (header.p < end && *header.p++ != '\n') {}
+        std::vector<const char*> boundaries(worker_count + 1, end);
+        boundaries[0] = header.p;
+        const char* previous = header.p;
+        bool quoted = false;
+        for (size_t i = 1; i < worker_count; ++i) {
+            const char* cut = header.p + (end - header.p) * i / worker_count;
+            // Quote parity is valid even across escaped pairs: each pair flips
+            // twice. It identifies true record LFs without relying on content.
+            quoted ^= (std::count(previous, cut, '"') & 1) != 0;
+            previous = cut;
+            bool state = quoted;
+            while (cut < end) {
+                char byte = *cut++;
+                if (byte == '"') state = !state;
+                if (byte == '\n' && !state) break;
+            }
+            boundaries[i] = cut;
+        }
+        std::vector<Worker> partial(worker_count);
+        for (auto& worker : partial) worker.countries = countries;
+        auto parse = [&](size_t i) {
+            auto& worker = partial[i];
+            Parser csv{boundaries[i], boundaries[i + 1]};
+            std::string name;
         while (csv.p < csv.end) {
             csv.bom();  // this is a true record boundary, never an embedded LF
             uint64_t id = csv.integer();
@@ -205,7 +248,7 @@ int main(int argc, char** argv) {
             ++csv.p;
             int64_t amount = csv.cents();
             csv.terminator();
-            auto& country = countries[region < regions.size() ? regions[region] : 0];
+            auto& country = worker.countries[region < regions.size() ? regions[region] : 0];
             ++country.count;
             country.ids += id;
             country.sum += amount;
@@ -215,7 +258,7 @@ int main(int argc, char** argv) {
             country.note_bytes += note_bytes;
             // Interning compares decoded bytes exactly. Membership bits share
             // those IDs across countries; they do not stand in for name hashes.
-            uint32_t name_id = names.intern(name_view);
+            uint32_t name_id = worker.names.intern(name_view);
             size_t word = name_id / 64;
             if (word >= country.names.size()) country.names.resize(word + 1, 0);
             uint64_t mask = uint64_t{1} << (name_id % 64);
@@ -224,6 +267,51 @@ int main(int argc, char** argv) {
                 ++country.distinct;
             }
         }
+        };
+        Threads threads;
+        for (size_t i = 1; i < worker_count; ++i) threads.values.emplace_back(parse, i);
+        parse(0);
+        threads.join();
+        Names merged;
+        for (auto& worker : partial) {
+            worker.translation.resize(worker.names.size());
+            for (uint32_t id = 0; id < worker.names.size(); ++id)
+                worker.translation[id] = merged.intern(worker.names.word(id));
+        }
+        // Each country merge owns its output and bitmap. Only immutable local
+        // dictionaries and translations are read after parsing has joined.
+        std::atomic<size_t> next_country{0};
+        auto merge = [&] {
+            for (;;) {
+                size_t c = next_country.fetch_add(1, std::memory_order_relaxed);
+                if (c >= countries.size()) break;
+                auto& target = countries[c];
+                target.names.resize((merged.size() + 63) / 64, 0);
+                for (const auto& worker : partial) {
+                    const auto& local = worker.countries[c];
+                    target.count += local.count;
+                    target.ids += local.ids;
+                    target.sum += local.sum;
+                    target.min = std::min(target.min, local.min);
+                    target.max = std::max(target.max, local.max);
+                    target.name_bytes += local.name_bytes;
+                    target.note_bytes += local.note_bytes;
+                    for (size_t word = 0; word < local.names.size(); ++word) {
+                        uint64_t bits = local.names[word];
+                        while (bits) {
+                            uint32_t id = worker.translation[word * 64 + std::countr_zero(bits)];
+                            target.names[id / 64] |= uint64_t{1} << (id % 64);
+                            bits &= bits - 1;
+                        }
+                    }
+                }
+                for (uint64_t word : target.names) target.distinct += std::popcount(word);
+            }
+        };
+        threads.values.clear();
+        for (size_t i = 1; i < worker_count; ++i) threads.values.emplace_back(merge);
+        merge();
+        threads.join();
         std::sort(countries.begin(), countries.end(), [](const Country& a, const Country& b) {
             return a.code < b.code;
         });

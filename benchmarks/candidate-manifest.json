@@ -1,0 +1,28 @@
+{
+  "utc": "2026-11-01T18:18:56.126956+00:00",
+  "base_commit": "c391cbcea4cd3bc777a93d6a7f027440d7e11744",
+  "source_commit": "runtime changes committed with this manifest; resolve git HEAD after commit",
+  "status": "intermediate candidate: native and one clean full sandbox check pass, static measured; next actual board result pending",
+  "tracks": {
+    "a": {
+      "main.cpp": "2af732d7e2b6c2bcdeea34521cf3f391033859e1e81c43e1026b48ed58994f99",
+      "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      ".speed-demon.toml": "b2b684e6fff97846ada04662eb0f8850b7786039925e30cdb1a8c010ea501564"
+    },
+    "b": {
+      "main.cpp": "078c200f83687009cf5f84e7d994fd09a3fdb0dd0f73a8aca2e779d764f9dc5e",
+      "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      ".speed-demon.toml": "625871dfe8f3cc66517f22cfc910583968e36f3a958e562dda4d831366dbddea"
+    },
+    "c": {
+      "main.cpp": "4b3a997f06ba1ce96e6256375758370cd372cc067e684f0124578a0f587fe914",
+      "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      ".speed-demon.toml": "82561d3cf9545bb00643eeefd7b29b1fb3e4c636831858ac1eac013927e94ad8"
+    },
+    "d": {
+      "main.cpp": "0b096c6c3884f90804850fd41461da0cf784c2325fe558a1a400ec5352ec20ca",
+      "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      ".speed-demon.toml": "4d9ffc87eddf41682b837f8bc3ef497ef008685ff322662a4f67ccd5442e624f"
+    }
+  }
+}

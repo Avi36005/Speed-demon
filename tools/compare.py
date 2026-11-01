@@ -30,6 +30,8 @@ def main():
     ap.add_argument('--expected')
     ap.add_argument('--workers', type=int)
     ap.add_argument('--baseline-workers', type=int)
+    ap.add_argument('--candidate-source', type=Path,
+                    help='isolated development source, instead of the track working file')
     args = ap.parse_args()
     work = SUB / '.work/compare' / (args.track + '-' + uuid.uuid4().hex[:10])
     work.mkdir(parents=True)
@@ -38,7 +40,7 @@ def main():
     expected = args.expected or manifest['expected_output_sha256'][0]
     original = subprocess.run(['git', '-C', str(SUB), 'show', f'{args.baseline}:track-{args.track}/main.cpp'],
                               capture_output=True, check=True).stdout
-    current = (SUB / f'track-{args.track}/main.cpp').read_bytes()
+    current = (args.candidate_source or SUB / f'track-{args.track}/main.cpp').read_bytes()
     flags = ['-std=c++20', '-O3', '-DNDEBUG', '-pthread']
     record = {'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'track': args.track,
               'hypothesis': args.hypothesis, 'baseline_revision': args.baseline,

@@ -4,7 +4,7 @@
 
 <p align="center">
   <strong>Exact results. Measured optimizations. Reproducible builds.</strong><br>
-  Three independent C++20 entries for the Speed Demon 2026 performance championship.
+  Independent C++20 entries for the Speed Demon 2026 performance championship.
 </p>
 
 <p align="center">
@@ -17,13 +17,14 @@
 
 ---
 
-> **Delivery status:** A, C and B are implemented, verified locally and pushed to
-> the `speed-demon` branch. Official leaderboard scores and run IDs remain pending.
-> Board App access and team registration must be confirmed separately.
+> **Optimization in progress:** A, B and C passed the official live board at
+> commit `b4f7240`. Faster candidates are undergoing fresh-seed and container
+> checks. A correct local D baseline has been added; its board registration is
+> still pending. Current evidence and outstanding checks are in [STATUS.md](STATUS.md).
 
 ## The entry
 
-**Kryptonite** implements three exact-output workloads with the C++20 standard
+**Kryptonite** implements four exact-output workloads with the C++20 standard
 library and POSIX interfaces. Each track is an independent build context, with
 all indexing, parsing and aggregation performed from the actual inputs at runtime.
 
@@ -32,6 +33,7 @@ all indexing, parsing and aggregation performed from the actual inputs at runtim
 | **A · Ingest** | Aggregate 3.1 million HTTP log lines | [Source](track-a/main.cpp) · [Approach](track-a/README.md) · [Performance log](track-a/PERF.md) | `summary.txt` |
 | **C · Join** | Parse and join 3.32 million CSV records | [Source](track-c/main.cpp) · [Approach](track-c/README.md) · [Performance log](track-c/PERF.md) | `aggregates.txt` |
 | **B · Index** | Answer 50,000 queries over 250,000 documents | [Source](track-b/main.cpp) · [Approach](track-b/README.md) · [Performance log](track-b/PERF.md) | `results.txt` |
+| **D · Traverse** | Exact directed shortest paths for 2,000 queries | [Source](track-d/main.cpp) · [Approach](track-d/README.md) · [Performance log](track-d/PERF.md) | `distances.txt` |
 
 | Language | Runtime dependencies | Submission branch | Licence |
 | :--- | :--- | :--- | :--- |
@@ -40,9 +42,9 @@ all indexing, parsing and aggregation performed from the actual inputs at runtim
 ### Engineering decisions
 
 **A — exact aggregation with independent workers.** Six workers parse complete
-log-line ranges into private endpoint/hour tables. Their latency vectors and
-error counts are merged before exact sorting and nearest-rank percentile
-selection. Endpoint strings are discovered from the input and compared exactly.
+log-line ranges into private endpoint/hour count tables. Prefix sums and
+disjoint scatter slices pack the latency values into one contiguous array;
+independent hour tasks sort and format the exact nearest-rank results. Endpoint strings are discovered from the input and compared exactly.
 
 **C — a CSV parser that preserves the data.** A scalar quote-aware parser handles
 escaped quotes, multiline fields, mixed line endings and record-boundary BOMs.
@@ -52,10 +54,36 @@ provide exact distinct counts while reducing allocation.
 **B — build only the index the queries need.** Query terms determine the
 vocabulary. Workers build sorted postings over disjoint document ranges;
 frequent terms also receive bitmaps. Boolean operations retain strict
-left-to-right order, and phrase candidates undergo exact token-adjacency checks.
+left-to-right order. Phrase candidates use streaming exact token matching,
+including overlaps and repeated words, without allocating token-ID sequences.
 Independent query workers write separate answer slots before ordered output.
 
+**D — recoverable graph baseline.** Compact CSR adjacency retains all directed
+edges; exact forward Dijkstra uses 64-bit distances and a standard min-heap.
+Local adversarial, random-oracle and repeated public-full checks pass. It is
+still an optimization candidate with separate registration and release checks.
+
+## Official live-board baseline
+
+The first real run at `b4f7240` passed every build, correctness, timeout and
+sandbox gate. These are single public-data runs; final holdout and judging
+remain separate. New candidate results will replace this dated baseline only
+after the board actually measures them.
+
+| Track | Machine points | Time | cgroup peak | Real run ID |
+| :--- | ---: | ---: | ---: | :--- |
+| A | 52.866460 | 0.275095 s | 69,869,568 B | `run-3051ba50d6d4` |
+| B | 39.011708 | 2.585927 s | 222,953,472 B | `run-be2e577bbf36` |
+| C | 39.208881 | 1.133017 s | 15,106,048 B | `run-6b26d216e245` |
+
+[Official evidence receipt](benchmarks/board/2026-11-01-first-public-run.json) ·
+[Kryptonite on the live board](https://speeddemon.dev/board/#kryptonite-96429f)
+
 ## Verification
+
+The matrix below describes the original A/B/C release. For changed source,
+the per-track performance logs and [current status](STATUS.md) distinguish
+completed new checks from remaining work. D evidence is recorded separately.
 
 | Check | Evidence |
 | :--- | :--- |
@@ -66,8 +94,9 @@ Independent query workers write separate answer slots before ordered output.
 | **Deterministic output** | Five repeated native full-input runs per track; A/B also checked across **1, 2, 4, 6, 12** workers. |
 | **Packaging and sandbox** | Clean, offline `linux/amd64` builds; five public-full container runs and one full seed 7 run per track under the required sandbox limits. |
 
-Linux container checks used **amd64 emulation on an ARM64 Mac**. Native scoring
-machine performance and official cgroup memory remain outstanding.
+Local Linux container checks used **amd64 emulation on an ARM64 Mac**. The
+real live board supplies native scoring-machine measurements for its recorded
+commits. Local process RSS and emulated timings remain separate from those axes.
 
 [Full verification report](SUBMISSION_REPORT.md) ·
 [Test coverage](tests/README.md) ·
@@ -75,7 +104,8 @@ machine performance and official cgroup memory remain outstanding.
 
 ## Local measurements
 
-The following are **development measurements on ARM64 macOS**, using Apple
+The following are **historical initial-release development measurements on
+ARM64 macOS**, using Apple
 Clang 17 with C++20, `-O3`, `-DNDEBUG` and `-pthread`. Time is the mean of the
 middle three of five process runs on the public full seed 1 dataset.
 
@@ -88,9 +118,11 @@ middle three of five process runs on the public full seed 1 dataset.
 Process RSS includes resident input mappings and is distinct from official
 cgroup memory. Code lines were measured locally with the organisers' static
 tooling. Each track declares dependency weight **D = 1**, reported by that tooling
-as **declared, unverified**. Official T, M, K, points and board run IDs are unknown.
+as **declared, unverified**. The official live-board measurements above apply
+to their recorded commit. Current tuning comparisons are in each PERF.md.
 
-Every final amd64 runtime image is approximately **30 MB**, using an allowlisted,
+The initial local amd64 runtime images were approximately **30 MB**; the live
+board reported approximately **119 MB** images. Each uses an allowlisted,
 digest-pinned GCC 15 build stage and Debian 13 runtime. The C++ and GCC support
 libraries are linked statically; final runtime library checks pass.
 
@@ -158,7 +190,8 @@ interval; repeated timed runs include candidate startup, processing and output.
 
 The source is already pushed to
 **[Avi36005/Speed-demon](https://github.com/Avi36005/Speed-demon)**.
-Complete the remaining entrant-side steps from the
+A/B/C registry and repository access are confirmed by the scored board runs.
+The setup procedure, including changes to entered tracks, is documented in the
 [official kickstart](https://speeddemon.dev/kickstart/):
 
 1. Every team member completes [individual registration](https://tally.so/r/q4redG).
@@ -175,7 +208,8 @@ Complete the remaining entrant-side steps from the
 The repo can stay private before freeze when the Board App has access. Confirm
 the final branch commit was observed before **2 November 2026, 20:30 IST**.
 Make the recorded source public under MIT by **21:30 IST** that day, within the
-published one-hour window. Registration and app access remain unconfirmed here.
+published one-hour window. To enter D, update the team form to select D after
+its candidate verification; a new directory alone does not prove registration.
 
 ## Repository map
 
@@ -183,6 +217,7 @@ published one-hour window. Registration and app access remain unconfirmed here.
 track-a/                    Ingest: source, Dockerfile, metadata, README, PERF
 track-c/                    Join: source, Dockerfile, metadata, README, PERF
 track-b/                    Index: source, Dockerfile, metadata, README, PERF
+track-d/                    Traverse: verified local baseline; board registration pending
 benchmarks/                 Recorded experiments, hashes and verification evidence
 tests/                      Development fixture generation and coverage notes
 tools/                      Differential runners, profiling and release checks

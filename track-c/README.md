@@ -4,7 +4,7 @@ C++20 with zero third-party runtime dependencies. Read `/data/records.csv` and
 `/data/regions.csv`; write `/out/aggregates.txt`. Native checks support
 `--data DIR --out DIR`. MIT; see ../LICENSE.
 
-The scalar parser uses bounded bulk scans over literal quoted runs and consumes
+Each parser uses bounded bulk scans over literal quoted runs and consumes
 a whole quoted field before interpreting record terminators. Escaped quote pairs count as one decoded byte. A BOM is skipped
 only at the start of a record, so embedded BOMs and LFs remain field data.
 Both LF and CRLF and an unterminated final record are supported. Name strings
@@ -28,6 +28,10 @@ emulated sandbox checks pass full seeds 1 and 7. The original baseline passed th
 and measurements appear in PERF.md.
 
 With another 24 hours: profile the remaining scanning and hashing costs, then
-measure parallel parsing with proven quote-aware record boundaries. The selected
-implementation uses one worker and no chunk splits, so there is no assumption
-that physical newlines identify records.
+measure faster exact name interning and select worker counts on the real box. The selected
+implementation uses four private workers by default (`--workers 1..12`).
+Chunk starts use quote parity over the actual bytes, then advance to an LF
+outside quotes; escaped pairs flip twice. Physical newlines alone never identify
+records. Worker-local name IDs translate to a merged exact dictionary, and
+independent country merges OR translated bitsets before counting distinct names.
+All parsing threads join before reading any private result.

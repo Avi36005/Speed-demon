@@ -6,6 +6,10 @@ Team: **Kryptonite**
 Language: **C++**
 Tracks: **A · Ingest, B · Index, C · Join**
 
+A/B/C have appeared and passed on the live board; the first official receipt
+is in `benchmarks/board/2026-11-01-first-public-run.json`. D has a correct local
+baseline; its updated team-form selection and official run remain pending.
+
 ## Get onto the live leaderboard
 
 1. Every team member completes the individual event registration:

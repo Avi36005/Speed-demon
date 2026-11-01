@@ -75,3 +75,93 @@ README, submission report and source ZIP currently describe the earlier local
 release and need a final refresh after the new candidates are selected. The
 old ZIP in the project folder remains the old passing runtime, not a new
 optimized delivery. Do not call old docs current release proof.
+
+## Resume checkpoint — 2026-11-01 17:54 UTC
+
+User reiterated continuation and 92 target. No new file handoff. A3 contiguous
+count/prefix/scatter candidate passed five alternating public-full comparisons:
+A2 0.168248 s -> A3 0.128075 s, peak local RSS 301,891,584 -> 296,796,160 B.
+A3 fixtures/worker-12/sample-42 checks are queued after D's first full baseline.
+B4 and C2 passed adversarial fixtures/sanitizers plus full seed 7; commits
+ca2e75c and 601e7a2 preserve them. D initial scalar CSR/Dijkstra source exists
+but is uncommitted and not board-registered. D suites and five-repeat full
+baseline are running serially. Candidate container checks and official pushes
+are still pending. tools/report.py remains the OLD release generator and must
+not overwrite new evidence or claim candidate release readiness.
+
+## Verified intermediate source checkpoint — c391cbc
+
+2026-11-01 18:08 UTC. Native current A3/B5/C4 checks passed, including full
+seed 7. A3 workers 1/2/4/6/12 public full hashes pass. B's added overlap
+fixture had a hand-count error, corrected after both candidate and untouched
+reference agreed; corrected overlap and all 32 byte-block offsets pass small
+twelve-worker sanitizers. C4 grammar cases/sanitizers/sample42/full7 pass.
+D0 remains the correct scalar baseline. D1 indegree experiment was slower in
+all three alternating pairs and was reverted; its raw source/results remain.
+
+A clean source archive of c391cbc is in `.work/release-round2/`. Offline
+amd64 checks are running serially via tools/container_check.py with one full
+public run per track; final five-run candidate verification is still required
+later. No candidate push yet, no new board score, and 92 is not achieved.
+
+Isolated, unselected development candidates (not in submitted runtime):
+- `.work/candidates/c5.cpp`: parallel CSV chunks with quote-parity boundary
+  proof, private tables and exact translated bitset merges. Needs measured
+  comparison against 0b98fcc plus worker/grammar/sanitizer/fresh-seed checks.
+- `.work/candidates/b6.cpp`: bounded AVX2 ASCII token classification (guarded
+  x86 target, scalar ARM fallback) and bulk LF scans. Needs amd64 build and
+  boundary fixtures, sample/full hashes, then real-box comparison against B5.
+- `.work/candidates/d2.cpp`: touched-distance reuse. Needs comparison against
+  3772eb3 before selection. Do not run performance jobs concurrently.
+
+Next: finish offline checks, measure current formatted S, push only the tested
+c391cbc runtime checkpoint, record actual board output via board_receipt.py.
+Then compare isolated C5, investigate B6 on amd64, and continue toward the target.
+README/report now distinguish historical vs current proof. The old report
+generator refuses changed sources; historical manifest remains immutable.
+
+## Continuation — 2026-11-01 18:15 UTC
+
+Docker preflight issue isolated: the normal config stalled before compiler-base
+metadata. An isolated anonymous `.work/docker-public-config` (no credentials
+copied or changed) plus explicit local socket successfully completed the exact
+offline/no-cache A3 build. Obsolete stalled checks/fallback were stopped, and
+the aborted preflight is honestly recorded in containers.jsonl. Clean checks
+are now running serially with that config: A3, current C5, B5, D0 (one full
+run each). No new push has been made yet; verify results before pushing.
+
+C5 passed quote/BOM/general grammar/empty small sanitizers at twelve workers,
+sample42 and full seed7 at four workers. Five paired public full at six workers
+mean 0.717647 -> 0.262658 s, with higher RSS. Exploratory 2/4-worker blocks
+are retained. Current `track-c/main.cpp` is C5 with provisional default FOUR,
+not the scalar C4 from c391cbc. Default-four final repeated checks still needed.
+
+`.work/candidates/b7.cpp` is a NEW UNTESTED isolated representation experiment:
+private postings promote to per-range dense bitmaps, and global dense terms
+no longer keep redundant full posting lists. Phrase anchors use actual df and
+scan dense anchors exactly. Compare against c391cbc after container timing
+finishes; do not select or publish it without full correctness evidence.
+B6 isolated AVX2 candidate remains unselected. C5 source is the only current
+runtime working-tree change since c391cbc. D0 remains unchanged.
+
+Next commands after the container batch: inspect every latest containers.jsonl
+record (source hashes must match); current S via unchanged static_axes.py;
+commit/push tested A3/B5/C5 plus proof and fetch an actual new board receipt.
+Then measure isolated B7, and use cached_runtime.py for AVX2 fixture checks if
+needed. That helper is explicitly a cached-base runtime fallback, not clean
+Dockerfile build evidence. Continue aiming for 92; target is not achieved.
+
+## Ready for the next official experiment push — 2026-11-01 18:19 UTC
+
+All CURRENT A3/B5/C5(default4)/D0 source digests match successful clean offline
+amd64 build + one restricted full public run. Exact outputs, library inspection
+and filesystem diffs pass. Official static tool S: A238, B404, C373, D146;
+D=1 each, declared/unverified. The anonymous Docker config fixed the metadata
+lookup path without changing account credentials or submitted Dockerfiles.
+
+Next push contains these tested intermediate algorithms, not final 92-point
+files. B7 and C6 are still isolated/unselected. C5's higher private-table memory
+motivated C6's shared sharded exact name/country membership experiment. B7's
+first local comparison improved time/RSS modestly; static tooling overlapped
+early samples, so confirm a promising final version in an isolated repeat.
+Do not claim either candidate is currently selected.

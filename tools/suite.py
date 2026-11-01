@@ -9,7 +9,7 @@ import sys
 
 SUB = Path(__file__).resolve().parents[1]
 ROOT = SUB.parent
-MODULE = {"a": "a_ingest", "b": "b_index", "c": "c_join"}
+MODULE = {"a": "a_ingest", "b": "b_index", "c": "c_join", "d": "d_traverse"}
 
 
 def main():

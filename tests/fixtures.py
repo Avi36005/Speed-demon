@@ -1,6 +1,7 @@
 """Materialize dev-only fixtures using the unchanged official worked examples."""
 import importlib.util
 from pathlib import Path
+import random
 import sys
 
 SUB = Path(__file__).resolve().parents[1]
@@ -89,6 +90,69 @@ def make_b():
     return cases
 
 
+def make_d():
+    mod = load("d", "d_traverse")
+    cases = {}
+    class Capture(mod.HandWrittenCases):
+        def check(self, graph, queries, expected):
+            cases[self.label] = (graph, queries)
+            answer("d", self.label, expected)
+    capture = Capture()
+    for method in dir(mod.HandWrittenCases):
+        if method.startswith("test_"):
+            capture.label = method[5:]
+            getattr(capture, method)()
+    cases["empty-edges"] = ("3 0\n", "0 0\n0 1\n2 2\n2 0\n")
+    answer("d", "empty-edges", "0\n-1\n0\n-1\n")
+    cases["first-meeting-trap"] = (
+        "4 4\n0 1 1\n1 3 100\n0 2 50\n2 3 2\n", "0 3\n3 0\n0 3\n")
+    answer("d", "first-meeting-trap", "52\n-1\n52\n")
+    # Independent all-pairs oracle, not another Dijkstra implementation. Join
+    # random components into one fixture so sanitizer compilation happens once.
+    rng = random.Random(0xD2026)
+    edges, checks, starts = [], [], []
+    nodes = 0
+    for _ in range(40):
+        n = rng.randrange(1, 25)
+        starts.append(nodes)
+        dist = [[None] * n for _ in range(n)]
+        for u in range(n):
+            dist[u][u] = 0
+        for _ in range(rng.randrange(n * 5 + 1)):
+            u, v = rng.randrange(n), rng.randrange(n)
+            w = rng.choice((0, 1, 2, 4294967295, rng.randrange(1000)))
+            edges.append((nodes + u, nodes + v, w))
+            if dist[u][v] is None or w < dist[u][v]:
+                dist[u][v] = w
+            if rng.randrange(5) == 0:
+                edges.append(edges[-1])
+        for k in range(n):
+            for u in range(n):
+                for v in range(n):
+                    if dist[u][k] is None or dist[k][v] is None:
+                        continue
+                    candidate = dist[u][k] + dist[k][v]
+                    if dist[u][v] is None or candidate < dist[u][v]:
+                        dist[u][v] = candidate
+        checks.extend((nodes + u, nodes + v, -1 if dist[u][v] is None else dist[u][v])
+                      for u in range(n) for v in range(n))
+        nodes += n
+    checks.extend((a, b, -1) for a, b in zip(starts, starts[1:]))
+    checks += checks[:100]
+    rng.shuffle(edges)
+    rng.shuffle(checks)
+    cases["random-all-pairs"] = (
+        f"{nodes} {len(edges)}\n" + "".join(f"{u} {v} {w}\n" for u, v, w in edges),
+        "".join(f"{s} {t}\n" for s, t, d in checks))
+    answer("d", "random-all-pairs", "".join(f"{d}\n" for s, t, d in checks))
+    for label, (graph, queries) in cases.items():
+        data = SUB / ".work/fixtures/d" / label
+        data.mkdir(parents=True, exist_ok=True)
+        (data / "graph.txt").write_text(graph)
+        (data / "queries.txt").write_text(queries)
+    return cases
+
+
 if __name__ == "__main__":
     if sys.argv[1] == "a":
         print(list(make_a()))
@@ -96,3 +160,5 @@ if __name__ == "__main__":
         print(list(make_c()))
     elif sys.argv[1] == "b":
         print(list(make_b()))
+    elif sys.argv[1] == "d":
+        print(list(make_d()))

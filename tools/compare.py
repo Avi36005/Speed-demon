@@ -22,7 +22,7 @@ def sha(path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('track', choices='acb')
+    ap.add_argument('track', choices='acbd')
     ap.add_argument('--baseline', required=True)
     ap.add_argument('--hypothesis', required=True)
     ap.add_argument('--repeats', type=int, default=5)

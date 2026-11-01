@@ -25,7 +25,7 @@ def sha(path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("track", choices="acb")
+    ap.add_argument("track", choices="acbd")
     ap.add_argument("--data", type=Path)
     ap.add_argument("--expected")
     ap.add_argument("--runs", type=int, default=5)

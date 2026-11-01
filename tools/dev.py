@@ -16,7 +16,7 @@ SUB = Path(__file__).resolve().parents[1]
 ROOT = SUB.parent
 OFFICIAL = ROOT / "official/speed-demon-2026"
 NAMES = {"a": ("a_ingest", "summary.txt"), "b": ("b_index", "results.txt"),
-         "c": ("c_join", "aggregates.txt")}
+         "c": ("c_join", "aggregates.txt"), "d": ("d_traverse", "distances.txt")}
 
 
 def digest(path):

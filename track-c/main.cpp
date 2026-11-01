@@ -77,6 +77,20 @@ struct Parser {
         }
         return length;
     }
+    std::string_view name(std::string& scratch) {
+        const char* start = p;
+        if (p < end && *p == '"') {
+            const char* quote = static_cast<const char*>(std::memchr(p + 1, '"', end - p - 1));
+            if (quote && (quote + 1 == end || quote[1] != '"')) {
+                p = quote + 1;
+                return {start + 1, static_cast<size_t>(quote - start - 1)};
+            }
+            text(&scratch);
+            return scratch;
+        }
+        while (p < end && *p != ',' && *p != '\r' && *p != '\n') ++p;
+        return {start, static_cast<size_t>(p - start)};
+    }
     int64_t cents() {
         bool negative = p < end && *p == '-';
         if (negative) ++p;
@@ -100,6 +114,39 @@ struct Country {
     std::vector<uint64_t> names;
     uint64_t distinct = 0;
     explicit Country(std::string key) : code(std::move(key)) {}
+};
+
+// IDs, not pointers, survive vector growth. Only unique decoded names are
+// copied, and every fingerprint hit is checked against the complete name.
+class Names {
+    struct Slot { uint32_t fingerprint = 0, id = 0; };
+    std::vector<Slot> slots = std::vector<Slot>(1024);
+    std::vector<std::string> keys;
+    size_t locate(std::string_view key, size_t hash) const {
+        size_t pos = hash & (slots.size() - 1);
+        while (slots[pos].id &&
+               (slots[pos].fingerprint != static_cast<uint32_t>(hash >> 32) ||
+                keys[slots[pos].id - 1] != key))
+            pos = (pos + 1) & (slots.size() - 1);
+        return pos;
+    }
+public:
+    uint32_t intern(std::string_view key) {
+        if ((keys.size() + 1) * 2 > slots.size()) {
+            slots.assign(slots.size() * 2, Slot{});
+            for (uint32_t id = 0; id < keys.size(); ++id) {
+                size_t hash = std::hash<std::string_view>{}(keys[id]);
+                slots[locate(keys[id], hash)] = {static_cast<uint32_t>(hash >> 32), id + 1};
+            }
+        }
+        size_t hash = std::hash<std::string_view>{}(key);
+        auto& slot = slots[locate(key, hash)];
+        if (!slot.id) {
+            keys.emplace_back(key);
+            slot = {static_cast<uint32_t>(hash >> 32), static_cast<uint32_t>(keys.size())};
+        }
+        return slot.id - 1;
+    }
 };
 
 std::string money(int64_t value) {
@@ -144,13 +191,13 @@ int main(int argc, char** argv) {
         csv.bom();
         while (csv.p < csv.end && *csv.p++ != '\n') {}  // header has no quotes
         std::string name;
-        std::unordered_map<std::string, uint32_t> names;
-        names.reserve(131072);
+        Names names;
         while (csv.p < csv.end) {
             csv.bom();  // this is a true record boundary, never an embedded LF
             uint64_t id = csv.integer();
             ++csv.p;
-            size_t name_bytes = csv.text(&name);
+            auto name_view = csv.name(name);
+            size_t name_bytes = name_view.size();
             ++csv.p;
             size_t note_bytes = csv.text(nullptr);
             ++csv.p;
@@ -168,8 +215,7 @@ int main(int argc, char** argv) {
             country.note_bytes += note_bytes;
             // Interning compares decoded bytes exactly. Membership bits share
             // those IDs across countries; they do not stand in for name hashes.
-            auto [it, inserted] = names.try_emplace(name, static_cast<uint32_t>(names.size()));
-            uint32_t name_id = it->second;
+            uint32_t name_id = names.intern(name_view);
             size_t word = name_id / 64;
             if (word >= country.names.size()) country.names.resize(word + 1, 0);
             uint64_t mask = uint64_t{1} << (name_id % 64);

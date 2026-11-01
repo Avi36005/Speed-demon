@@ -79,3 +79,23 @@ one paired run regressed. Treat the speed gain as provisional, not a scoring
 claim. Peak local wait4 RSS 219,693,056 and 219,463,680 B. All hashes match;
 worked/general-grammar/empty sanitizer fixtures, sample seed 42 and full seed 7
 pass. Candidate static/amd64/board proof still pending.
+
+## C3 rejected as a standalone change — borrowed intern keys
+
+Borrowed plain decoded-name views eliminated copies but made the interned
+comparison keys point into the 202 MB input. Five alternating local means
+0.975728 -> 0.998996 s, with wide spread and a slower candidate aggregate.
+All hashes pass. No reliable benefit is claimed. The source is preserved in
+`.work/compare/c-986aaa64e3/candidate/`; the next test uses compact owned
+unique keys while still borrowing transient plain-name lookups.
+
+## C4 retained — compact owned-name interning
+
+Exact unique decoded names are owned in an indexed vector; a compact probing
+table filters by fingerprint and then compares complete bytes. Plain repeated
+names are looked up through transient input views, avoiding per-record copies.
+Five alternating full public means (middle three): C2 1.119033 s, C4 0.734436 s.
+Peak local wait4 RSS 220,528,640 -> 225,165,312 B. All five pairs improve and
+all hashes match. Worked/general-grammar/empty sanitizer fixtures, sample 42
+and independent full seed 7 pass. Candidate official/static/container axes
+remain pending. Raw comparison `.work/compare/c-ebcf8831b5/record.json`.

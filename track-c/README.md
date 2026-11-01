@@ -13,7 +13,8 @@ Notes are counted while scanning without materializing their text.
 
 A dense uint16 region table maps known IDs to dynamically discovered country
 IDs. Holes and above-range IDs map to `_UNMATCHED`. Decoded names are interned
-globally with exact string equality. Each country uses a dynamically sized bitset
+globally in a compact probing table with exact string equality. Only unique
+names are copied; repeated plain names use transient input views. Each country uses a dynamically sized bitset
 of those IDs to count distinct names, plus 64-bit totals and min/max initialized
 from integer extremes. The bitsets represent exact name IDs rather than hashes.
 Money uses integer cents throughout, including negative fractional amounts.

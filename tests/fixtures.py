@@ -7,6 +7,12 @@ SUB = Path(__file__).resolve().parents[1]
 OFFICIAL = SUB.parent / "official/speed-demon-2026"
 
 
+def answer(track, label, expected):
+    folder = SUB / ".work/fixture-answers" / track
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / label).write_bytes(expected.encode() if isinstance(expected, str) else expected)
+
+
 def load(track, module):
     spec = importlib.util.spec_from_file_location(module, OFFICIAL / "tests" / f"test_{module}.py")
     mod = importlib.util.module_from_spec(spec)
@@ -25,6 +31,9 @@ def make_a():
         for status in (100, 498, 499, 500, 599):
             lines.append(f"2026-10-30T18:00:00.000000Z OPTIONS {path} {status} 4294967295\n")
     cases["targeted"] = "".join(reversed(lines))
+    answer("a", "worked", mod.WORKED_OUTPUT)
+    answer("a", "edges", mod.EDGE_OUTPUT)
+    answer("a", "empty", "")
     for label, text in cases.items():
         data = SUB / ".work/fixtures/a" / label
         data.mkdir(parents=True, exist_ok=True)
@@ -39,6 +48,9 @@ def make_c():
              "rules-final-lf": (mod.RULES_RECORDS + b"\n", mod.RULES_REGIONS),
              "rules-leading-bom": (mod.BOM + mod.RULES_RECORDS, mod.RULES_REGIONS),
              "empty": (b"id,name,note,region_id,amount\n", mod.WORKED_REGIONS)}
+    for label in cases:
+        answer("c", label, b"" if label == "empty" else
+               mod.WORKED_OUTPUT if label == "worked" else mod.RULES_OUTPUT)
     for label, (records, regions) in cases.items():
         data = SUB / ".work/fixtures/c" / label
         data.mkdir(parents=True, exist_ok=True)
@@ -50,9 +62,11 @@ def make_c():
 def make_b():
     mod = load("b", "b_index")
     cases = {"worked": (mod.EXAMPLE_DOCS, mod.EXAMPLE_QUERIES)}
+    answer("b", "worked", mod.EXAMPLE_RESULTS)
     class Capture(mod.EdgeCases):
         def check(self, texts, checks):
             cases[self.label] = (mod.docs_file(texts), "".join(q + "\n" for q, _ in checks).encode())
+            answer("b", self.label, "".join(a + "\n" for _, a in checks))
     capture = Capture()
     for method in dir(mod.EdgeCases):
         if method.startswith("test_"):
@@ -65,6 +79,8 @@ def make_b():
         b'BOOL missing AND a OR b\nBOOL a NOT a OR b\nBOOL a NOT a OR b\n'
         b'PHRASE "x x x x x x x x"\nPHRASE "a b"\nBOOL ' + b'z'*32 + b'\n')
     cases["wide-sum"] = (mod.docs_file(["common"]*100000), b"BOOL common\nBOOL common NOT missing\n")
+    answer("b", "targeted", b"2 4 1 3\n2 4 1 3\n2 4 1 3\n1 2 2\n0 0\n1 4 4\n")
+    answer("b", "wide-sum", b"100000 4999950000 0 1 2 3 4 5 6 7 8 9\n"*2)
     for label, (docs, queries) in cases.items():
         data = SUB / ".work/fixtures/b" / label
         data.mkdir(parents=True, exist_ok=True)

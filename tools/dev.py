@@ -84,6 +84,10 @@ def main():
         got, expected = (candidate / name).read_bytes(), (reference / name).read_bytes()
         record["output_sha256"] = digest(candidate / name)
         record["expected_sha256"] = digest(reference / name)
+        hand = SUB / ".work/fixture-answers" / args.track / args.label
+        if hand.exists() and args.data.resolve().is_relative_to(SUB / ".work/fixtures"):
+            record["hand_expected_sha256"] = digest(hand)
+            assert got == hand.read_bytes(), "hand-worked fixture mismatch"
         if got != expected:
             offset = next((i for i, (a, b) in enumerate(zip(got, expected)) if a != b),
                           min(len(got), len(expected)))

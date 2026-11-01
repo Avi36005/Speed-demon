@@ -18,6 +18,7 @@ def main():
     ap.add_argument("--seeds", type=int, nargs="+", default=[2, 3, 42])
     ap.add_argument("--scale", choices=["tiny", "sample", "full"], default="sample")
     ap.add_argument("--fixtures", action="store_true")
+    ap.add_argument("--workers", type=int)
     args = ap.parse_args()
     records = []
     commands = []
@@ -40,6 +41,8 @@ def main():
     passed = True
     for command in commands:
         command = [str(x) for x in command]
+        if args.workers is not None and str(SUB / "tools/dev.py") in command:
+            command += ["--workers", str(args.workers)]
         proc = subprocess.run(command, capture_output=True, text=True)
         records.append({"argv": command, "exit": proc.returncode, "stdout": proc.stdout, "stderr": proc.stderr})
         print(command[-1], "PASS" if proc.returncode == 0 else "FAIL", flush=True)

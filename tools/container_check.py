@@ -72,6 +72,8 @@ def main():
         assert details["Architecture"] == "amd64"
         assert details["Size"] <= 2 * 1024**3
         assert not details["Config"].get("Volumes")
+        assert details["Config"].get("Entrypoint") == ["/app/solution"]
+        assert not details["Config"].get("Cmd")
         record["image_bytes"] = details["Size"]
         record["image_id"] = details["Id"]
         record["runtime_libraries"] = run(["docker", "run", "--rm", "--platform", "linux/amd64",

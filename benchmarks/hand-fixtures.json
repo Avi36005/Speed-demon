@@ -1,0 +1,184 @@
+[
+  {
+    "track": "a",
+    "label": "worked",
+    "artifact": ".work/track-a/2026-11-01T13_05_27.115935_00_00-worked/candidate/summary.txt",
+    "sha256": "0782f9b9a885bdbcdfadf330f6bea55accdc06018c0108f69ea43372d2fac692",
+    "passed": true
+  },
+  {
+    "track": "a",
+    "label": "edges",
+    "artifact": ".work/track-a/2026-11-01T13_05_29.938298_00_00-edges/candidate/summary.txt",
+    "sha256": "1f43d4bbd4b84dc66319a414138225ff5c2ab9f30aeb2398ec0e54b339011459",
+    "passed": true
+  },
+  {
+    "track": "a",
+    "label": "empty",
+    "artifact": ".work/track-a/2026-11-01T13_05_38.576643_00_00-empty/candidate/summary.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "passed": true
+  },
+  {
+    "track": "c",
+    "label": "worked",
+    "artifact": ".work/track-c/2026-11-01T13_08_51.526161_00_00-worked/candidate/aggregates.txt",
+    "sha256": "72ed9e59bff2dad354a9fb4cbc2d4b102477f634230b47e86035864c88d27444",
+    "passed": true
+  },
+  {
+    "track": "c",
+    "label": "rules",
+    "artifact": ".work/track-c/2026-11-01T13_08_54.504078_00_00-rules/candidate/aggregates.txt",
+    "sha256": "0c084eef633858f79b023d1d767c8c474e73ad5c37f3f587c1145c3aa36e52ec",
+    "passed": true
+  },
+  {
+    "track": "c",
+    "label": "rules-leading-bom",
+    "artifact": ".work/track-c/2026-11-01T13_09_00.242875_00_00-rules-leading-bom/candidate/aggregates.txt",
+    "sha256": "0c084eef633858f79b023d1d767c8c474e73ad5c37f3f587c1145c3aa36e52ec",
+    "passed": true
+  },
+  {
+    "track": "c",
+    "label": "rules-final-lf",
+    "artifact": ".work/track-c/2026-11-01T13_09_04.581839_00_00-rules-final-lf/candidate/aggregates.txt",
+    "sha256": "0c084eef633858f79b023d1d767c8c474e73ad5c37f3f587c1145c3aa36e52ec",
+    "passed": true
+  },
+  {
+    "track": "c",
+    "label": "empty",
+    "artifact": ".work/track-c/2026-11-01T13_09_07.182035_00_00-empty/candidate/aggregates.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "worked",
+    "artifact": ".work/track-b/2026-11-01T13_11_33.061120_00_00-worked/candidate/results.txt",
+    "sha256": "9c296c063de983fd734d9e6ab985866967731d6478d33b7e1b8723391b6e325b",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "boolean_semantics",
+    "artifact": ".work/track-b/2026-11-01T13_11_40.225032_00_00-boolean_semantics/candidate/results.txt",
+    "sha256": "8c1b749f49c9f6913f9896759370b6b4fe874240ac41eba3acfb9daa7de24044",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "digit_tokens_are_strings",
+    "artifact": ".work/track-b/2026-11-01T13_11_48.383454_00_00-digit_tokens_are_strings/candidate/results.txt",
+    "sha256": "ab90784645a6c677f886b5b28b05e5850f540745651ea4784028bb4763f97175",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "empty_and_separator_only_documents",
+    "artifact": ".work/track-b/2026-11-01T13_11_54.762324_00_00-empty_and_separator_only_documents/candidate/results.txt",
+    "sha256": "8ab749d69edf8e4cf5231cc4817664e74cae4fce989fc4e3a43fa16d59a96db4",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "phrase_semantics",
+    "artifact": ".work/track-b/2026-11-01T13_11_58.339305_00_00-phrase_semantics/candidate/results.txt",
+    "sha256": "aa7696f4f5fed52c6d3c0363ed988cc2a0a563df624657060fe19a29deabbba0",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "result_line_lists_ten_smallest_ids",
+    "artifact": ".work/track-b/2026-11-01T13_12_02.882779_00_00-result_line_lists_ten_smallest_ids/candidate/results.txt",
+    "sha256": "b58facf8cebf221d4a83be3e309c23696418edb1f471b950b3eb98bed1bbd51f",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "tokenizer_byte_rule",
+    "artifact": ".work/track-b/2026-11-01T13_12_06.835331_00_00-tokenizer_byte_rule/candidate/results.txt",
+    "sha256": "d418b1f89068d1b8951d53a679bc5a31b9d9b092700f70d3beffe050f2b44f2a",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "targeted",
+    "artifact": ".work/track-b/2026-11-01T13_12_11.258475_00_00-targeted/candidate/results.txt",
+    "sha256": "720a430894228571a657b71adfbda8652856b0e45aad16f71e39a4ae152253eb",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "wide-sum",
+    "artifact": ".work/track-b/2026-11-01T13_12_15.563739_00_00-wide-sum/candidate/results.txt",
+    "sha256": "c55532536bb0f786d257a80b5eb270832f9a055eb67595e418b545f624256b6e",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "worked",
+    "artifact": ".work/track-b/2026-11-01T13_16_59.376827_00_00-worked/candidate/results.txt",
+    "sha256": "9c296c063de983fd734d9e6ab985866967731d6478d33b7e1b8723391b6e325b",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "boolean_semantics",
+    "artifact": ".work/track-b/2026-11-01T13_17_05.947840_00_00-boolean_semantics/candidate/results.txt",
+    "sha256": "8c1b749f49c9f6913f9896759370b6b4fe874240ac41eba3acfb9daa7de24044",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "digit_tokens_are_strings",
+    "artifact": ".work/track-b/2026-11-01T13_17_11.498786_00_00-digit_tokens_are_strings/candidate/results.txt",
+    "sha256": "ab90784645a6c677f886b5b28b05e5850f540745651ea4784028bb4763f97175",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "empty_and_separator_only_documents",
+    "artifact": ".work/track-b/2026-11-01T13_17_16.864675_00_00-empty_and_separator_only_documents/candidate/results.txt",
+    "sha256": "8ab749d69edf8e4cf5231cc4817664e74cae4fce989fc4e3a43fa16d59a96db4",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "phrase_semantics",
+    "artifact": ".work/track-b/2026-11-01T13_17_21.305755_00_00-phrase_semantics/candidate/results.txt",
+    "sha256": "aa7696f4f5fed52c6d3c0363ed988cc2a0a563df624657060fe19a29deabbba0",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "result_line_lists_ten_smallest_ids",
+    "artifact": ".work/track-b/2026-11-01T13_17_25.732585_00_00-result_line_lists_ten_smallest_ids/candidate/results.txt",
+    "sha256": "b58facf8cebf221d4a83be3e309c23696418edb1f471b950b3eb98bed1bbd51f",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "tokenizer_byte_rule",
+    "artifact": ".work/track-b/2026-11-01T13_17_29.137484_00_00-tokenizer_byte_rule/candidate/results.txt",
+    "sha256": "d418b1f89068d1b8951d53a679bc5a31b9d9b092700f70d3beffe050f2b44f2a",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "targeted",
+    "artifact": ".work/track-b/2026-11-01T13_17_32.538268_00_00-targeted/candidate/results.txt",
+    "sha256": "720a430894228571a657b71adfbda8652856b0e45aad16f71e39a4ae152253eb",
+    "passed": true
+  },
+  {
+    "track": "b",
+    "label": "wide-sum",
+    "artifact": ".work/track-b/2026-11-01T13_17_35.925284_00_00-wide-sum/candidate/results.txt",
+    "sha256": "c55532536bb0f786d257a80b5eb270832f9a055eb67595e418b545f624256b6e",
+    "passed": true
+  }
+]

@@ -24,3 +24,28 @@ endpoint fixture, tiny and sample seed 1 all matched. Small edge and targeted
 fixtures passed ASan/UBSan. The first benchmark wrapper failed because sandboxed
 `time -l` could not read `kern.clockrate`; output correctness had already passed.
 That failed experiment is retained, and the runner now uses wait4 directly.
+
+## A1 retained — independent whole-line workers
+
+Each worker owns its endpoint/hour vectors. Cuts advance to a complete line
+boundary; merging retains every latency and error before exact full sorting.
+
+| Workers | Paired scalar mean (s) | Candidate mean (s) | Candidate peak RSS (bytes) |
+|---|---:|---:|---:|
+| 1 | 0.570089 | 0.631456 | 286,441,472 |
+| 2 | 0.688375 | 0.493506 | 291,504,128 |
+| 4 | 0.442366 | 0.252881 | 301,547,520 |
+| 6 | 0.461982 | 0.234380 | 311,377,920 |
+| 12 | 0.435864 | 0.229677 | 341,508,096 |
+
+Five alternating runs per version, Apple Clang 17, ARM64, identical full seed 1.
+All fifty outputs matched. Baselines drift across blocks; compare each candidate
+to its own paired baseline. Six workers selected: twelve had no reliable time
+advantage and used more RSS. No x86 worker-count advantage is inferred.
+The one-worker parallel scaffolding was slower and is not the selected default.
+
+The first jthread build failed on Apple libc++; explicit thread ownership and
+joining resolved it. Twelve-worker small fixtures pass ASan/UBSan. Worker counts
+1/2/4/6/12 match full seed 1 repeatedly; twelve workers match full seed 7.
+Official source/dependency axes and final container evidence are recorded
+separately. Official T/M/K/points and board IDs remain unknown.

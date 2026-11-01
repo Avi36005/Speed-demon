@@ -3,9 +3,11 @@
 C++20, standard library and POSIX mmap only. Read `/data/requests.log` and write
 `/out/summary.txt`. Local checks may pass `--data DIR --out DIR`.
 
-The baseline parses the documented timestamp fields directly, discovers endpoint
+The program parses the documented timestamp fields directly, discovers endpoint
 strings from the input, and retains unsigned 32-bit latencies in each endpoint's
-72 hour buckets. It sorts every bucket and takes the three exact nearest ranks.
+72 hour buckets. Six workers (override with `--workers 1..12`) parse independent
+whole-line ranges into private tables. Their exact vectors and error counts are
+merged after joining all threads. It sorts every bucket and takes the three exact nearest ranks.
 Errors are precisely 500–599; counts and ppm arithmetic use 64 bits. Endpoints
 are sorted by ASCII bytes and hours emitted chronologically. Duplicate lines
 are retained. Empty input produces a zero-byte file.
@@ -23,5 +25,6 @@ Dependencies: zero non-standard-library runtime dependencies (declared D=1;
 the harness marks this declaration unverified). MIT, see repository LICENSE.
 Native Mac timings are not scoring-box evidence. See PERF.md and ../STATUS.md.
 
-With another 24 hours: profile parsing versus selection, compare exact
-multi-selection, and measure line-boundary parallel parsing on the scoring CPU.
+With another 24 hours: compare exact multi-selection with full sorting and
+measure the 1/2/4/6/12 worker sweep on the scoring CPU. The selected worker count
+comes from native ARM64 measurements, so its x86 optimum remains unknown.

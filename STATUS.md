@@ -19,3 +19,10 @@ A/C five-run amd64 emulated sandbox checks pass; builds 8.37/9.33 s, images ~30 
 Official cgroup memory/board evidence remains unavailable. B baseline is being archived.
 Additional sample seeds 2/3/42 and full seed 7 for A/C running serially.
 Current experiment: phase profiles to guide allocation and query representation changes.
+
+2026-11-01 13:28 UTC checkpoint:
+- C1 interned-name/bitset optimization kept at 673bb07; full 1/7 and small sanitizer fixtures pass.
+- A1 worker sweep complete: default six, full 1 repeatedly and full 7 at 12 workers pass. Final default/additional samples running.
+- B1 hybrid preserved at f63225a. B2 parallel indexing is under fixture/full-seed validation; next compare against f63225a with workers 1/2/4/6/12.
+- Official static tools prepared. A baseline S=127 through official tool; final S/D pending for each track.
+- Next: finish B2 correctness, run serialized B2 worker comparisons, then final offline/container/static checks and submission report.

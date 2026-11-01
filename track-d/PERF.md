@@ -116,3 +116,7 @@ score is claimed. Source/cmds/raw samples retained in comparisons.jsonl.
 ### Actual board receipt — f95f205
 
 Run `run-848af1be5c83`: T1.229514s, cgroup M210,100,224B, S239, D1, K7.939916, machine points44.990795; all gates passed. Receipt benchmarks/board/2026-11-01T195245.141719Z.json. Only A build inputs changed since1429e2e. A score +.229959 in one run is within observed run variation; PGO benefit remains uncertain. B/C/D changes here are run variation because their runtime inputs are identical. D remains unregistered.
+
+### Actual board trial5c216d1 — all gates passed
+
+Run `run-ed34233348c5`: T1.116187s, cgroup M210,255,872B, S239, D1, K8.332011, machine points46.037492. Immutable receipt: benchmarks/board/2026-11-01T200313.061179Z.json. A13/B11/C9 registered overall57.177641 (geometric mean). D remains unregistered and its runtime bytes unchanged; its time change is variation, not a new algorithm. All A/B/C scored above the previous recorded best; retain these verified candidates.

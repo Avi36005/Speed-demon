@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/kryptonite-banner.svg" alt="Kryptonite — Speed Demon 2026. C++20 entries for Ingest, Join and Index." width="100%">
+  <img src="docs/assets/kryptonite-banner.svg" alt="Kryptonite — Speed Demon 2026. C++20 entries for Ingest, Join, Index and Traverse." width="100%">
 </p>
 
 <p align="center">
@@ -17,11 +17,11 @@
 
 ---
 
-> **Verified board checkpoint:** all four tracks passed at `1429e2e`, scoring
-> **56.09 overall** across registered A/B/C. The requested 92 target remains
-> unmet. A build-time PGO trial passed; its small score change remains within observed
-> run variation. Exact-selection, bitmap-summary and atomic-name candidates
-> have separate current proof in the round-six manifest.
+> **Verified board checkpoint:** all four tracks passed at `5c216d1`, scoring
+> **57.18 overall** across registered A/B/C. The requested 92 target remains
+> unmet. Exact selection, dense-result summaries and atomic name arenas have current
+> correctness and runtime evidence in the round-six manifest. A smaller private
+> posting representation is being evaluated for B.
 > D is implemented and measured, but its registration is still pending.
 > See [STATUS.md](STATUS.md) for exact current evidence.
 
@@ -68,27 +68,27 @@ distance resets. A first meeting is an upper bound, never a stopping condition.
 
 ## Official live-board measurements
 
-Checkpoint `1429e2e` passed every build, correctness, timeout and sandbox gate.
-Registered A/B/C machine scores give **56.089310 overall**, up from **43.243**
-at the first baseline. The requested 92 target is not achieved. These are single
+Checkpoint `5c216d1` passed every build, correctness, timeout and sandbox gate.
+Registered A/B/C machine scores give **57.177641 overall**, up from **43.243**
+at the first baseline. The requested92 target is not achieved. These are single
 public-data runs; final holdout and judging remain separate. D is measured but
 still marked unregistered in the feed.
 
 | Track | Machine points | Time | cgroup peak | Real run ID |
 | :--- | ---: | ---: | ---: | :--- |
-| A | 64.675051 | 0.089412 s | 63,840,256 B | `run-18e711ea44af` |
-| B | 48.838903 | 1.063800 s | 159,985,664 B | `run-4a8ff5ad0553` |
-| C | 55.864717 | 0.206900 s | 16,121,856 B | `run-9c9de469bfe8` |
-| D | 44.723104 | 1.259096 s | 210,563,072 B | `run-48c61f525199` |
+| A | 65.828285 | 0.079049 s | 63,434,752 B | `run-8e4a8338a92d` |
+| B | 49.567895 | 0.976826 s | 160,452,608 B | `run-3717e5314522` |
+| C | 57.288266 | 0.170541 s | 17,289,216 B | `run-751108049e14` |
+| D | 46.037492 | 1.116187 s | 210,255,872 B | `run-ed34233348c5` |
 
-[Checkpoint receipt](benchmarks/board/2026-11-01T192637.287985Z.json) ·
+[Checkpoint receipt](benchmarks/board/2026-11-01T200313.061179Z.json) ·
 [First baseline receipt](benchmarks/board/2026-11-01-first-public-run.json) ·
 [Kryptonite on the live board](https://speeddemon.dev/board/#kryptonite-96429f)
 
 ## Verification
 
-The matrix below applies to the four-track `1429e2e` runtime, pinned in the
-[round-four manifest](benchmarks/round4-manifest.json). Later candidates have
+The matrix below applies to the four-track `5c216d1` runtime, pinned in the
+[round-six manifest](benchmarks/round6-manifest.json). Later candidates have
 separate evidence in the performance logs and [current status](STATUS.md).
 
 | Check | Evidence |
@@ -106,7 +106,7 @@ commits. Local process RSS and emulated timings remain separate from those axes.
 
 [Full verification report](SUBMISSION_REPORT.md) ·
 [Test coverage](tests/README.md) ·
-[Runtime manifest](benchmarks/round4-manifest.json)
+[Runtime manifest](benchmarks/round6-manifest.json)
 
 ## Local measurements
 

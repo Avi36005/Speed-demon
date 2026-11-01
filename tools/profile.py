@@ -39,7 +39,7 @@ if track == 'a':
         replace('partial.clear();', 'partial.clear();\n' + phase('scatter'))
     else:
         replace('std::vector<std::string_view> order;', phase('ingest') + 'std::vector<std::string_view> order;')
-    replace('std::ofstream out(', phase('sort_and_serialize') + 'std::ofstream out(')
+    replace('std::ofstream out(', phase('rank_and_serialize') + 'std::ofstream out(')
 elif track == 'c':
     replace('std::vector<Country> countries;', begin + 'std::vector<Country> countries;')
     replace('Input records(', phase('lookup') + 'Input records(')
@@ -48,7 +48,13 @@ elif track == 'b':
     replace('Input query_file(', begin + 'Input query_file(')
     replace('std::vector<Posting> index(', phase('queries') + 'std::vector<Posting> index(')
     if 'std::vector<std::string> answers(' in text:
-        replace('std::vector<std::string> answers(', phase('index') + 'std::vector<std::string> answers(')
+        if '// Each document range starts' in text:
+            replace('// Each document range starts', phase('document_views') + '// Each document range starts')
+            replace('const Vocabulary& needed = vocabulary;', phase('private_index_allocation') + 'const Vocabulary& needed = vocabulary;')
+            replace('threads.join();\n        std::vector<std::vector<uint64_t>> bitmaps',
+                    'threads.join();\n' + phase('tokenize_and_build') + 'std::vector<std::vector<uint64_t>> bitmaps')
+            replace('partial.clear();', phase('merge_terms') + 'partial.clear();')
+        replace('std::vector<std::string> answers(', phase('private_index_release') + 'std::vector<std::string> answers(')
         replace('std::ofstream out(', phase('evaluate_and_format') + 'std::ofstream out(')
         replace('if (!out) throw', phase('write') + 'if (!out) throw')
     else:

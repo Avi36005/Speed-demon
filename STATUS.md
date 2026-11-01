@@ -1,15 +1,14 @@
 # Kryptonite — current checkpoint
 
-Updated 2026-11-01 19:56 UTC. Target: **92 overall live-board machine points**.
-Registered best-per-track overall: **56.155708** (calculated geometric mean).
-Latest f95f205 run overall:55.249768; the best scores include older B/C runs. Target not achieved. The user requested
+Updated 2026-11-01 20:06 UTC. Target: **92 overall live-board machine points**.
+Registered latest/best overall: **57.177641** (calculated geometric mean). Target not achieved. The user requested
 no new file/ZIP handoff until 92 is measured. Existing project ZIP is an outdated
 historical release; do not present it as current.
 
 ## Repository and deadline
 
 - Entrant repo: https://github.com/Avi36005/Speed-demon.git, branch `speed-demon`.
-- Latest pushed/board-tested commit: `f95f20526f97cb3f0d59ce38a730540aba614e23`.
+- Latest pushed/board-tested commit: `5c216d18b8063310c47295fce70d8408865b4b4a`.
 - A/B/C registered. D is implemented, passed, and scored, but registered:false.
 - Repository private at last check. MIT notice retained. No visibility change or
   new form submission performed. Do not attest to unverified registration facts.
@@ -17,22 +16,22 @@ historical release; do not present it as current.
   final proof. Public licence/visibility requirement still needs attention.
 - User authorized real commits/pushes, then said goodnight/bye; no cancellation.
 
-## Latest actual board run (single public-data run)
+## Latest actual board run —5c216d1
 
-Receipt: `benchmarks/board/2026-11-01T192637.287985Z.json`.
-All check/build/correctness/timeout/sandbox gates passed.
+Registered overall **57.177641**, all gates passed. Immutable receipt
+`benchmarks/board/2026-11-01T200313.061179Z.json`; source proof round6-manifest.
+A13/B11/C9 are retained because each exceeded its previous measured best.
 
 | Track | Points | T seconds | cgroup M bytes | S | Run |
 |---|---:|---:|---:|---:|---|
-| A12 | 64.675051 | 0.089412 | 63,840,256 | 238 | run-18e711ea44af |
-| B8-free | 48.838903 | 1.063800 | 159,985,664 | 515 | run-4a8ff5ad0553 |
-| C6 | 55.864717 | 0.206900 | 16,121,856 | 348 | run-9c9de469bfe8 |
-| D3 | 44.723104 | 1.259096 | 210,563,072 | 239 | run-48c61f525199 |
+| A13 | 65.828285 | .079049 | 63,434,752 | 254 | run-8e4a8338a92d |
+| B11 | 49.567895 | .976826 | 160,452,608 | 545 | run-3717e5314522 |
+| C9 | 57.288266 | .170541 | 17,289,216 | 390 | run-751108049e14 |
+| D3 | 46.037492 | 1.116187 | 210,255,872 | 239 | run-ed34233348c5 |
 
-D=1 each (declared). D score excluded from registered overall. Original official
-baseline overall43.243; previous measured checkpoints50.305507 and55.002670.
-Unchanged A source varied substantially between runs; do not claim all gains
-come from algorithms. Final holdout/judge scores remain unknown.
+D remains unregistered; its unchanged runtime varied in time. Original baseline
+43.243. Local ARM RSS/emulated times never stand in for official T/cgroup M.
+Final five-run hidden-holdout and judge results remain unknown.
 
 ## Passing submitted implementations
 
@@ -55,39 +54,30 @@ fixtures. Mac process RSS/emulated Docker times are never official measurements.
 New concurrency and bitmap-summary fixtures are included in the latest candidate
 native matrix; the original1429 manifest remains immutable.
 
-## Current candidate — round-six proof passed
+## Current B13 candidate proof passed, pending push
 
-Latest pushed is now f95f20526f97cb3f0d59ce38a730540aba614e23, A12 build-time
-PGO only. Official A run-dfae251f9662 passed with .086905s/63,033,344B/S248/
-64.905010 points. Small+.229959 vspriorA remains within known run variation.
-All four gates passed. B/C/D runtime inputs were identical to1429, so their
-new measurements are run variation. Immutable receipt195245.141719Z.
+B13 uses exact16-bit gaps with uint32 escapes only for private sparse postings.
+Final query representations/semantics stay unchanged. Five ARM pairs .561669
+->.554578s are inconclusive in time, RSS423.61 ->392.23MB. New large-gap fixture
+including exactly65535 and large first IDs passes native workers1/12 sanitizer
+and actual x86 worker1 sanitizers. Independent full7 five repeats and full
+current native matrix pass. Clean offline amd64 build, five full1 plus full7
+restricted runs pass; S574/D1. round7-manifest pins all source/build/input proof.
+Next: push reviewed B13-only runtime trial, capture actual score and retain or
+revert relative toB11. A13/C9/D3 are unchanged from5c216d1.
 
-Working runtime changes, fully checked, pending next push:
-- A13 exact ascending nearest-rank multi-selection with offline PGO. Native
-  paired .052602 ->.049621s, S254/D1. Independent full7 five repeats pass.
-- B11 dense bitmap exact count/sum/top-ten summaries. Time inconclusive
-  .580397 ->.578411s, RSS441.04 ->420.43MB; explicit official tradeoff trial.
-  S545/D1. New bitmap-boundary/partial-word/wide-sum fixtures pass native and
-  x86 sanitizers at12workers.
-- C9 immutable exact-name atomic publication with parser arenas. Two isolated
-  mechanisms C8 thenC9 each improved ARM paired time; C9 .073596s vsC8 .085414.
-  Full7 five repeats, contention fixture, forced one-bucket overflow sanitizer
-  and x86 sanitizers pass. S390/D1. No fixed name-count limit.
-- D3 unchanged. D4 monotone radix-frontier experiment passed semantics but
-  regressed locally .493666 ->.553765s, higher RSS; rejected.
+C9 high-contention exact fixture passed ThreadSanitizer at12workers; raw proof
+in benchmarks/track-c/concurrency.jsonl. New four-track README banner rendered
+and visually inspected in an isolated headless browser; file remains nativeSVG.
 
-All candidate A/B/C runtime digests match clean offline amd64 builds, five
-restricted full1 and one full7 sandbox runs plus a current final native matrix.
-Exact context hashes/proof references: benchmarks/round6-manifest.json.
-Next: diff review, commit/push the verified round-six trial; retain or revert
-using actual board time/memory/source points. Target92 not achieved, no newZIP.
+Isolated/unselected `.work/candidates/c10.cpp` borrows unescaped name bytes from
+the live mapping and copies only decoded scratch keys. Suite/paired comparison
+active. B12 early tokenization exit was within noise and unselected. D4 radix
+heaps regressed and were rejected. Keep all passing fallback commits.
 
-Isolated `.work/candidates/b12.cpp` tests early tokenization exit after a phrase
-match; suite/sample42 passed; five pairs .555767 ->.552742s are inconclusive. It
-remains unselected; stop this small query-microoptimization path for now.
-Prior rejected/unselected candidates remain outside track folders. Preserve
-1429 and f95f205 fallback commits. Do not benchmark two CPU jobs concurrently.
+No new ZIP/file handoff until actual92, as requested. No form or visibility
+change has been performed. Continue prioritizing measured B index cost; stop
+inconclusive paths and preserve the final verification window.
 
 ## Tooling and resumption
 

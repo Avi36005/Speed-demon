@@ -9,7 +9,9 @@ table. A fingerprint filters probes; complete byte equality resolves every
 collision. Query-backed keys remain mapped for the whole run.
 Only those terms are indexed. Documents are scanned in ID order; the last
 seen ID suppresses repeated occurrences within a document. Worker ranges align
-to bitmap words. A frequent private term promotes to a range bitmap and releases
+to bitmap words. Private sparse lists encode ascending document-ID gaps in
+16 bits with an exact uint32 escape for large gaps. Final merged sparse lists
+retain uint32 IDs for direct query access. A frequent private term promotes to a range bitmap and releases
 its redundant posting list. Global frequencies select the final sparse/dense
 layout. Ordered ranges merge into exact sorted postings or disjoint bitmap
 words, and each private term buffer is released after its global merge.

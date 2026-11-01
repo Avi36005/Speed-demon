@@ -1,7 +1,8 @@
 # Experiment decisions
 
-All measurements are local unless an actual board run ID is supplied. No board
-runs exist yet. Full seed 1 inputs are verified against the official manifest.
+All measurements are local unless an actual board run ID is supplied. The early
+entries below are historical; later official runs are archived under board/.
+Full seed1 inputs are verified against the official manifest.
 
 ## B1 — hybrid Boolean representation (in progress)
 
@@ -122,3 +123,29 @@ Next bounded hypotheses: build-time GCC PGO on generator sample seed8675309
 (prototype isolated, no scoring input in training), then profile B's remaining
 index construction or D's construction/search split. Stop paths that remain
 inconclusive and reserve the final two hours before freeze for verification.
+
+## Round-six decision checkpoint —5c216d1
+
+Actual1429e2e registered best-three overall56.089310. A12-PGO atf95f205
+passed all gates and improved the recorded A best by.229959 point, within
+known variation. With earlier best B/C runs, calculated geometric overall is
+56.155708; latest f95 run alone is55.249768. Never mix these two summaries.
+B/C/D runtime inputs were identical across these commits.
+
+Pushed concrete controlled trials after complete source-matching proof:
+- A13: exact ascending rank selection, .052602 ->.049621s paired ARM, S254.
+- B11: dense count/sum/top-ten summary; time inconclusive, RSS441.04 ->420.43MB,
+  S545. Trial justified by memory change, not a claimed speed improvement.
+- C8 thenC9: immutable exact atomic name publication, then private arenas as
+  separate measurements. C6->C8 .088182 ->.081063s; C8->C9 .085414 ->.073596s.
+  C9 S390, RSS221.23MB. Needs actual cgroup/time tradeoff to retain.
+
+All A13/B11/C9 exact current hashes pass full native matrix, independent full7,
+small relevant native/x86 sanitizers, clean offline amd64 builds, five restricted
+full1 and separate full7 sandbox checks. round6-manifest pins evidence. D3 remains
+unchanged. D4 radix heaps regressed .493666 ->.553765s and were rejected.
+B12 phrase early-exit .555767 ->.552742s is within noise and stays unselected.
+Stop the small query-microoptimization path; remaining B cost is index building.
+
+No 92 target, final judge result or new ZIP is claimed. Retain/revert the trial
+using actual board receipts; preserve1429/f95 fallback source and real history.

@@ -146,6 +146,22 @@ public:
 };
 using Posting = std::vector<uint32_t>;
 
+// Local document ids increase monotonically. A 16-bit gap stores the
+// ordinary case; the escape carries the full uint32 gap without truncation.
+template<class Callback>
+void local_postings(const std::vector<uint16_t>& gaps, uint32_t first, Callback callback) {
+    uint32_t doc = first;
+    for (size_t i = 0; i < gaps.size(); ++i) {
+        uint32_t gap = gaps[i];
+        if (gap == UINT16_MAX) {
+            gap = uint32_t(gaps[i + 1]) | (uint32_t(gaps[i + 2]) << 16);
+            i += 2;
+        }
+        doc += gap;
+        callback(doc);
+    }
+}
+
 struct ThreadGroup {
     std::vector<std::thread> values;
     void join() { for (auto& thread : values) if (thread.joinable()) thread.join(); }
@@ -364,7 +380,7 @@ int main(int argc, char** argv) {
         // term promotes once its bitmap is smaller than its postings; common
         // terms never retain a second full posting representation.
         struct LocalTerm {
-            Posting sparse;
+            std::vector<uint16_t> sparse;
             std::vector<uint64_t> dense;
             uint32_t frequency = 0, last = UINT32_MAX;
         };
@@ -385,15 +401,23 @@ int main(int argc, char** argv) {
                     if (term == UINT32_MAX) return;
                     auto& value = local[term];
                     if (value.last == doc) return;
+                    uint32_t previous = value.last == UINT32_MAX ? static_cast<uint32_t>(first) : value.last;
                     value.last = static_cast<uint32_t>(doc);
                     ++value.frequency;
                     if (value.dense.empty()) {
-                        value.sparse.push_back(static_cast<uint32_t>(doc));
-                        if (value.sparse.size() > local_threshold) {
+                        uint32_t gap = static_cast<uint32_t>(doc) - previous;
+                        if (gap < UINT16_MAX) value.sparse.push_back(static_cast<uint16_t>(gap));
+                        else {
+                            value.sparse.push_back(UINT16_MAX);
+                            value.sparse.push_back(static_cast<uint16_t>(gap));
+                            value.sparse.push_back(static_cast<uint16_t>(gap >> 16));
+                        }
+                        if (value.frequency > local_threshold) {
                             value.dense.resize(last_word - first_word, 0);
-                            for (auto id : value.sparse)
+                            local_postings(value.sparse, static_cast<uint32_t>(first), [&](uint32_t id) {
                                 value.dense[id / 64 - first_word] |= uint64_t{1} << (id % 64);
-                            Posting{}.swap(value.sparse);
+                            });
+                            std::vector<uint16_t>{}.swap(value.sparse);
                         }
                     } else value.dense[doc / 64 - first_word] |= uint64_t{1} << (doc % 64);
                 });
@@ -421,10 +445,10 @@ int main(int argc, char** argv) {
                     auto& value = partial[worker][term];
                     size_t first_word = words * worker / worker_count;
                     if (value.dense.empty()) {
-                        for (auto id : value.sparse) {
+                        local_postings(value.sparse, static_cast<uint32_t>(first_word * 64), [&](uint32_t id) {
                             if (dense) bitmaps[term][id / 64] |= uint64_t{1} << (id % 64);
                             else index[term].push_back(id);
-                        }
+                        });
                     } else if (dense) {
                         std::copy(value.dense.begin(), value.dense.end(), bitmaps[term].begin() + first_word);
                     } else {
@@ -438,7 +462,7 @@ int main(int argc, char** argv) {
                     }
                     // The term is complete globally; release its private
                     // storage before allocating the next merged term.
-                    Posting{}.swap(value.sparse);
+                    std::vector<uint16_t>{}.swap(value.sparse);
                     std::vector<uint64_t>{}.swap(value.dense);
                 }
             }

@@ -139,6 +139,17 @@ def make_b():
     answer("b", "bitmap-summary", "".join(
         " ".join(map(str, [len(ids), sum(ids), *sorted(ids)[:10]])) + "\n"
         for _, ids in checks))
+    # Large monotone gaps, including exactly65535 and a large first id.
+    # One-worker runs exercise every escape; multiple workers check range bases.
+    positions = {0, 65534, 65535, 65536, 131071, 200000}
+    text = ["" for _ in range(200001)]
+    for doc in positions: text[doc] = "rare rare marker"
+    text[65535] += " first"
+    text[200000] += " late"
+    cases["posting-gap-boundaries"] = (mod.docs_file(text),
+        b'BOOL rare\nBOOL first\nBOOL late\nPHRASE "rare marker"\n')
+    line = " ".join(map(str, [len(positions), sum(positions), *sorted(positions)])) + "\n"
+    answer("b", "posting-gap-boundaries", line + "1 65535 65535\n1 200000 200000\n" + line)
     answer("b", "targeted", b"2 4 1 3\n2 4 1 3\n2 4 1 3\n1 2 2\n0 0\n1 4 4\n")
     answer("b", "wide-sum", b"100000 4999950000 0 1 2 3 4 5 6 7 8 9\n"*2)
     for label, (docs, queries) in cases.items():

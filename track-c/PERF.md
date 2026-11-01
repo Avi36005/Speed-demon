@@ -218,3 +218,12 @@ Run `run-bec25f0cbcb3`: T0.234699s, cgroup M15,962,112B, S348, D1, K12.324914, m
 C9 combines the independently tested C8 immutable atomic publication/country membership with private parser arenas. C8 five ARM pairs .088182 ->.081063s vsC6; C9 paired againstC8 .085414 ->.073596s. C9 RSS221,233,152B. All native fixtures/samples/full1/full7 matrix, new independently aggregated contention fixture, forced one-bucket overflow under sanitizers, x86 sanitizer fixtures, clean offline build, five sandbox full1 plus full7 pass. S390/D1. Table size is a growth heuristic with unbounded overflow, never a seed lookup/cap. Entries/key bytes/bits outlive all worker lookups. Official memory/time effect pending; C6 preserved at1429e2e.
 
 Source/build-input hashes and exact proof references: benchmarks/round6-manifest.json. Raw paired samples and commands remain in comparisons.jsonl.
+
+### Actual board trial5c216d1 — all gates passed
+
+Run `run-751108049e14`: T0.170541s, cgroup M17,289,216B, S390, D1, K13.988312, machine points57.288266. Immutable receipt: benchmarks/board/2026-11-01T200313.061179Z.json. A13/B11/C9 registered overall57.177641 (geometric mean). D remains unregistered and its runtime bytes unchanged; its time change is variation, not a new algorithm. All A/B/C scored above the previous recorded best; retain these verified candidates.
+
+C9 twelve-worker high-contention fixture also passed native ARM64
+ThreadSanitizer on the exact current source, with independently derived expected
+bytes. This is race/correctness evidence, never performance evidence. Raw
+compiler/run commands: benchmarks/track-c/concurrency.jsonl.

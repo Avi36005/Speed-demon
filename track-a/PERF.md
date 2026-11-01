@@ -212,3 +212,7 @@ Run `run-dfae251f9662`: T0.086905s, cgroup M63,033,344B, S248, D1, K19.865532, m
 A13 selects exact nearest ranks in ascending order with nth_element, keeping each proven right partition. Duplicate percentile ranks reuse the selected value. Five paired ARM full1: .052602 ->.049621s; RSS307,134,464 ->304,037,888B. All native matrix checks, full7 five repeats, clean offline PGO build, five sandbox full1 plus full7 pass. Current S254/D1. Official effect pending; A12-PGO remains recoverable atf95f205.
 
 Source/build-input hashes and exact proof references: benchmarks/round6-manifest.json. Raw paired samples and commands remain in comparisons.jsonl.
+
+### Actual board trial5c216d1 — all gates passed
+
+Run `run-8e4a8338a92d`: T0.079049s, cgroup M63,434,752B, S254, D1, K20.728396, machine points65.828285. Immutable receipt: benchmarks/board/2026-11-01T200313.061179Z.json. A13/B11/C9 registered overall57.177641 (geometric mean). D remains unregistered and its runtime bytes unchanged; its time change is variation, not a new algorithm. All A/B/C scored above the previous recorded best; retain these verified candidates.

@@ -251,3 +251,21 @@ All small semantic/native sanitizer fixtures and sample42 passed. Five paired
 ARM full1 runs againstB11: .555767 ->.552742s, RSS422,674,432 ->419,299,328B.
 The time change is within observed run variation; do not select or claim an
 x86 speedup. Keep B11 for the controlled scoring-box tradeoff trial.
+
+### Actual board trial5c216d1 — all gates passed
+
+Run `run-3717e5314522`: T0.976826s, cgroup M160,452,608B, S545, D1, K9.802975, machine points49.567895. Immutable receipt: benchmarks/board/2026-11-01T200313.061179Z.json. A13/B11/C9 registered overall57.177641 (geometric mean). D remains unregistered and its runtime bytes unchanged; its time change is variation, not a new algorithm. All A/B/C scored above the previous recorded best; retain these verified candidates.
+
+### B13 exact private gap compression — official effect pending
+
+Private sparse lists use16-bit monotone gaps plus a three-word escape for gaps
+>=65535. Initial gaps are relative to each worker's first document; duplicate
+terms per document remain suppressed before encoding. Promotion/merge decode
+actual gaps exactly; final query indexes retain the proven uint32/bitmap layout.
+Five ARM pairs againstB11: .561669 ->.554578s (timing inconclusive), peak process
+RSS423,608,320 ->392,232,960B. Memory reduction motivates this real-box trial.
+New independent large-gap/first-id/65535 boundary fixture passes workers1/12
+ASan/UBSan; all actual x86 fixtures pass atworker1. Fresh full7 five repeats,
+current native matrix, clean offline amd64 build, five public sandbox runs and
+one full7 sandbox run pass. S574/D1 measured by unchanged official tooling.
+All digests/raw evidence: benchmarks/round7-manifest.json; no official gain yet.

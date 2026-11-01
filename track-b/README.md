@@ -7,8 +7,11 @@ Native testing supports `--data DIR --out DIR`. MIT; see ../LICENSE.
 Queries are parsed first and their actual terms interned with exact equality.
 Only those terms receive postings. Documents are scanned in ID order; the last
 ID in each posting suppresses repeated occurrences within a document. All
-postings stay sorted. Boolean intersections, unions and differences run strictly
-left to right. An empty intermediate set can still grow at a later OR.
+postings stay sorted. Workers build private postings for ordered document-ID
+ranges, then concatenate them in range order. Frequent terms also receive
+bitmaps; sparse lists and dense intermediate sets use exact membership tests or
+bitwise operations as appropriate. Boolean intersections, unions and differences
+run strictly left to right. An empty intermediate set can still grow at a later OR.
 
 Phrases use the smallest posting as an anchor, check membership of all terms,
 then tokenize each candidate document and check the exact contiguous sequence.
@@ -27,4 +30,5 @@ Declared D=1 is unverified by the harness; official S is unknown until measured.
 
 With another 24 hours: profile build versus queries, compare dense bitmaps with
 sparse postings, then measure parallel query evaluation. This initial baseline
-uses one worker and keeps raw document views rather than a full positional index.
+supports `--workers 1..12` and keeps raw document views rather than a full
+positional index. Worker choice remains provisional until measured on x86.

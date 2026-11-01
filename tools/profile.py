@@ -50,7 +50,7 @@ work.mkdir(parents=True)
 (work / 'out').mkdir()
 commands = []
 for cmd in (["clang++", "-std=c++20", "-O3", "-DNDEBUG", "-pthread", work / 'main.cpp', '-o', work / 'solution'],
-            [work / 'solution', '--data', SUB.parent / f'data/track-{track}/full-seed1', '--out', work / 'out']):
+            [work / 'solution', '--data', SUB.parent / f'data/track-{track}/full-seed1', '--out', work / 'out', *sys.argv[2:]]):
     proc = subprocess.run([str(x) for x in cmd], capture_output=True, text=True)
     commands.append({'argv': [str(x) for x in cmd], 'exit': proc.returncode,
                      'stdout': proc.stdout, 'stderr': proc.stderr})

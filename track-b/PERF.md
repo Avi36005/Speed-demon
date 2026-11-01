@@ -27,3 +27,22 @@ establish a scoring gain once source cost is included; no K is calculated.
 All fixtures, small sanitizer checks, sample seeds 2/3/42, full seeds 1/7 pass.
 Next: the unchanged index scan remains a major cost, so test independent
 document-range index construction before making a final representation decision.
+
+## B2 — independent document-range index construction
+
+Complete document views are enumerated first. Each worker builds private sorted
+postings; concatenating ordered ID ranges preserves sortedness without a sort.
+
+| Workers | Paired B1 mean (s) | Candidate mean (s) | Peak candidate RSS (bytes) |
+|---|---:|---:|---:|
+| 1 | 9.314653 | 8.359076 | 438,534,144 |
+| 2 | 14.846081 | 11.117755 | 483,524,608 |
+| 4 | 12.038984 | 8.795779 | 494,567,424 |
+| 6 | 9.117670 | 7.027117 | 504,152,064 |
+| 12 | 9.535021 | 7.649231 | 536,395,776 |
+
+Three alternating samples per version in each block, means of all three,
+ARM64 Apple Clang 17. This is a worker exploration, not the official five-run
+estimator. Baseline drift is substantial. Exact outputs pass all counts and
+full seeds 1/7; small twelve-worker fixtures pass ASan/UBSan. The combined
+B1/B2 version is preserved before a final diagnostic of remaining query cost.

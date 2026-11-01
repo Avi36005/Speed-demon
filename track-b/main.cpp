@@ -11,6 +11,7 @@
 #include <string_view>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <thread>
 #include <unistd.h>
 #include <unordered_map>
 #include <vector>
@@ -60,6 +61,12 @@ struct Query {
 
 using Vocabulary = std::unordered_map<std::string_view, uint32_t>;
 using Posting = std::vector<uint32_t>;
+
+struct ThreadGroup {
+    std::vector<std::thread> values;
+    void join() { for (auto& thread : values) if (thread.joinable()) thread.join(); }
+    ~ThreadGroup() { join(); }
+};
 
 bool phrase_matches(std::string_view text, const Query& query, const Vocabulary& vocabulary) {
     Posting sequence;
@@ -169,12 +176,15 @@ Posting evaluate(const Query& query, const std::vector<Posting>& index,
 int main(int argc, char** argv) {
     try {
         std::string data_dir = "/data", out_dir = "/out";
+        size_t worker_count = 1;
         for (int i = 1; i < argc; ++i) {
             std::string arg = argv[i];
             if (i + 1 < argc && arg == "--data") data_dir = argv[++i];
             else if (i + 1 < argc && arg == "--out") out_dir = argv[++i];
-            else throw std::runtime_error("usage: solution [--data DIR] [--out DIR]");
+            else if (i + 1 < argc && arg == "--workers") worker_count = std::stoul(argv[++i]);
+            else throw std::runtime_error("usage: solution [--data DIR] [--out DIR] [--workers 1..12]");
         }
+        if (worker_count < 1 || worker_count > 12) throw std::runtime_error("workers must be 1..12");
         Input query_file(data_dir + "/queries.txt");
         Vocabulary vocabulary;
         std::vector<Query> queries;
@@ -210,15 +220,40 @@ int main(int argc, char** argv) {
             const char* start = p;
             while (*p != '\n') ++p;
             std::string_view text(start, p++ - start);
-            uint32_t doc = static_cast<uint32_t>(documents.size());
             documents.push_back(text);
-            tokenize(text, [&](std::string_view token) {
-                auto it = vocabulary.find(token);
-                if (it == vocabulary.end()) return;
-                auto& posting = index[it->second];
-                if (posting.empty() || posting.back() != doc) posting.push_back(doc);
-            });
         }
+        // Documents are complete views before workers begin. Each worker owns
+        // its postings and an ordered range of document IDs. Concatenating ranges
+        // in worker order therefore preserves sorted, duplicate-free postings.
+        std::vector<std::vector<Posting>> partial(worker_count - 1, std::vector<Posting>(index.size()));
+        const Vocabulary& needed = vocabulary;
+        auto build_index = [&](size_t worker) {
+            auto& local = worker == 0 ? index : partial[worker - 1];
+            size_t first = documents.size() * worker / worker_count;
+            size_t last = documents.size() * (worker + 1) / worker_count;
+            for (size_t doc = first; doc < last; ++doc) {
+                tokenize(documents[doc], [&](std::string_view token) {
+                    auto it = needed.find(token);
+                    if (it == needed.end()) return;
+                    auto& posting = local[it->second];
+                    if (posting.empty() || posting.back() != doc) posting.push_back(static_cast<uint32_t>(doc));
+                });
+            }
+        };
+        ThreadGroup threads;
+        for (size_t worker = 1; worker < worker_count; ++worker)
+            threads.values.emplace_back(build_index, worker);
+        build_index(0);
+        threads.join();
+        for (size_t term = 0; term < index.size(); ++term) {
+            auto& posting = index[term];
+            size_t total = posting.size();
+            for (const auto& local : partial) total += local[term].size();
+            posting.reserve(total);
+            for (const auto& local : partial)
+                posting.insert(posting.end(), local[term].begin(), local[term].end());
+        }
+        partial.clear();
         // Dense terms receive compact bitmaps; sparse terms retain just postings.
         // Keeping sorted postings also gives phrase anchors without bitmap scans.
         std::vector<std::vector<uint64_t>> bitmaps(index.size());

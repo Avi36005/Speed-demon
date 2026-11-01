@@ -1,6 +1,6 @@
 {
   "track_dir": "/Users/avinashgehi3/projects/Speed Demon/submission/track-c",
-  "commit": "2dab8492be4df424df9348ef46f1754bf5e52785",
+  "commit": "47bb5276e4296119b3774b564a72f13a3692ffd0",
   "S_lines": 218,
   "per_language": {
     "C++": {
@@ -19,9 +19,9 @@
     },
     "Markdown": {
       "files": 2,
-      "code": 54,
+      "code": 66,
       "comment": 0,
-      "blank": 11,
+      "blank": 14,
       "counted": false
     },
     "TOML": {
@@ -42,7 +42,7 @@
       "path": "PERF.md",
       "kind": "prose",
       "language": "Markdown",
-      "lines": 35
+      "lines": 50
     },
     {
       "path": "README.md",

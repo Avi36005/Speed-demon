@@ -22,7 +22,9 @@ Hash collisions use exact string equality. Countries without records are omitted
 The Dockerfile uses pinned allowlisted GCC 15 and Debian 13, statically linking
 libstdc++ and libgcc for runtime compatibility. Final container checks and
 official scoring are tracked in ../STATUS.md. The harness treats the declared
-D=1 as unverified; no official S measurement is claimed.
+D=1 as unverified; the official tooling locally measures S=218. Clean amd64
+emulated sandbox checks pass full seeds 1 and 7. Official board performance
+is unknown.
 
 With another 24 hours: profile the remaining scanning and hashing costs, then
 measure parallel parsing with proven quote-aware record boundaries. The selected

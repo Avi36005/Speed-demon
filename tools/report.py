@@ -22,9 +22,11 @@ def main():
     now = datetime.datetime.now(datetime.timezone.utc).isoformat()
     commit = subprocess.run(['git', '-C', str(SUB), 'rev-parse', 'HEAD'], capture_output=True,
                             text=True, check=True).stdout.strip()
+    release = json.loads((SUB / '.work/release-selection.json').read_text())
     lines = ['# Kryptonite submission report', '', f'Evidence snapshot: {now}.', '',
-             f'Base commit at generation: `{commit}` on `speed-demon`. The runtime manifest below',
-             'pins the exact source/build/metadata bytes in the delivery, including pending edits.',
+             f'Base commit at generation: `{commit}` on `speed-demon`.',
+             f'Clean archived build inputs: `{release["commit"]}`. The runtime manifest below',
+             'pins the exact source/build/metadata bytes verified from that archive.',
              'Documentation/evidence may be committed after this snapshot; `git rev-parse HEAD`',
              'identifies the final local delivery commit. No remote is configured and nothing was pushed.', '',
              '## Implementation', '',
@@ -38,7 +40,8 @@ def main():
              '## Correctness and packaging evidence', '',
              '| Track | Public full seed 1 SHA-256 | Additional full seed 7 SHA-256 |',
              '|---|---|---|']
-    manifest = {'generated_utc': now, 'base_commit': commit, 'tracks': {}}
+    manifest = {'generated_utc': now, 'base_commit': commit,
+                'verified_archive_commit': release['commit'], 'tracks': {}}
     summaries = {}
     for t in 'acb':
         folder = SUB / f'track-{t}'
@@ -55,6 +58,8 @@ def main():
         final_public = [r for r in final_containers if len(r['runs']) >= 5 and
                         r['expected_sha256'] == full1[-1]['output_sha256']]
         assert final_public, f'{t}: final public container check missing'
+        assert final_public[-1]['build_context'] == str(Path(release['directory']) / f'track-{t}')
+        assert final_public[-1]['dockerfile_sha256'] == sha(folder / 'Dockerfile')
         assert any(r.get('source_sha256') == digest for r in full7) or any(
             r['expected_sha256'] == full7[-1]['output_sha256'] for r in final_containers), f'{t}: final full seed 7 missing'
         assert static is not None, f'{t}: static axes missing'
@@ -80,6 +85,9 @@ def main():
               'and passes five public-full runs under the unprivileged/read-only sandbox.',
               'The official process timer is compiled unchanged. Output names/hashes, exit 0,',
               'root filesystem diffs, final runtime libraries, image size and entrypoint are checked.',
+              'Each final image also passes a full seed 7 sandbox run. The frozen official',
+              'spec/reference/generator repository remains at commit',
+              '`158894dcefde61f459c0adfae841900458dbeb7f`, with no working-tree changes.',
               'These are ARM-host emulated Linux checks, not scoring-machine runs.', '',
               '| Track | Final native mean (middle 3/5, s) | Local peak RSS (bytes) | Offline build (s) | Image bytes | Tool S | Tool D |',
               '|---|---:|---:|---:|---:|---:|---|']

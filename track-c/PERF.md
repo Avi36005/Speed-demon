@@ -48,3 +48,13 @@ exact hashes: local middle-three mean 0.885086 s; peak wait4 RSS
 Current-source tiny/sample seed 1, samples 2/3/42, independent full seed 7,
 worked/targeted fixtures and small sanitizer checks all pass. Final native
 verification is serial; these remain ARM64 process measurements, not board T/M.
+
+## Clean archived release checks
+
+From committed archive 47bb5276e4296119b3774b564a72f13a3692ffd0, no-cache
+`linux/amd64 --network=none` build: 8.923 s, image 30,383,368 B.
+Five full seed 1 runs and one full seed 7 run pass in the read-only/unprivileged
+sandbox, with no unexpected root filesystem changes and all hashes exact.
+Final runtime library inspection succeeds. These are ARM-host emulated checks.
+Official tooling locally reports S=218, D=1 (declared, unverified).
+Official board IDs, scoring-machine T/M/K and judge scores remain unknown.

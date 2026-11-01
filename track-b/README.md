@@ -30,7 +30,9 @@ answer slot. Joining before serialization preserves the original query order.
 
 Pinned allowlisted GCC 15 builds offline, with libstdc++/libgcc linked statically;
 Debian 13 supplies glibc. See ../STATUS.md for final runtime and board evidence.
-Declared D=1 is unverified by the harness; official S is unknown until measured.
+The official tooling locally measures S=350 and declared D=1 (unverified basis).
+The clean amd64 image passes five full public sandbox runs and full seed 7;
+these are ARM-host emulation checks. Official board performance is unknown.
 
 With another 24 hours: profile vocabulary lookup and phrase re-tokenization,
 compare direct token matching with ID lookup inside candidate documents, and

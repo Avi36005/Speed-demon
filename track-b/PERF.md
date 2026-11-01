@@ -109,3 +109,16 @@ adversarial sanitizer fixtures, wide-sum case, sample seed 42 at twelve workers
 and independently generated full seed 7 at six workers pass. Fingerprints
 never substitute for complete string equality; the map is immutable before
 index/query threads read it. Candidate static/amd64/board proof still pending.
+
+## B5 provisionally retained — streaming exact phrase matching
+
+KMP compares candidate token bytes directly against pattern terms, keeping
+position/repetition semantics without constructing and hashing a token-ID
+sequence. Five paired full public times are all faster; middle-three means
+2.216936 -> 1.705743 s, peak local wait4 RSS 512,589,824 -> 510,623,744 B.
+All outputs exact. Baseline ca2e75c. Independent full seed 7 and twelve-worker sanitizer fixtures pass. The added
+overlap fixture initially had a wrong hand count: the untouched reference
+and candidate agreed (document 0 also contains a b a). Its expected count
+was corrected; corrected overlap and all 32 token-block offsets pass the
+untouched reference and hand bytes with twelve-worker ASan/UBSan.
+Official candidate publication still requires container checks.

@@ -80,6 +80,15 @@ def make_b():
         b'BOOL missing AND a OR b\nBOOL a NOT a OR b\nBOOL a NOT a OR b\n'
         b'PHRASE "x x x x x x x x"\nPHRASE "a b"\nBOOL ' + b'z'*32 + b'\n')
     cases["wide-sum"] = (mod.docs_file(["common"]*100000), b"BOOL common\nBOOL common NOT missing\n")
+    cases["kmp-overlap"] = (
+        mod.docs_file(["a a a b a a b", "a b a b a b c", "a b x a b a", "a b a b", "a gap b"]),
+        b'PHRASE "a a b"\nPHRASE "a b a b c"\nPHRASE "a b a b a b a"\n'
+        b'PHRASE "a b a"\n')
+    answer("b", "kmp-overlap", b"1 0 0\n1 1 1\n0 0\n4 6 0 1 2 3\n")
+    cases["token-block-boundaries"] = (
+        mod.docs_file(["." * i + "Z" * 32 + "-aa—BÜrich" for i in range(32)]),
+        b'BOOL ' + b'z' * 32 + b'\nPHRASE "' + b'z' * 32 + b' aa b rich"\n')
+    answer("b", "token-block-boundaries", b"32 496 0 1 2 3 4 5 6 7 8 9\n" * 2)
     answer("b", "targeted", b"2 4 1 3\n2 4 1 3\n2 4 1 3\n1 2 2\n0 0\n1 4 4\n")
     answer("b", "wide-sum", b"100000 4999950000 0 1 2 3 4 5 6 7 8 9\n"*2)
     for label, (docs, queries) in cases.items():

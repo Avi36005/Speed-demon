@@ -58,6 +58,7 @@ struct Query {
     bool phrase;
     std::vector<uint32_t> terms;
     std::vector<char> ops;
+    std::vector<size_t> prefix;
 };
 
 // Query-backed keys remain mapped throughout the run. A compact probing table
@@ -77,6 +78,7 @@ class Vocabulary {
     }
 public:
     size_t size() const { return keys.size(); }
+    std::string_view word(uint32_t id) const { return keys[id]; }
     uint32_t find(std::string_view key) const {
         auto id = slots[locate(key, std::hash<std::string_view>{}(key))].id;
         return id ? id - 1 : UINT32_MAX;
@@ -107,13 +109,18 @@ struct ThreadGroup {
 };
 
 bool phrase_matches(std::string_view text, const Query& query, const Vocabulary& vocabulary) {
-    Posting sequence;
+    size_t matched = 0;
+    bool found = false;
     tokenize(text, [&](std::string_view token) {
-        // Unneeded tokens must still occupy positions: dropping one would invent adjacency.
-        sequence.push_back(vocabulary.find(token));
+        if (found) return;
+        // Exact streaming KMP preserves every token position, including tokens
+        // absent from the query vocabulary. No document sequence is allocated.
+        while (matched && token != vocabulary.word(query.terms[matched]))
+            matched = query.prefix[matched - 1];
+        if (token == vocabulary.word(query.terms[matched])) ++matched;
+        if (matched == query.terms.size()) found = true;
     });
-    return std::search(sequence.begin(), sequence.end(), query.terms.begin(), query.terms.end())
-           != sequence.end();
+    return found;
 }
 
 Posting evaluate(const Query& query, const std::vector<Posting>& index,
@@ -231,7 +238,7 @@ int main(int argc, char** argv) {
             const char* start = p;
             while (*p != '\n') ++p;
             std::string_view line(start, p++ - start);
-            Query query{line.starts_with("PHRASE"), {}, {}};
+            Query query{line.starts_with("PHRASE"), {}, {}, {}};
             auto words = query.phrase ? line.substr(8, line.size() - 9) : line.substr(5);
             bool term = true;
             while (!words.empty()) {
@@ -243,6 +250,14 @@ int main(int argc, char** argv) {
                 if (!query.phrase) term = !term;
                 if (split == std::string_view::npos) break;
                 words.remove_prefix(split + 1);
+            }
+            if (query.phrase) {
+                query.prefix.resize(query.terms.size(), 0);
+                for (size_t i = 1, j = 0; i < query.terms.size(); ++i) {
+                    while (j && query.terms[i] != query.terms[j]) j = query.prefix[j - 1];
+                    if (query.terms[i] == query.terms[j]) ++j;
+                    query.prefix[i] = j;
+                }
             }
             queries.push_back(std::move(query));
         }

@@ -1,0 +1,72 @@
+{
+  "utc": "2026-11-01T18:05:32.675496+00:00",
+  "source_sha256": "2af732d7e2b6c2bcdeea34521cf3f391033859e1e81c43e1026b48ed58994f99",
+  "checks": [
+    {
+      "argv": [
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/compare/a-d5de906885/candidate/solution",
+        "--data",
+        "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1",
+        "--out",
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/a3-workers",
+        "--workers",
+        "1"
+      ],
+      "exit": 0,
+      "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3"
+    },
+    {
+      "argv": [
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/compare/a-d5de906885/candidate/solution",
+        "--data",
+        "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1",
+        "--out",
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/a3-workers",
+        "--workers",
+        "2"
+      ],
+      "exit": 0,
+      "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3"
+    },
+    {
+      "argv": [
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/compare/a-d5de906885/candidate/solution",
+        "--data",
+        "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1",
+        "--out",
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/a3-workers",
+        "--workers",
+        "4"
+      ],
+      "exit": 0,
+      "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3"
+    },
+    {
+      "argv": [
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/compare/a-d5de906885/candidate/solution",
+        "--data",
+        "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1",
+        "--out",
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/a3-workers",
+        "--workers",
+        "6"
+      ],
+      "exit": 0,
+      "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3"
+    },
+    {
+      "argv": [
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/compare/a-d5de906885/candidate/solution",
+        "--data",
+        "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1",
+        "--out",
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/a3-workers",
+        "--workers",
+        "12"
+      ],
+      "exit": 0,
+      "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3"
+    }
+  ],
+  "passed": true
+}

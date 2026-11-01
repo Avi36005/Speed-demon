@@ -177,3 +177,28 @@ The current default is twelve for a real scoring-box experiment; this Mac
 result does not establish the Intel optimum. Exact-source final matrix and
 repeated/fresh restricted amd64 checks pass. Restore six if the actual
 time/memory score does not justify twelve.
+
+## Official round-four result — 1429e2e
+
+Run `run-18e711ea44af`, ended 2026-11-01T19:24:42Z. All five gates pass.
+T=0.089412 s, cgroup M=63,840,256 B, S=238, D=1,
+K=19.656266, machine points=64.675051. Registered=True.
+Raw receipt `../benchmarks/board/2026-11-01T192637.287985Z.json`.
+Single public live run; final holdout/judging remain separate.
+
+### PGO build-only trial — correctness complete, official effect pending
+
+The unchanged A12 source is now built with a GCC-generated profile from an
+offline sample seed8675309. The official generator is copied byte-identically;
+its SHA and the training input SHA are recorded above. No training files,
+Python or profiles enter the final runtime stage. Strict coverage/missing-profile
+errors ensure the second compilation consumes compatible profiles.
+
+The prototype image passed tiny1/sample1/2/3/42, all semantic fixtures, five
+full1 sandbox runs and independent full7. Rebuilding the actual track directory
+without cache/network took8.821986s, produced30,384,109 bytes, and passed five
+full1 sandbox runs with empty filesystem diffs and exact published SHA. Full
+non-MD context digests are in containers.jsonl, artifact a-de1b162318.
+Formatted S248/D1 measured on byte-identical build inputs; a_ingest.py excluded
+as a published copy by the unchanged official static tool. The current board
+baseline remains1429e2e A64.675051; PGO benefit remains unknown until measured.

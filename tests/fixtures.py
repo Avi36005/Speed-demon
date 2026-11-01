@@ -52,6 +52,31 @@ def make_c():
     for label in cases:
         answer("c", label, b"" if label == "empty" else
                mod.WORKED_OUTPUT if label == "worked" else mod.RULES_OUTPUT)
+    # Values are aggregated directly before CSV encoding. Repeated names and
+    # name/country pairs cross all parser chunks; publication and first-bit
+    # counting must remain exact under contention and overflow buckets.
+    values = ["", "", "Shared", "Shared ", 'Ann "A"', "shared"]
+    records = [b"\xef\xbb\xbfid,name,note,region_id,amount\r\n"]
+    groups = {}
+    def money(value):
+        return ("-" if value < 0 else "") + f"{abs(value) // 100}.{abs(value) % 100:02d}"
+    for i in range(12000):
+        ident = 30000000 + i * 2
+        name, note = values[i % len(values)], "line\nnote" if i % 11 == 0 else ""
+        region, amount = (999 if i % 7 == 0 else 1 + i % 3), (-1, 0, 1234)[i % 3]
+        country = {1: "AAA", 2: "BBB", 3: "CCC"}.get(region, "_UNMATCHED")
+        a = groups.setdefault(country, [0, 0, 0, amount, amount, set(), 0, 0])
+        a[0] += 1; a[1] += ident; a[2] += amount
+        a[3] = min(a[3], amount); a[4] = max(a[4], amount)
+        a[5].add(name); a[6] += len(name.encode()); a[7] += len(note.encode())
+        field = "" if i % len(values) == 0 else '"' + name.replace('"', '""') + '"'
+        text = f'{ident},{field},"{note}",{region},{money(amount)}' + ("\r\n" if i % 2 else "\n")
+        records.append((b"\xef\xbb\xbf" if i and i % 500 == 0 else b"") + text.encode())
+    label = "concurrent-name-membership"
+    cases[label] = (b"".join(records), b"region_id,country\n1,AAA\n2,BBB\n3,CCC\n4,DDD\n")
+    answer("c", label, "".join(
+        f"{key} {a[0]} {a[1]} {money(a[2])} {money(a[3])} {money(a[4])} {len(a[5])} {a[6]} {a[7]}\n"
+        for key, a in sorted(groups.items())))
     for label, (records, regions) in cases.items():
         data = SUB / ".work/fixtures/c" / label
         data.mkdir(parents=True, exist_ok=True)

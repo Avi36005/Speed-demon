@@ -17,12 +17,20 @@ All input views refer to a read-only mapping whose lifetime encloses aggregation
 and serialization. Standard hash tables resolve collisions by exact string
 equality. No public-seed answer tables or endpoint catalogue is compiled in.
 
-Build: `g++ -std=c++20 -O3 -DNDEBUG -pthread main.cpp -o solution`.
-The offline Docker build statically links the GCC C++ and compiler support
-libraries to avoid requiring the build compiler's libstdc++ in the runtime image;
-glibc remains supplied by Debian 13. Final amd64 emulated container compatibility
-and five full-input sandbox runs passed for the original baseline. New
-candidate container evidence is tracked in PERF.md.
+Build: the allowlisted GCC 15 image first instruments this C++20 program, then
+runs it on a build-time `sample` generated with seed8675309 by the byte-identical
+official `a_ingest.py`. The second compile uses that profile with coverage and
+missing-profile warnings treated as errors. The generator SHA is
+`d82b43b8f617016808f85cbe9be86af1fee8466296a0848ab8e6908ee3c4b0b4`.
+Python and training data stay in build stages; only the C++ binary enters the
+Debian 13 runtime. No inputs or answers are retained in the runtime image.
+
+All base images are pinned to allowlisted digests. The build runs offline and
+statically links libstdc++ and compiler support; glibc remains supplied by
+Debian. A clean amd64 build from this directory and five restricted public-full
+runs passed, together with independent full seed7 and tiny/sample1/2/3/42 checks
+on the identical prototype build. These are compatibility/correctness checks;
+emulated times do not predict the official scoring-box effect of PGO.
 
 Dependencies: zero non-standard-library runtime dependencies (declared D=1;
 the harness marks this declaration unverified). MIT, see repository LICENSE.

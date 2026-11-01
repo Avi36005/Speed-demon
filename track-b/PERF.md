@@ -226,3 +226,11 @@ RSS503,054,336 ->443,072,512 B. All hashes pass. Current source
 passes full current-source semantic/sanitizer/sample/independent-full matrix,
 actual x86 sanitizer fixtures, clean offline build, five public sandbox runs
 and fresh full7 sandbox. S515/D1 declared-unverified. Actual points pending.
+
+## Official round-four result — 1429e2e
+
+Run `run-4a8ff5ad0553`, ended 2026-11-01T19:24:48Z. All five gates pass.
+T=1.063800 s, cgroup M=159,985,664 B, S=515, D=1,
+K=9.479339, machine points=48.838903. Registered=True.
+Raw receipt `../benchmarks/board/2026-11-01T192637.287985Z.json`.
+Single public live run; final holdout/judging remain separate.

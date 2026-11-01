@@ -4,6 +4,7 @@ import datetime
 import hashlib
 import json
 from pathlib import Path
+import platform
 import subprocess
 import sys
 import uuid
@@ -53,6 +54,11 @@ elif track == 'b':
     else:
         replace('std::ofstream out(', phase('index') + 'std::ofstream out(')
         replace('if (!out) throw', phase('evaluate_and_serialize') + 'if (!out) throw')
+elif track == 'd':
+    replace('Graph graph(data_dir', begin + 'Graph graph(data_dir')
+    replace('Input queries(', phase('graph_construction') + 'Input queries(')
+    replace('std::ofstream out(', phase('queries') + 'std::ofstream out(')
+    replace('if (!out) throw', phase('write') + 'if (!out) throw')
 else:
     raise ValueError(track)
 
@@ -69,11 +75,15 @@ for cmd in (["clang++", "-std=c++20", "-O3", "-DNDEBUG", "-pthread", work / 'mai
     if proc.returncode:
         break
 record = {'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'diagnostic': True,
+          'architecture': platform.machine(), 'platform': platform.platform(),
+          'compiler': subprocess.run(['clang++', '--version'], capture_output=True, text=True).stdout.strip(),
           'source_sha256': hashlib.sha256(original.encode()).hexdigest(),
           'instrumented_sha256': hashlib.sha256(text.encode()).hexdigest(),
           'artifact_dir': str(work.relative_to(SUB)), 'commands': commands,
           'outputs': {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in (work / 'out').iterdir()}}
+manifest = json.loads((SUB.parent / 'docs/SHA256SUMS.json').read_text())['tracks'][track]
+record['correctness_output_passed'] = record['outputs'] == {manifest['output']: manifest['expected_output_sha256'][0]}
 with (SUB / f'benchmarks/track-{track}/profiles.jsonl').open('a') as f:
     f.write(json.dumps(record) + '\n')
 print(json.dumps(record, indent=2))
-sys.exit(commands[-1]['exit'])
+sys.exit(commands[-1]['exit'] or (0 if record['correctness_output_passed'] else 1))

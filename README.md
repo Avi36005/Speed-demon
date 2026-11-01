@@ -17,11 +17,11 @@
 
 ---
 
-> **Optimization in progress:** A, B and C passed the official live board at
-> commit `b4f7240`. The tested cec7edf improvements also passed the
-> board. Further candidates remain isolated. D passed its first measured run;
-> its board registration is
-> still pending. Current evidence and outstanding checks are in [STATUS.md](STATUS.md).
+> **Verified board checkpoint:** all four tracks passed at `1429e2e`, scoring
+> **56.09 overall** across registered A/B/C. The requested 92 target remains
+> unmet. A build-time PGO trial is being evaluated; its board effect is pending.
+> D is implemented and measured, but its registration is still pending.
+> See [STATUS.md](STATUS.md) for exact current evidence.
 
 ## The entry
 
@@ -54,40 +54,40 @@ protected name/country membership bits give exact distinct counts.
 
 **B — build only the index the queries need.** Query terms determine the
 vocabulary. Workers build sorted postings over disjoint document ranges;
-frequent terms also receive bitmaps. Boolean operations retain strict
+frequent terms use compact bitmaps. Boolean operations retain strict
 left-to-right order. Phrase candidates use streaming exact token matching,
 including overlaps and repeated words, without allocating token-ID sequences.
 Independent query workers write separate answer slots before ordered output.
 
-**D — recoverable graph baseline.** Compact CSR adjacency retains all directed
-edges; exact forward Dijkstra uses 64-bit distances and a standard min-heap.
-Local adversarial, random-oracle and repeated public-full checks pass. It is
-still an optimization candidate with separate registration and release checks.
+**D — exact bidirectional graph search.** Two-pass forward and reverse CSR
+retain all directed edges. Four independent query workers run bidirectional
+Dijkstra with stale-frontier removal, valid lower-bound stopping and touched
+distance resets. A first meeting is an upper bound, never a stopping condition.
 
 ## Official live-board measurements
 
-The tested optimization checkpoint `cec7edf` passed every build, correctness,
-timeout and sandbox gate. Registered A/B/C machine scores give overall
-**50.306**, up from **43.243** at the first baseline. The requested 92 target
-is not achieved. These are single public-data runs; final holdout and judging
-remain separate. D was measured but is still marked unregistered in the feed.
+Checkpoint `1429e2e` passed every build, correctness, timeout and sandbox gate.
+Registered A/B/C machine scores give **56.089310 overall**, up from **43.243**
+at the first baseline. The requested 92 target is not achieved. These are single
+public-data runs; final holdout and judging remain separate. D is measured but
+still marked unregistered in the feed.
 
 | Track | Machine points | Time | cgroup peak | Real run ID |
 | :--- | ---: | ---: | ---: | :--- |
-| A | 61.224820 | 0.131601 s | 53,760,000 B | `run-ed6691497140` |
-| B | 47.460558 | 1.136726 s | 223,354,880 B | `run-30ea7d750cef` |
-| C | 43.811309 | 0.370713 s | 57,143,296 B | `run-94076763b165` |
-| D | 26.745647 | 9.731496 s | 115,175,424 B | `run-de4b3b2aeb82` |
+| A | 64.675051 | 0.089412 s | 63,840,256 B | `run-18e711ea44af` |
+| B | 48.838903 | 1.063800 s | 159,985,664 B | `run-4a8ff5ad0553` |
+| C | 55.864717 | 0.206900 s | 16,121,856 B | `run-9c9de469bfe8` |
+| D | 44.723104 | 1.259096 s | 210,563,072 B | `run-48c61f525199` |
 
-[Official checkpoint receipt](benchmarks/board/2026-11-01T182140.380992Z.json) ·
+[Checkpoint receipt](benchmarks/board/2026-11-01T192637.287985Z.json) ·
 [First baseline receipt](benchmarks/board/2026-11-01-first-public-run.json) ·
 [Kryptonite on the live board](https://speeddemon.dev/board/#kryptonite-96429f)
 
 ## Verification
 
-The matrix below describes the original A/B/C release. For changed source,
-the per-track performance logs and [current status](STATUS.md) distinguish
-completed new checks from remaining work. D evidence is recorded separately.
+The matrix below applies to the four-track `1429e2e` runtime, pinned in the
+[round-four manifest](benchmarks/round4-manifest.json). Later candidates have
+separate evidence in the performance logs and [current status](STATUS.md).
 
 | Check | Evidence |
 | :--- | :--- |
@@ -95,7 +95,7 @@ completed new checks from remaining work. D evidence is recorded separately.
 | **Additional generated data** | Sample seeds **2, 3, 42** and independently generated full seed **7** match the official references. |
 | **Failure-prone semantics** | Official worked examples, hand-computed fixtures, boundary cases, quoted CSV, Unicode separators and repeated phrases. |
 | **Memory safety checks** | Small development builds pass **AddressSanitizer + UndefinedBehaviorSanitizer**. |
-| **Deterministic output** | Five repeated native full-input runs per track; A/B also checked across **1, 2, 4, 6, 12** workers. |
+| **Deterministic output** | Five repeated native full-input runs per track; A/D also checked across **1, 2, 4, 6, 12** workers. |
 | **Packaging and sandbox** | Clean, offline `linux/amd64` builds; five public-full container runs and one full seed 7 run per track under the required sandbox limits. |
 
 Local Linux container checks used **amd64 emulation on an ARM64 Mac**. The
@@ -104,7 +104,7 @@ commits. Local process RSS and emulated timings remain separate from those axes.
 
 [Full verification report](SUBMISSION_REPORT.md) ·
 [Test coverage](tests/README.md) ·
-[Exact runtime manifest](benchmarks/runtime-manifest.json)
+[Runtime manifest](benchmarks/round4-manifest.json)
 
 ## Local measurements
 
@@ -137,13 +137,14 @@ methods are retained in [benchmarks](benchmarks) and the per-track performance l
 
 ### Build an independent track
 
-Prepare the exact GCC and Debian base-image digests listed in the track's
-Dockerfile before the offline build. Then build from that track folder alone:
+Prepare every exact base-image digest listed in the track's Dockerfile before
+the offline build. A's PGO trial adds a build-only Python training stage. Then build from that track folder alone:
 
 ```sh
 docker build --platform linux/amd64 --network=none -t kryptonite-a track-a
 docker build --platform linux/amd64 --network=none -t kryptonite-c track-c
 docker build --platform linux/amd64 --network=none -t kryptonite-b track-b
+docker build --platform linux/amd64 --network=none -t kryptonite-d track-d
 ```
 
 ### Run Track A
@@ -221,7 +222,7 @@ its candidate verification; a new directory alone does not prove registration.
 track-a/                    Ingest: source, Dockerfile, metadata, README, PERF
 track-c/                    Join: source, Dockerfile, metadata, README, PERF
 track-b/                    Index: source, Dockerfile, metadata, README, PERF
-track-d/                    Traverse: verified local baseline; board registration pending
+track-d/                    Traverse: verified bidirectional search; registration pending
 benchmarks/                 Recorded experiments, hashes and verification evidence
 tests/                      Development fixture generation and coverage notes
 tools/                      Differential runners, profiling and release checks

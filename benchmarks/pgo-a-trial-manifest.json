@@ -1,0 +1,493 @@
+{
+  "utc": "2026-11-01T19:49:24.393856+00:00",
+  "scope": "isolated official-board trial, not final release",
+  "baseline_commit": "1429e2ebfbf01e46c24a09d209ee9a206df23e15",
+  "target_achieved": false,
+  "changed_runtime": "Track A build-time PGO only",
+  "files": {
+    "track-a/a_ingest.py": "d82b43b8f617016808f85cbe9be86af1fee8466296a0848ab8e6908ee3c4b0b4",
+    "track-a/Dockerfile": "11435202a739b9f7a57a7c82b21cef8e95a70f1e99059337912f6f6c21845a1f",
+    "track-a/.speed-demon.toml": "b2b684e6fff97846ada04662eb0f8850b7786039925e30cdb1a8c010ea501564",
+    "track-a/main.cpp": "8ca9f5993b20617eab0b3e48d7ddf5512e5d0ce4a51656dc7c82fc2e9e345ffe"
+  },
+  "training": {
+    "source": "byte-identical official generator, build stage only",
+    "seed": 8675309,
+    "scale": "sample",
+    "requests.log_sha256": "d63b75bfc563f872fa190e76ac342729a51d90e505cc61d20d8cefcae840cf37"
+  },
+  "clean_build_and_five_public_runs": {
+    "utc": "2026-11-01T19:46:45.812612+00:00",
+    "official": false,
+    "environment": "linux/amd64 emulated on ARM64 Docker Desktop",
+    "track": "a",
+    "source_sha256": "8ca9f5993b20617eab0b3e48d7ddf5512e5d0ce4a51656dc7c82fc2e9e345ffe",
+    "build_context": "/Users/avinashgehi3/projects/Speed Demon/submission/track-a",
+    "image_tag": "kryptonite/track-a:pgo-submitted",
+    "context_files_sha256": {
+      ".speed-demon.toml": "b2b684e6fff97846ada04662eb0f8850b7786039925e30cdb1a8c010ea501564",
+      "Dockerfile": "11435202a739b9f7a57a7c82b21cef8e95a70f1e99059337912f6f6c21845a1f",
+      "a_ingest.py": "d82b43b8f617016808f85cbe9be86af1fee8466296a0848ab8e6908ee3c4b0b4",
+      "main.cpp": "8ca9f5993b20617eab0b3e48d7ddf5512e5d0ce4a51656dc7c82fc2e9e345ffe"
+    },
+    "dockerfile_sha256": "11435202a739b9f7a57a7c82b21cef8e95a70f1e99059337912f6f6c21845a1f",
+    "data": "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1",
+    "expected_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3",
+    "commands": [
+      {
+        "argv": [
+          "docker",
+          "build",
+          "--platform",
+          "linux/amd64",
+          "--network=none",
+          "--no-cache",
+          "-t",
+          "kryptonite/track-a:pgo-submitted",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/track-a"
+        ],
+        "exit": 0,
+        "outside_s": 8.821985999995377,
+        "stdout": "",
+        "stderr": "#0 building with \"default\" instance using docker driver\n\n#1 [internal] load build definition from Dockerfile\n#1 transferring dockerfile: 1.04kB done\n#1 DONE 0.0s\n\n#2 [internal] load metadata for docker.io/library/gcc:15@sha256:eb5e64286ad47187b32bda75c6b6916166ecb41da56559b8b09e0001748d2cce\n#2 DONE 1.8s\n\n#3 [internal] load metadata for docker.io/library/python:3.13-slim@sha256:d98cc29d3266e535dd9da1099688d9cb3ca4753813571e071763d17725460962\n#3 DONE 1.8s\n\n#4 [internal] load metadata for docker.io/library/debian:13-slim@sha256:62bd423aeee912639ca8ee681c2b762cb3e25137e0a92b20be455898a9f034ad\n#4 DONE 1.8s\n\n#5 [internal] load .dockerignore\n#5 transferring context: 2B done\n#5 DONE 0.0s\n\n#6 [build 1/7] FROM docker.io/library/gcc:15@sha256:eb5e64286ad47187b32bda75c6b6916166ecb41da56559b8b09e0001748d2cce\n#6 resolve docker.io/library/gcc:15@sha256:eb5e64286ad47187b32bda75c6b6916166ecb41da56559b8b09e0001748d2cce 0.0s done\n#6 DONE 0.0s\n\n#7 [training 1/4] FROM docker.io/library/python:3.13-slim@sha256:d98cc29d3266e535dd9da1099688d9cb3ca4753813571e071763d17725460962\n#7 resolve docker.io/library/python:3.13-slim@sha256:d98cc29d3266e535dd9da1099688d9cb3ca4753813571e071763d17725460962 0.0s done\n#7 CACHED\n\n#8 [stage-2 1/2] FROM docker.io/library/debian:13-slim@sha256:62bd423aeee912639ca8ee681c2b762cb3e25137e0a92b20be455898a9f034ad\n#8 resolve docker.io/library/debian:13-slim@sha256:62bd423aeee912639ca8ee681c2b762cb3e25137e0a92b20be455898a9f034ad 0.0s done\n#8 CACHED\n\n#9 [build 2/7] WORKDIR /src\n#9 CACHED\n\n#10 [internal] load build context\n#10 transferring context: 22.53kB done\n#10 DONE 0.0s\n\n#11 [training 2/4] COPY a_ingest.py /gen/a_ingest.py\n#11 DONE 0.0s\n\n#12 [build 3/7] COPY main.cpp .\n#12 DONE 0.0s\n\n#13 [training 3/4] RUN python3 /gen/a_ingest.py --seed 8675309 --scale sample --out /training\n#13 1.068 /training/requests.log: 310000 lines, 24086989 bytes, 0.8 s\n#13 DONE 1.1s\n\n#14 [training 4/4] RUN sha256sum /training/requests.log\n#14 0.105 d63b75bfc563f872fa190e76ac342729a51d90e505cc61d20d8cefcae840cf37  /training/requests.log\n#14 DONE 0.1s\n\n#15 [build 4/7] COPY --from=training /training /training\n#15 DONE 0.0s\n\n#16 [build 5/7] RUN g++ -std=c++20 -O3 -DNDEBUG -pthread -static-libstdc++ -static-libgcc     -fprofile-generate=/profiles -fprofile-update=atomic main.cpp -o /solution\n#16 DONE 2.3s\n\n#17 [build 6/7] RUN mkdir /trainout && /solution --data /training --out /trainout\n#17 DONE 0.7s\n\n#18 [build 7/7] RUN g++ -std=c++20 -O3 -DNDEBUG -pthread -static-libstdc++ -static-libgcc     -fprofile-use=/profiles -fprofile-correction     -Werror=coverage-mismatch -Werror=missing-profile main.cpp -o /solution\n#18 DONE 1.9s\n\n#19 [stage-2 2/2] COPY --from=build /solution /app/solution\n#19 DONE 0.0s\n\n#20 exporting to image\n#20 exporting layers 0.0s done\n#20 exporting manifest sha256:e4ec48b96185ccf6c20c9967b4fcd9bbb291367a83a61f4adeb0f42d2753672b done\n#20 exporting config sha256:15e963e9e1a918889d4a65a244141f5f99b33c9f8463f309895d56b96f9d15d4 done\n#20 exporting attestation manifest sha256:152169d17b2f4a9ed72913943a2db54ebdb178f296f72c9f0ec63ced1c18bdf7 done\n#20 exporting manifest list sha256:3dd60d2fba1c4af88182aa0a692a9521fa4954029873a54586474f67002750b6 done\n#20 naming to docker.io/kryptonite/track-a:pgo-submitted done\n#20 DONE 0.1s\n"
+      },
+      {
+        "argv": [
+          "docker",
+          "image",
+          "inspect",
+          "kryptonite/track-a:pgo-submitted"
+        ],
+        "exit": 0,
+        "outside_s": 0.03088604100048542,
+        "stdout": "[\n    {\n        \"Id\": \"sha256:3dd60d2fba1c4af88182aa0a692a9521fa4954029873a54586474f67002750b6\",\n        \"RepoTags\": [\n            \"kryptonite/track-a:pgo-submitted\"\n        ],\n        \"RepoDigests\": [\n            \"kryptonite/track-a@sha256:3dd60d2fba1c4af88182aa0a692a9521fa4954029873a54586474f67002750b6\"\n        ],\n        \"Comment\": \"buildkit.dockerfile.v0\",\n        \"Created\": \"2026-11-01T19:46:54.554648096Z\",\n        \"Config\": {\n            \"Env\": [\n                \"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"\n            ],\n            \"Entrypoint\": [\n                \"/app/solution\"\n            ]\n        },\n        \"Architecture\": \"amd64\",\n        \"Os\": \"linux\",\n        \"Size\": 30384109,\n        \"RootFS\": {\n            \"Type\": \"layers\",\n            \"Layers\": [\n                \"sha256:a70f6272827f64e1427d048ced77491aab5d64ab95725e56920802ff391197d7\",\n                \"sha256:e3dcdac6c3d1091abd943056a9fe6ed280ae72d272251de5aecb03a75cf16294\"\n            ]\n        },\n        \"Metadata\": {\n            \"LastTagTime\": \"2026-11-01T19:46:54.618498971Z\"\n        },\n        \"Descriptor\": {\n            \"mediaType\": \"application/vnd.oci.image.index.v1+json\",\n            \"digest\": \"sha256:3dd60d2fba1c4af88182aa0a692a9521fa4954029873a54586474f67002750b6\",\n            \"size\": 855\n        },\n        \"Identity\": {\n            \"Build\": [\n                {\n                    \"Ref\": \"q9p1lkzfraq8adbr2yxtz80xk\",\n                    \"CreatedAt\": \"2026-11-01T19:46:54.619348971Z\"\n                }\n            ]\n        }\n    }\n]\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "run",
+          "--rm",
+          "--platform",
+          "linux/amd64",
+          "--network=none",
+          "--entrypoint",
+          "ldd",
+          "kryptonite/track-a:pgo-submitted",
+          "/app/solution"
+        ],
+        "exit": 0,
+        "outside_s": 0.16236462502274662,
+        "stdout": "\tlibm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fffff6d4000)\n\tlibc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fffff4e0000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007ffffffc8000)\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "run",
+          "--name",
+          "kryptonite-check-1f56a7287d70",
+          "--platform",
+          "linux/amd64",
+          "--no-healthcheck",
+          "--network=none",
+          "--read-only",
+          "--tmpfs",
+          "/tmp:rw,size=1g,exec",
+          "--memory=8g",
+          "--memory-swap=8g",
+          "--pids-limit=512",
+          "--user=0:0",
+          "--cap-drop=ALL",
+          "--cap-add=SETUID",
+          "--cap-add=SETGID",
+          "--security-opt=no-new-privileges",
+          "--ulimit",
+          "nofile=8192:8192",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1:/data:ro",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/containers/a-de1b162318/out0:/out:rw",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/containers/a-de1b162318/sd0:/sd",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/timer:/sd-bin:ro",
+          "-e",
+          "TRACK=a",
+          "--entrypoint",
+          "/sd-bin/sd-timer",
+          "kryptonite/track-a:pgo-submitted",
+          "/sd/timing.json",
+          "65534",
+          "65534",
+          "--",
+          "/app/solution"
+        ],
+        "exit": 0,
+        "outside_s": 0.29140979202929884,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "diff",
+          "kryptonite-check-1f56a7287d70"
+        ],
+        "exit": 0,
+        "outside_s": 0.047290457994677126,
+        "stdout": "A /sd-bin\nA /out\nA /sd\nA /data\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "rm",
+          "-fv",
+          "kryptonite-check-1f56a7287d70"
+        ],
+        "exit": 0,
+        "outside_s": 0.027962708030827343,
+        "stdout": "kryptonite-check-1f56a7287d70\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "run",
+          "--name",
+          "kryptonite-check-429355ed8a25",
+          "--platform",
+          "linux/amd64",
+          "--no-healthcheck",
+          "--network=none",
+          "--read-only",
+          "--tmpfs",
+          "/tmp:rw,size=1g,exec",
+          "--memory=8g",
+          "--memory-swap=8g",
+          "--pids-limit=512",
+          "--user=0:0",
+          "--cap-drop=ALL",
+          "--cap-add=SETUID",
+          "--cap-add=SETGID",
+          "--security-opt=no-new-privileges",
+          "--ulimit",
+          "nofile=8192:8192",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1:/data:ro",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/containers/a-de1b162318/out1:/out:rw",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/containers/a-de1b162318/sd1:/sd",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/timer:/sd-bin:ro",
+          "-e",
+          "TRACK=a",
+          "--entrypoint",
+          "/sd-bin/sd-timer",
+          "kryptonite/track-a:pgo-submitted",
+          "/sd/timing.json",
+          "65534",
+          "65534",
+          "--",
+          "/app/solution"
+        ],
+        "exit": 0,
+        "outside_s": 0.24489441700279713,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "diff",
+          "kryptonite-check-429355ed8a25"
+        ],
+        "exit": 0,
+        "outside_s": 0.045605249993968755,
+        "stdout": "A /sd\nA /sd-bin\nA /data\nA /out\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "rm",
+          "-fv",
+          "kryptonite-check-429355ed8a25"
+        ],
+        "exit": 0,
+        "outside_s": 0.02813833300024271,
+        "stdout": "kryptonite-check-429355ed8a25\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "run",
+          "--name",
+          "kryptonite-check-b86804cb2892",
+          "--platform",
+          "linux/amd64",
+          "--no-healthcheck",
+          "--network=none",
+          "--read-only",
+          "--tmpfs",
+          "/tmp:rw,size=1g,exec",
+          "--memory=8g",
+          "--memory-swap=8g",
+          "--pids-limit=512",
+          "--user=0:0",
+          "--cap-drop=ALL",
+          "--cap-add=SETUID",
+          "--cap-add=SETGID",
+          "--security-opt=no-new-privileges",
+          "--ulimit",
+          "nofile=8192:8192",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1:/data:ro",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/containers/a-de1b162318/out2:/out:rw",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/containers/a-de1b162318/sd2:/sd",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/timer:/sd-bin:ro",
+          "-e",
+          "TRACK=a",
+          "--entrypoint",
+          "/sd-bin/sd-timer",
+          "kryptonite/track-a:pgo-submitted",
+          "/sd/timing.json",
+          "65534",
+          "65534",
+          "--",
+          "/app/solution"
+        ],
+        "exit": 0,
+        "outside_s": 0.25445825001224875,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "diff",
+          "kryptonite-check-b86804cb2892"
+        ],
+        "exit": 0,
+        "outside_s": 0.04627766698831692,
+        "stdout": "A /out\nA /data\nA /sd\nA /sd-bin\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "rm",
+          "-fv",
+          "kryptonite-check-b86804cb2892"
+        ],
+        "exit": 0,
+        "outside_s": 0.026875375013332814,
+        "stdout": "kryptonite-check-b86804cb2892\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "run",
+          "--name",
+          "kryptonite-check-279232bf25ee",
+          "--platform",
+          "linux/amd64",
+          "--no-healthcheck",
+          "--network=none",
+          "--read-only",
+          "--tmpfs",
+          "/tmp:rw,size=1g,exec",
+          "--memory=8g",
+          "--memory-swap=8g",
+          "--pids-limit=512",
+          "--user=0:0",
+          "--cap-drop=ALL",
+          "--cap-add=SETUID",
+          "--cap-add=SETGID",
+          "--security-opt=no-new-privileges",
+          "--ulimit",
+          "nofile=8192:8192",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1:/data:ro",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/containers/a-de1b162318/out3:/out:rw",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/containers/a-de1b162318/sd3:/sd",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/timer:/sd-bin:ro",
+          "-e",
+          "TRACK=a",
+          "--entrypoint",
+          "/sd-bin/sd-timer",
+          "kryptonite/track-a:pgo-submitted",
+          "/sd/timing.json",
+          "65534",
+          "65534",
+          "--",
+          "/app/solution"
+        ],
+        "exit": 0,
+        "outside_s": 0.24911854101810604,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "diff",
+          "kryptonite-check-279232bf25ee"
+        ],
+        "exit": 0,
+        "outside_s": 0.04695379099575803,
+        "stdout": "A /out\nA /sd\nA /sd-bin\nA /data\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "rm",
+          "-fv",
+          "kryptonite-check-279232bf25ee"
+        ],
+        "exit": 0,
+        "outside_s": 0.030081500008236617,
+        "stdout": "kryptonite-check-279232bf25ee\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "run",
+          "--name",
+          "kryptonite-check-d7ae6472171b",
+          "--platform",
+          "linux/amd64",
+          "--no-healthcheck",
+          "--network=none",
+          "--read-only",
+          "--tmpfs",
+          "/tmp:rw,size=1g,exec",
+          "--memory=8g",
+          "--memory-swap=8g",
+          "--pids-limit=512",
+          "--user=0:0",
+          "--cap-drop=ALL",
+          "--cap-add=SETUID",
+          "--cap-add=SETGID",
+          "--security-opt=no-new-privileges",
+          "--ulimit",
+          "nofile=8192:8192",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1:/data:ro",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/containers/a-de1b162318/out4:/out:rw",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/containers/a-de1b162318/sd4:/sd",
+          "-v",
+          "/Users/avinashgehi3/projects/Speed Demon/submission/.work/timer:/sd-bin:ro",
+          "-e",
+          "TRACK=a",
+          "--entrypoint",
+          "/sd-bin/sd-timer",
+          "kryptonite/track-a:pgo-submitted",
+          "/sd/timing.json",
+          "65534",
+          "65534",
+          "--",
+          "/app/solution"
+        ],
+        "exit": 0,
+        "outside_s": 0.25119770801393315,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "diff",
+          "kryptonite-check-d7ae6472171b"
+        ],
+        "exit": 0,
+        "outside_s": 0.04665695800213143,
+        "stdout": "A /sd-bin\nA /data\nA /sd\nA /out\n",
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "rm",
+          "-fv",
+          "kryptonite-check-d7ae6472171b"
+        ],
+        "exit": 0,
+        "outside_s": 0.023612915945705026,
+        "stdout": "kryptonite-check-d7ae6472171b\n",
+        "stderr": ""
+      }
+    ],
+    "runs": [
+      {
+        "wall_ns": 182012292,
+        "exit_code": 0,
+        "signal": 0,
+        "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3",
+        "outside_s": 0.29140979202929884,
+        "fs_diff": []
+      },
+      {
+        "wall_ns": 146938917,
+        "exit_code": 0,
+        "signal": 0,
+        "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3",
+        "outside_s": 0.24489441700279713,
+        "fs_diff": []
+      },
+      {
+        "wall_ns": 133251209,
+        "exit_code": 0,
+        "signal": 0,
+        "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3",
+        "outside_s": 0.25445825001224875,
+        "fs_diff": []
+      },
+      {
+        "wall_ns": 141077916,
+        "exit_code": 0,
+        "signal": 0,
+        "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3",
+        "outside_s": 0.24911854101810604,
+        "fs_diff": []
+      },
+      {
+        "wall_ns": 136592542,
+        "exit_code": 0,
+        "signal": 0,
+        "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3",
+        "outside_s": 0.25119770801393315,
+        "fs_diff": []
+      }
+    ],
+    "official_cgroup_memory": null,
+    "board_run_id": null,
+    "artifact_dir": ".work/containers/a-de1b162318",
+    "inputs": {
+      "requests.log": "7ec80ba45bceef51ac7f79d3a14521fc6187b2dcb87b5e5542d08063fe5d962a"
+    },
+    "build_s": 8.821985999995377,
+    "image_bytes": 30384109,
+    "image_id": "sha256:3dd60d2fba1c4af88182aa0a692a9521fa4954029873a54586474f67002750b6",
+    "runtime_libraries": "\tlibm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fffff6d4000)\n\tlibc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fffff4e0000)\n\t/lib64/ld-linux-x86-64.so.2 (0x00007ffffffc8000)\n",
+    "timer_source_sha256": "3b9bcff0233a027a707b31db9609bc5345aafa6c79de845aa95196d58245b321",
+    "passed": true
+  },
+  "static_prototype": "benchmarks/track-a/static-pgo.json",
+  "unchanged_B_C_D_proof": "benchmarks/round4-manifest.json",
+  "official_effect": "pending"
+}

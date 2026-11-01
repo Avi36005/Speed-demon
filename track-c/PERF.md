@@ -200,3 +200,11 @@ outputs match and memory rises only slightly. Those Mac regressions do not
 establish the Intel optimum: six is an explicit test of the box's six P-cores,
 with exact-source native/fresh/repeated restricted-container proof. The
 actual box must justify it before retention; four at7f739ca is preserved.
+
+## Official round-four result — 1429e2e
+
+Run `run-9c9de469bfe8`, ended 2026-11-01T19:24:52Z. All five gates pass.
+T=0.206900 s, cgroup M=16,121,856 B, S=348, D=1,
+K=13.100695, machine points=55.864717. Registered=True.
+Raw receipt `../benchmarks/board/2026-11-01T192637.287985Z.json`.
+Single public live run; final holdout/judging remain separate.

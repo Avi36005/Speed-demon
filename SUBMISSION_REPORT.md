@@ -1,68 +1,81 @@
-# Kryptonite — optimization checkpoint
+# Kryptonite — verified optimization checkpoint
 
-The initial A/B/C release was implemented, checked and then measured by the
-actual live board at b4f7240. It scored overall 43.243 on the user's snapshot.
-The requested target is 92 overall; that target is **not achieved**. This is
-an intermediate checkpoint, not a final handoff.
+The last board-tested runtime is **1429e2e**, with **56.089310 overall** across
+registered A/B/C. All four track runs passed check/build/correctness/timeout/
+sandbox. The requested92 machine-point target remains unmet; this is an
+intermediate engineering checkpoint, not the requested final file handoff.
 
-The complete historical local release report is retained at
-[initial-local-release-report.md](benchmarks/initial-local-release-report.md).
-Its runtime hashes and claims apply to its recorded source, not automatically
-to the current candidate. The legacy report generator now refuses to certify
-changed runtime files with those old records.
+The current change is an isolated **A build-time PGO trial**. Its exact inputs,
+training provenance and clean image proof are pinned in
+[the trial manifest](benchmarks/pgo-a-trial-manifest.json). The PGO build has
+not yet been scored by the board. B/C/D runtime sources remain1429e2e.
 
-## Current source and evidence
+## Verified runtime
 
-Use `git rev-parse HEAD` for the current commit; STATUS.md records active work.
-Every track is self-contained, C++20, team Kryptonite, zero non-stdlib runtime
-dependencies, MIT. Official checkouts and reference programs are unchanged.
+| Track | Implementation at1429e2e | Actual machine points | Real run |
+|---|---|---:|---|
+| A | Twelve whole-line parsers, contiguous latency groups, parallel exact sorting | 64.675051 | run-18e711ea44af |
+| B | Six query/index workers, SSE2 tokenizer, compact query vocabulary, hybrid postings, exact KMP | 48.838903 | run-4a8ff5ad0553 |
+| C | Six quote-aware CSV parsers, shared exact name/country membership | 55.864717 | run-9c9de469bfe8 |
+| D | Four query workers, forward/reverse CSR, exact bidirectional Dijkstra | 44.723104 | run-48c61f525199 |
 
-| Track | Current algorithm | New native evidence | Remaining candidate proof |
-|---|---|---|---|
-| A | Parallel parse, contiguous count/prefix/scatter, parallel exact sorting/output | Five alternating full public matches; worker 1/2/4/6/12; sanitizer fixtures; sample 42; independent full seed 7 | Actual new board axes; final repeated candidate sandbox proof |
-| B | Compact exact vocabulary, sparse/dense Boolean index, streaming KMP phrases | Five alternating public matches; small twelve-worker sanitizers including overlaps; full seed 7 | Actual new board axes; final repeated candidate sandbox proof |
-| C | Four quote-aware chunk workers, compact owned name dictionaries and exact translated country bitsets | Five alternating public matches; general grammar/empty sanitizer cases; sample 42; full seed 7 | Actual new board axes; final repeated candidate sandbox proof |
-| D | Scalar CSR and exact forward Dijkstra baseline | Hand cases, random all-pairs oracle, small sanitizers, samples 2/42, five full public matches | Fresh full seed, final repeated container proof, registration, actual board axes |
+[Raw official receipt](benchmarks/board/2026-11-01T192637.287985Z.json) contains
+all axes and gates. D is still registered:false and excluded from overall.
+Scores are from single live public-data runs. Final hidden-holdout and judge
+results remain unknown. Local ARM timings/RSS and emulated Docker timings are
+kept separate from official scoring-box T and cgroup M.
 
-Local measurements are ARM64 Apple Clang 17 O3/NDEBUG/pthread. Comparison
-records retain all raw samples, source digests, data hashes, commands and RSS
-method under `benchmarks/track-X/`. PERF.md explains retained and rejected
-experiments. ARM timings and process RSS are not scoring-machine T or cgroup M.
+## Verification evidence
 
-The first real A/B/C run IDs and all official axes are retained verbatim in
-[the board receipt](benchmarks/board/2026-11-01-first-public-run.json). All
-original live gates passed. Final five-run hidden-holdout and judge results
-remain pending. Board access/registry for A/B/C is established; D selection is
-not established by a push alone.
+[The four-track manifest](benchmarks/round4-manifest.json) pins the1429 runtime
+and proof matrix: public tiny/sample/full1; independently generated sample2/3/42
+and full7; hand-worked and hostile grammar cases; small ASan/UBSan checks;
+worker sweeps; five deterministic native full runs; clean offline amd64 builds;
+five restricted public-full sandbox runs plus independent full7 per track.
+B's actual x86 SSE2 branch also passed sanitizer fixtures.
 
-## Reproduction
+A's PGO prototype preserves that main source. A pinned build-only Python stage
+runs the untouched official generator at sample seed8675309. Instrumented GCC
+execution produces profiles, and a strict second compilation consumes them.
+Only the binary enters the Debian runtime. Prototype tiny/sample1/2/3/42,
+fixtures, five public-full and independent full7 checks passed. Rebuilding the
+actual submitted track context offline/no-cache passed five public-full sandbox
+runs; context digests, runtime libraries and empty filesystem diffs are retained.
+S248/D1 was measured on byte-identical build inputs by the official static tool;
+its published-copy rule excludes the byte-identical generator. Official effect
+is pending. No input-derived training answers or data enter the final image.
 
-Run from submission/ with Python 3.11+ and the untouched official checkout
-next to it. `tools/dev.py` accepts a/b/c/d and compares exact reference bytes;
-`tools/suite.py` generates independent data and small semantic fixtures.
+C8/C9 and B11 remain isolated, unselected development experiments. Their tests
+and comparisons do not certify the submitted source. STATUS.md records the
+next concrete checks and raw evidence locations. Original oracle checkouts are
+unchanged. The old report generator refuses to reuse stale release hashes.
+
+## Reproduce
+
+Use Python3.11+ and the documented workspace layout with the untouched official
+checkout and public datasets adjacent to this repository. Every track is an
+independent C++20 build context with zero third-party runtime dependencies.
+Prepare all digest-pinned base images before the offline build.
 
 ```sh
-python3.13 tools/suite.py d --fixtures --scale sample --seeds 2 42
-python3.13 tools/dev.py d --data ../data/track-d/full-seed1 --label full-seed1 --repeat 5
-python3.13 tools/container_check.py a --runs 1
-python3.13 tools/container_check.py b --runs 1
-python3.13 tools/container_check.py c --runs 1
-python3.13 tools/container_check.py d --runs 1
+python3.13 tools/dev.py a --data ../data/track-a/full-seed1 --label full-seed1 --repeat 5
+python3.13 tools/suite.py b --fixtures --workers 12 --seeds 2 3 42
+python3.13 tools/suite.py c --fixtures --workers 12 --seeds 2 3 42
+python3.13 tools/suite.py d --fixtures --workers 12 --seeds 2 42
+python3.13 tools/container_check.py a --runs 5
+python3.13 tools/container_check.py b --runs 5
+python3.13 tools/container_check.py c --runs 5
+python3.13 tools/container_check.py d --runs 5
 python3.13 tools/board_receipt.py
 ```
 
-Container checks build from a track folder alone with network disabled, pinned
-allowlisted bases, amd64, read-only root/data, uid 65534, 8 GB/no swap, no
-network, PID/scratch limits, exact file/hash, runtime-library inspection and
-filesystem-diff checks. They are ARM-host emulation checks. Final candidates
-need repeated runs and current static counts before a new final report.
+Container checks use network=none, read-only root/data, uid65534,8GB/no swap,
+PID/scratch limits, exactly one output with its expected SHA, runtime-library
+inspection and empty filesystem diffs. See per-track PERF.md for the commands,
+source/input hashes and all retained/rejected comparisons.
 
-Freeze: 2 November 2026 20:30 IST. Public recorded MIT source by 21:30 IST.
-Keep a final verification window. Do not change repository visibility or
-submit new attestations without the user's applicable authorization.
-
-Current source clean offline amd64 checks have now passed once per track on the
-full public input. Static S is A238 / B404 / C373 / D146, declared D=1 each.
-Raw source-matching evidence: `containers.jsonl` and `static-round2.json` under
-each track's benchmark directory. This remains an intermediate optimization
-checkpoint; the user-requested 92-point handoff is not achieved.
+MIT notices are retained. Repository access and A/B/C team registration are
+evidenced by the board; individual-registration attestations remain outside
+that feed. No D form update or visibility change has been performed. Freeze is
+2026-11-02 15:00UTC/20:30IST; reserve the final two hours for verification.
+The public-source requirement still needs attention before its stated deadline.

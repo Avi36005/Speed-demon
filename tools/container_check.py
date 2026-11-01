@@ -31,17 +31,22 @@ def main():
     ap.add_argument("--runs", type=int, default=5)
     ap.add_argument("--skip-build", action="store_true")
     ap.add_argument("--context", type=Path, help="build from an archived clean track folder")
+    ap.add_argument("--tag", help="distinct local image tag for an isolated build experiment")
     args = ap.parse_args()
     track = (args.context or SUB / f"track-{args.track}").resolve()
     data = (args.data or ROOT / f"data/track-{args.track}/full-seed1").resolve()
     manifest = json.loads((ROOT / "docs/SHA256SUMS.json").read_text())["tracks"][args.track]
     name = manifest["output"]
     expected = args.expected or manifest["expected_output_sha256"][0]
-    tag = f"kryptonite/track-{args.track}:local"
+    tag = args.tag or f"kryptonite/track-{args.track}:local"
     record = {"utc": datetime.datetime.now(datetime.timezone.utc).isoformat(), "official": False,
               "environment": "linux/amd64 emulated on ARM64 Docker Desktop",
               "track": args.track, "source_sha256": sha(track / "main.cpp"),
               "build_context": str(track),
+              "image_tag": tag,
+              "context_files_sha256": {str(p.relative_to(track)): sha(p)
+                                       for p in sorted(track.rglob('*'))
+                                       if p.is_file() and p.suffix.lower() != '.md'},
               "dockerfile_sha256": sha(track / "Dockerfile"), "data": str(data),
               "expected_sha256": expected, "commands": [], "runs": [],
               "official_cgroup_memory": None, "board_run_id": None}

@@ -95,3 +95,11 @@ Public container record `.work/containers/d-e845297277`; fresh `.work/containers
 Unchanged official static tools measure S=239, D=1
 (declared/unverified). Current native matrix gaps are being filled before
 pushing. Actual round-four official run IDs/axes remain pending.
+
+## Official round-four result — 1429e2e
+
+Run `run-48c61f525199`, ended 2026-11-01T19:24:57Z. All five gates pass.
+T=1.259096 s, cgroup M=210,563,072 B, S=239, D=1,
+K=7.842636, machine points=44.723104. Registered=False.
+Raw receipt `../benchmarks/board/2026-11-01T192637.287985Z.json`.
+Single public live run; final holdout/judging remain separate.

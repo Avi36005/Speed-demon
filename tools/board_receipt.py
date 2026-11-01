@@ -38,7 +38,7 @@ def main():
                     continue
                 commit = run["commit"]
                 digests = receipt["runtime_inputs_by_commit"].setdefault(commit, {})
-                for name in ("main.cpp", "Dockerfile", ".speed-demon.toml"):
+                for name in ("main.cpp", "Dockerfile", ".speed-demon.toml", "a_ingest.py"):
                     path = f"track-{track}/{name}"
                     proc = subprocess.run(["git", "show", f"{commit}:{path}"], cwd=SUB,
                                           capture_output=True)

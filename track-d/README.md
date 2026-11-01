@@ -1,26 +1,38 @@
-# Track D — exact directed shortest paths
+# Track D — exact bidirectional shortest paths
 
-C++20 with standard containers and POSIX mmap, no external runtime dependencies.
-Read graph.txt and queries.txt under `/data`; write only `/out/distances.txt`.
-Local paths can be supplied with `--data DIR --out DIR`.
+C++20, standard containers and POSIX mmap; zero external runtime dependencies.
+Read `/data/graph.txt` and `/data/queries.txt`; write only `/out/distances.txt`.
+Local paths: `--data DIR --out DIR`. `--workers 1..12` selects independent query
+workers; four is the provisional default. MIT; see ../LICENSE.
 
-The initial baseline parses the actual graph header, builds compressed sparse
-row adjacency and runs forward Dijkstra with a standard binary min-heap for
-each query. Stale entries are skipped; a reachable answer is returned only when
-the target is settled. All edges, including parallel edges and duplicates, are
-retained. Zero weights, directed edges and isolated nodes use ordinary Dijkstra
-semantics. Distances use uint64 arithmetic with an overflow guard, and finite
-answers fit signed 64 bits under the specification. Every query, including a
-duplicate, gets a separate answer line in its original position.
+Two bounded parsing passes count and fill forward and reverse compressed sparse
+row adjacency, avoiding temporary edge triples. Every directed edge survives,
+including parallel copies, duplicates, self-loops and zero weights. Reverse
+adjacency carries each original directed edge's own weight. Construction
+buffers and the mapping are released before queries.
 
-All graph construction and search happens inside the measured process.
-Construction buffers are released before queries. The initial version clears
-its distance vector for each query; storage reuse, sound degree checks,
-bidirectional search and parallel queries are candidates for measured tuning.
+Each query uses exact forward/reverse Dijkstra with binary min-heaps and 64-bit
+distances. Stale heap entries are discarded before using frontier minima. A
+meeting supplies an upper bound; the search stops only when the valid frontier
+minima cannot improve that bound. Frontier size chooses the next direction to
+balance work even with a UINT32_MAX first edge. Empty frontiers are handled
+soundly. Addition is guarded, and valid final answers fit signed 64 bits.
 
-The pinned GCC 15 / Debian 13 Docker build follows the existing entry style.
-MIT; see ../LICENSE. Verification and performance are recorded in PERF.md.
-The scalar baseline passes local fixtures, independent sample seeds and five
-full public runs. Container/fresh full-seed checks and registration remain
-pending. This new track is not registered with the board. No D score is
-claimed until a real board record is available.
+The empty path is checked before zero-degree rejection, so isolated s == t is
+zero. No-out sources and no-in targets are rejected from the required CSR
+offsets. Other unreachable cases use exact search, with no guessed geometry,
+component labels or search caps. Each worker reuses only its own distance
+arrays and touched-node lists; labels are reset before any search reuses them.
+Queries read an immutable graph and write disjoint answer positions. Joining
+before output preserves all duplicate queries and the original order.
+
+The scalar baseline and unsuccessful experiments remain in history and PERF.md.
+D3 passes hand/adversarial/random all-pairs oracle tests, small sanitizers,
+independent sample/full seeds and repeated exact public output checks. Current
+container and official score status is recorded in STATUS.md. The board has
+measured earlier D0 runs but marks D unregistered; a directory alone does not
+register it. No final holdout or judge result is claimed.
+
+Next: profile graph construction versus search, then compare a full-width
+integer radix heap and select worker count on the real scoring CPU. Avoid
+heavy route preprocessing unless its construction cost pays across the queries.

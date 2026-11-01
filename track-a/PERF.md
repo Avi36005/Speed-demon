@@ -123,3 +123,57 @@ T/M/K is inferred. Raw `containers.jsonl`, artifact `.work/containers/a-34c90de3
 Unchanged official static tools now measure S=238, D=1
 (declared/unverified dependency basis). Final candidate repeated sandbox and
 fresh-data release checks remain separate from this intermediate checkpoint.
+
+## Official live-board checkpoint — cec7edf
+
+Run `run-ed6691497140`, ended 2026-11-01T18:20:56Z. All check/build/correctness/
+timeout/sandbox gates passed. Public full native scoring-box T=0.131601 s,
+cgroup M=53,760,000 B, S=238, D=1, K=16.768585,
+machine points=61.224820. Registered in this feed: True.
+Raw receipt `../benchmarks/board/2026-11-01T182140.380992Z.json`.
+This is one real live public run, not final holdout/judging.
+
+## A4 rejected — bulk delimiter calls
+
+A detailed A3 native diagnostic found parsing dominates (parse0.177511 s,
+merge0.002445, prefix0.000575, scatter0.006165, sort/format0.025470).
+Replacing method/endpoint byte scans with bounded memchr calls did not help:
+five alternating public middle-three means 0.104716 -> 0.109775 s; all hashes
+exact. It stays isolated at `.work/candidates/a4.cpp`. No improvement claimed.
+
+## A5 rejected — compact exact endpoint map
+
+Five alternating native full outputs matched, but the middle-three time was
+0.101308 -> 0.100895 s (less than half a percent), with inconsistent pairwise
+order and cold first samples. Extra probing-table code is not justified by
+this inconclusive difference. Preserve `.work/candidates/a5.cpp` and the raw
+comparison; submitted A3 remains unchanged. Further small table rewrites stop
+until a more substantial parser mechanism is supported.
+
+## Official round-three result — 7f739ca
+
+Run `run-ea6845912009`, 2026-11-01T18:37:16Z; all gates pass. T=0.098343 s,
+cgroup M=53,035,008 B, S=238, D=1, K=19.450627,
+points=64.446680. Registered=True. Raw receipt
+`../benchmarks/board/2026-11-01T183856.248929Z.json`. Single live public run.
+
+## Round-four exact-source proof
+
+Digest `8ca9f5993b20617eab0b3e48d7ddf5512e5d0ce4a51656dc7c82fc2e9e345ffe`. Five public native runs pass; local middle-three mean
+0.052247 s, max wait4 process RSS 304,594,944 B. These
+ARM process samples include input mapping and are not scoring-machine axes.
+Clean offline amd64 build plus FIVE restricted public runs and independent
+full7 all pass, including exact outputs, libraries and filesystem diff checks.
+Public container record `.work/containers/a-c0204208c6`; fresh `.work/containers/a-b1ec4c4a24`.
+Unchanged official static tools measure S=238, D=1
+(declared/unverified). Current native matrix gaps are being filled before
+pushing. Actual round-four official run IDs/axes remain pending.
+
+## A3 worker trial — twelve
+
+On the current contiguous layout, paired native means six0.060984 ->twelve
+0.053475 s, peak process RSS299,040,768 ->305,446,912 B. All hashes pass.
+The current default is twelve for a real scoring-box experiment; this Mac
+result does not establish the Intel optimum. Exact-source final matrix and
+repeated/fresh restricted amd64 checks pass. Restore six if the actual
+time/memory score does not justify twelve.

@@ -1,0 +1,64 @@
+{
+  "utc": "2026-11-01T19:16:12.069123+00:00",
+  "base_commit": "7f739cae9322023240a7225b73c077af5dc77fb5",
+  "status": "all current-source native matrix, five restricted public runs and independent full7 container checks passed; actual board experiment pending",
+  "tracks": {
+    "a": {
+      "runtime_inputs": {
+        "main.cpp": "8ca9f5993b20617eab0b3e48d7ddf5512e5d0ce4a51656dc7c82fc2e9e345ffe",
+        "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+        ".speed-demon.toml": "b2b684e6fff97846ada04662eb0f8850b7786039925e30cdb1a8c010ea501564"
+      },
+      "native_public_record": ".work/track-a/2026-11-01T19_11_26.215405_00_00-full-seed1",
+      "local_native_middle_three_s": 0.052247249657132976,
+      "local_native_peak_process_rss_bytes": 304594944,
+      "clean_public_container_record": ".work/containers/a-c0204208c6",
+      "fresh_container_record": ".work/containers/a-b1ec4c4a24",
+      "S_local_official_tools": 238,
+      "D_declared_unverified": 1
+    },
+    "b": {
+      "runtime_inputs": {
+        "main.cpp": "cdba1869c9f1396ed1919b8252f2bf8d46357dccc397fe42a0125fd2685b407b",
+        "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+        ".speed-demon.toml": "625871dfe8f3cc66517f22cfc910583968e36f3a958e562dda4d831366dbddea"
+      },
+      "native_public_record": ".work/track-b/2026-11-01T19_11_20.249316_00_00-full-seed1",
+      "local_native_middle_three_s": 0.5771238190160753,
+      "local_native_peak_process_rss_bytes": 437436416,
+      "clean_public_container_record": ".work/containers/b-53ade5471a",
+      "fresh_container_record": ".work/containers/b-e4aa40ecba",
+      "S_local_official_tools": 515,
+      "D_declared_unverified": 1
+    },
+    "c": {
+      "runtime_inputs": {
+        "main.cpp": "e22ce04db09dcf0ade071fd6dd6bac715f148986e477fbfd8769965377fe1134",
+        "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+        ".speed-demon.toml": "82561d3cf9545bb00643eeefd7b29b1fb3e4c636831858ac1eac013927e94ad8"
+      },
+      "native_public_record": ".work/track-c/2026-11-01T19_11_28.766496_00_00-full-seed1",
+      "local_native_middle_three_s": 0.08860476398452495,
+      "local_native_peak_process_rss_bytes": 218578944,
+      "clean_public_container_record": ".work/containers/c-4794a1bbf4",
+      "fresh_container_record": ".work/containers/c-c71fc76b28",
+      "S_local_official_tools": 348,
+      "D_declared_unverified": 1
+    },
+    "d": {
+      "runtime_inputs": {
+        "main.cpp": "10d03e6f17ee6df7f44e11816f767b8daf8f37e73873c2e9c267e4eb41d1332a",
+        "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+        ".speed-demon.toml": "4d9ffc87eddf41682b837f8bc3ef497ef008685ff322662a4f67ccd5442e624f"
+      },
+      "native_public_record": ".work/track-d/2026-11-01T19_11_30.244619_00_00-full-seed1",
+      "local_native_middle_three_s": 0.4843211393260087,
+      "local_native_peak_process_rss_bytes": 223592448,
+      "clean_public_container_record": ".work/containers/d-e845297277",
+      "fresh_container_record": ".work/containers/d-638e3df206",
+      "S_local_official_tools": 239,
+      "D_declared_unverified": 1
+    }
+  },
+  "native_matrix_utc": "2026-11-01T19:17:09.381943+00:00"
+}

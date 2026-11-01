@@ -7,16 +7,19 @@ Native testing supports `--data DIR --out DIR`. MIT; see ../LICENSE.
 Queries are parsed first and their actual terms interned in a compact probing
 table. A fingerprint filters probes; complete byte equality resolves every
 collision. Query-backed keys remain mapped for the whole run.
-Only those terms receive postings. Documents are scanned in ID order; the last
-ID in each posting suppresses repeated occurrences within a document. All
-postings stay sorted. Workers build private postings for ordered document-ID
-ranges, then concatenate them in range order. Frequent terms also receive
-bitmaps; sparse lists and dense intermediate sets use exact membership tests or
+Only those terms are indexed. Documents are scanned in ID order; the last
+seen ID suppresses repeated occurrences within a document. Worker ranges align
+to bitmap words. A frequent private term promotes to a range bitmap and releases
+its redundant posting list. Global frequencies select the final sparse/dense
+layout. Ordered ranges merge into exact sorted postings or disjoint bitmap
+words, and each private term buffer is released after its global merge.
+Sparse lists and dense intermediate sets use exact membership tests or
 bitwise operations as appropriate. Boolean intersections, unions and differences
 run strictly left to right. An empty intermediate set can still grow at a later OR.
 
-Phrases use the smallest posting as an anchor, check membership of all terms,
-then tokenize each candidate document and check the exact contiguous sequence.
+For each phrase, the term with the lowest actual document frequency anchors
+the candidate scan. Its sorted posting or bitmap is enumerated exactly; each
+candidate must contain all terms before exact token-sequence verification.
 Unneeded tokens occupy sentinel positions and cannot create false adjacency.
 Repeated terms require repeated positions; document boundaries never overlap.
 On x86-64, bounded SSE2 blocks classify and ASCII-fold sixteen bytes at a

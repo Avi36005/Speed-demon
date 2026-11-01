@@ -247,3 +247,158 @@ D3 remains isolated until fresh full data and clean-container proof.
 A detailed diagnostic measured parse 0.177511 s, merge counts 0.002445,
 prefix 0.000575, scatter 0.006165, sort/format 0.025470 (instrumented ARM).
 A4 bulk delimiter scan is the next isolated comparison, not currently submitted.
+
+## GitHub round-three push — 2026-11-01T18:36:36.822697+00:00
+
+`7f739cae9322023240a7225b73c077af5dc77fb5` successfully pushed. Only runtime
+changes from cec7edf are B6-SSE and C6-clean. Both have clean repeated sandbox
+proof, fresh-seed/fixture evidence and current static axes (B448 / C348, D1).
+The next actual feed result is pending; do not infer improvement yet.
+
+A4 rejected (0.104716 -> 0.109775 s local). A5 compact exact endpoint map
+is the next isolated five-pair comparison, followed serially by D3 fresh
+full-seed7 generation/reference comparison. D3 already passed five public
+comparisons plus all-pairs/first-meeting/sanitizer/sample42 checks.
+B8 combines SSE2 with B7 hybrid storage in an isolated source but has not
+yet been tested. A3 and D0 in submitted source are preserved.
+
+## Official round three measured — 2026-11-01T18:38:56Z
+
+All 7f739ca gates passed. Registered best-three machine overall 55.002670:
+A64.446680, B47.985094, C53.807698. C6 is retained: T0.253467 s and
+M15,585,280 B versus C5 T0.370713/M57,143,296; score +9.996389. B6-SSE
+score +0.524536 is modest and one public run only, so the mechanism's isolated
+gain remains uncertain. A source/build files were IDENTICAL yet T moved from
+0.131601 to 0.098343; never attribute that change to a new A algorithm.
+D0 passed again, still unregistered; its score is not part of registered overall.
+
+D3 independent full seed7 generation/reference check PASSED. Native all-pairs,
+first-meeting, sanitizer/sample42 and five public comparisons already pass.
+Next D3 requirements: worker matrix, clean amd64/runtime proof, source axes,
+recorded official experiment. Only then consider a new D registration action.
+
+B10 exact input-backed lowercase token views is the next isolated experiment.
+B8 combined SSE/hybrid storage remains untested. A4/A5 rejected; no A change.
+92 target not achieved; no new ZIP handoff.
+
+## D3 selected for final candidate verification — 2026-11-01T18:56:08.859827+00:00
+
+Current track-d/main.cpp now D3 with default FOUR (native time/memory compromise),
+not yet committed/pushed. Fresh full7 at default2 already passed; current
+default4 full7 plus five repeats is active via dev.py, then a B8 index capacity
+census (equivalent output, no scored timing) runs serially. D3 worker5-pair
+comparison: two0.774196 -> four0.483856 s, RSS200,949,760 ->223,444,992;
+separate two0.767158 ->six0.425847 s, RSS200,916,992 ->281,526,272.
+All hashes pass. Four selected to avoid the extra state memory for a modest
+six-worker improvement. Official default selection remains provisional.
+
+B10 input-backed lowercase-token prototype regressed on ARM (0.643171 ->
+0.712995 s). It stays isolated; no adoption or x86 speed claim. The x86 SIMD
+path would require its own checks, but this local result does not justify
+prioritizing it. B8 capacity census will identify actual index storage costs
+before any further allocation rewrite. B/C currently remain the real-board
+passing 7f739ca sources; A remains unchanged A3.
+
+PGO with official generated training is allowed by the master; no PGO source
+or Dockerfile change has been made. Treat it only as a future hypothesis,
+not active proof or an improvement. Final source/ZIP handoff still held at
+user request until 92 is measured; actual registered best remains55.002670.
+
+## Continued measured prioritization — 2026-11-01T19:03:54.498010+00:00
+
+D3 default-four full7 plus five repeats passed, output hash66d63e1c...; the
+full-public worker1/2/4/6/12 matrix passed. Clean container/static proof pending.
+B8 capacity census proved private+global retained capacities, motivating
+`.work/candidates/b8-free.cpp` to release each private term as soon as its
+global term is merged. That source is still UNTESTED and UNSELECTED.
+B9 short-key hash showed only about2% local gain, not justified for selection.
+C7 name-owner queue regressed time/RSS and was rejected.
+
+Important next trial: C6 is shared-state now, so C5's reason for keeping only
+four parser workers no longer applies. Current exact-source C6 worker4-vs6 and
+4-vs12 comparisons are active, then A3's current contiguous layout6-vs12.
+Do not infer x86 optimal counts from Mac results; use a tested actual board
+trial. A4/A5 remain rejected. No current A/B/C algorithm changes since7f739ca.
+
+Isolated `.work/pgo-a/` has an UNTESTED PGO Dockerfile and an exact official
+A generator copy: sample seed8675309 generated during build, profiles only,
+final runtime copies only solution. It is not in the submitted track. Needs
+allowed Python base preparation, offline build, hash checks, static exclusion
+proof and actual-box comparison before any adoption.
+
+## Scoring-box worker trials prepared — 2026-11-01T19:06:46.391180+00:00
+
+Current uncommitted runtime changes from7f739ca: A3 default12 (was6), C6
+default6 (was4), and D3 bidirectional default4 (wasD0). B remainsB6-SSE.
+A3 Mac current-layout6-vs12 mean0.060984 ->0.053475 s, local RSS299,040,768
+->305,446,912 B; all hashes exact. C6 Mac4-vs6 regresses0.081181 ->0.088334,
+4-vs12 regresses0.081300 ->0.089488 with little RSS increase. These do not
+establish the x86 optimum. C6 six-worker trial is specifically to use the
+scoring CPU's six P-cores; retain only if actual board tradeoff improves.
+A12 likewise needs actual measured memory/time axes before selection.
+
+D3 worker/public/fresh/sanitizer proof is complete locally; pending clean
+offline repeated-container checks and officialS. Next batch should verify
+A12/C6default6/D3default4 with source-matched hashes, then commit/push only
+the exact tested bytes. Preserve7f739ca if a trial regresses.
+
+B8 incremental-release comparison runs isolated; if useful, run fixtures/
+x86 sanitizers/full7/clean builds before considering it. B9 hash andB10 token
+views are unselected. C7 owner queues rejected. PGO prototype still untested.
+
+## B8 trial selected for regression verification — 2026-11-01T19:08:35.559824+00:00
+
+Current working B main is B8-free (`cdba1869...`), not yet pushed. Five paired
+ARM public means0.633509 ->0.590427 s, RSS503,054,336 ->443,072,512 B.
+It directly promotes private frequent terms to bitmaps, uses exact actual-df
+phrase anchors, and releases private term buffers after global merge. It
+keeps the checked SSE2 tokenizer. All public comparison hashes pass.
+Full semantic/sanitizer/worker12/sample42 and fresh full7 checks are active.
+
+The runner now optionally reuses an untouched-reference output ONLY after
+matching every input SHA256 and validating the saved passed reference command
+and output hash. It still compares candidate and oracle BYTES and records
+provenance. This avoids rerunning the same expensive reference for unchanged
+full-seed inputs; new data or missing proof falls back to a fresh reference.
+No runtime program reads these development outputs.
+
+Current pending combined trial source: A12, B8-free, C6default6, D3default4.
+All need exact-source clean offline/repeated public and representative fresh
+container checks plus source-axis measurement before a new commit/push.
+No actual gain is claimed for these unpushed bytes. Stable passing branch
+remote remains7f739ca with registered overall55.002670.
+
+## Round-four full proof — 2026-11-01T19:16:12.073885+00:00
+
+All current A12/B8/C6default6/D3default4 sources passed: five native public
+runs, independent full7 bytes, clean offline amd64 builds, FIVE restricted
+public sandbox runs per track plus one fresh full7 sandbox run. B8 also
+passes actual Linux x86 ASan/UBSan fixtures. Source axes A238/B515/C348/D239;
+all declaredD1 unverified. Exact digests and evidence directories are pinned
+in benchmarks/round4-manifest.json. No official round4 score yet.
+
+The final-check helper now includes D and checks input hashes, hand-expected
+bytes, actual worker count, compiler and architecture before reusing proof.
+It previously could skip a requested worker check based only on source/label;
+that verification weakness is corrected. `python3.13 tools/final_check.py` is
+ACTIVE serially filling remaining tiny/sample/fixture/current-source gaps,
+using only validated untouched-reference byte outputs when reusing an oracle.
+Wait for its final passed record and source mapping before the round4 commit.
+
+Next: commit/push the exact tested round4 source and docs, save official feed
+results, and retain/revert A/C worker trials based on actual tradeoffs. Then
+consider the isolated PGO build or further measured indexing work. Do not
+claim the 92 target or produce a new source ZIP yet.
+
+## Round4 ready to commit — 2026-11-01T19:19:50.253377+00:00
+
+The final current-source matrix PASSED for all four digests, including
+D3 tiny/sample1/sample2/3/42/full7, adversarial12-worker sanitizers and five
+default-worker public repetitions. The helper checks source/input/worker/
+compiler/architecture/hand bytes before reusing proof. All six sandbox runs
+per track (five public +onefull7), clean offline builds and static axes pass.
+Exact current sources equal round4-manifest and final-native.sources.
+Proceed to commit and push A12/B8/C6-default6/D3-default4, then save actual
+board results. Remote currently7f739ca with registered best55.002670.
+A pinned allowlisted Python3.13 training base is now prepared; PGO prototype
+remains unbuilt/untested and outside submitted tracks. No 92 claim or newZIP.

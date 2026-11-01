@@ -45,6 +45,8 @@ def main():
     ap.add_argument("--compiler", default="clang++")
     ap.add_argument("--binary", type=Path, help="use an already built binary (e.g. baseline)")
     ap.add_argument("--source", type=Path, help="compile an isolated development candidate")
+    ap.add_argument("--reuse-reference", action="store_true",
+                    help="reuse byte output only from a passed untouched-reference run with identical input hashes")
     args = ap.parse_args()
     module, name = NAMES[args.track]
     track = SUB / f"track-{args.track}"
@@ -84,13 +86,39 @@ def main():
         if args.workers is not None:
             command += ["--workers", str(args.workers)]
         run(command, commands)
-        run([sys.executable, OFFICIAL / "reference" / f"{module}.py",
-             "--data", data, "--out", reference], commands)
+        expected_file = reference / name
+        reused = False
+        history = SUB / f"benchmarks/track-{args.track}/experiments.jsonl"
+        if args.reuse_reference and history.exists():
+            oracle = str(OFFICIAL / 'reference' / f'{module}.py')
+            for raw in reversed(history.read_text().splitlines()):
+                prior = json.loads(raw)
+                if not prior.get('passed') or prior.get('inputs') != record['inputs']:
+                    continue
+                reference_command = next((c for c in prior.get('commands', [])
+                                          if c.get('exit') == 0 and oracle in c.get('argv', [])), None)
+                prior_file = SUB / prior['artifact_dir'] / 'reference' / name
+                if (reference_command and prior_file.exists() and
+                        digest(prior_file) == prior.get('expected_sha256')):
+                    expected_file = prior_file
+                    record['reference_provenance'] = {
+                        'mode': 'reused exact untouched-reference output',
+                        'prior_record_utc': prior['utc'],
+                        'prior_record_sha256': hashlib.sha256(raw.encode()).hexdigest(),
+                        'reference_command': reference_command,
+                        'reference_output': str(prior_file),
+                        'inputs_sha256_match': True}
+                    reused = True
+                    break
+        if not reused:
+            run([sys.executable, OFFICIAL / "reference" / f"{module}.py",
+                 "--data", data, "--out", reference], commands)
+            record['reference_provenance'] = {'mode': 'fresh untouched-reference execution'}
         if sorted(p.name for p in candidate.iterdir()) != [name]:
             raise RuntimeError("candidate must emit exactly " + name)
-        got, expected = (candidate / name).read_bytes(), (reference / name).read_bytes()
+        got, expected = (candidate / name).read_bytes(), expected_file.read_bytes()
         record["output_sha256"] = digest(candidate / name)
-        record["expected_sha256"] = digest(reference / name)
+        record["expected_sha256"] = digest(expected_file)
         hand = SUB / ".work/fixture-answers" / args.track / args.label
         if hand.exists() and args.data.resolve().is_relative_to(SUB / ".work/fixtures"):
             record["hand_expected_sha256"] = digest(hand)

@@ -172,3 +172,57 @@ measured time/memory/source tradeoff justifies it. No candidate board ID yet.
 Round-three source axes: S=448, D=1 (declared/unverified).
 Clean build source digest matches `6ea3e83399bcfa329bcfb3fb1a23937a3477acdccdc8072c5e90eaf9e562e331`; all three restricted
 public full runs pass. Actual next board result remains pending.
+
+## Official round-three result — 7f739ca
+
+Run `run-45214b11e35d`, 2026-11-01T18:37:21Z; all gates pass. T=1.046684 s,
+cgroup M=225,148,928 B, S=448, D=1, K=9.113850,
+points=47.985094. Registered=True. Raw receipt
+`../benchmarks/board/2026-11-01T183856.248929Z.json`. Single live public run.
+
+## B10 rejected locally — borrowed lowercase token views
+
+Folding only tokens with capitals preserves public outputs, but five paired ARM
+means regressed0.643171 ->0.712995 s, with no RSS benefit. Keep isolated source
+and raw results; do not infer an x86 gain or select the candidate.
+
+## B9 unselected — bounded short-key hash
+
+Complete first/last bytes for terms <=16 bytes, standard hashing otherwise,
+always full exact collision equality. Five public hashes pass. ARM paired means
+0.635794 ->0.622926 s (about2%), with one regressing pair and broad cold-sample
+spread. The extra code is not justified by this local result alone; no official
+improvement is claimed and the submitted standard hash is preserved.
+
+## B8 equivalent-output index capacity census
+
+Instrumented candidate census matched the public hash. On ARM: vocabulary75,747,
+private term metadata25,450,992 B, private sparse capacity57,378,860 B and dense
+capacity23,468,016 B; merged sparse capacity40,319,084 B and dense23,567,024 B.
+Retaining both private and merged storage is a concrete peak-memory cost.
+These are allocation capacities, not measured cgroup peaks or scored timings.
+Raw equivalent-output diagnostic is retained in profiles.jsonl.
+
+## Round-four exact-source proof
+
+Digest `cdba1869c9f1396ed1919b8252f2bf8d46357dccc397fe42a0125fd2685b407b`. Five public native runs pass; local middle-three mean
+0.577124 s, max wait4 process RSS 437,436,416 B. These
+ARM process samples include input mapping and are not scoring-machine axes.
+Clean offline amd64 build plus FIVE restricted public runs and independent
+full7 all pass, including exact outputs, libraries and filesystem diff checks.
+Public container record `.work/containers/b-53ade5471a`; fresh `.work/containers/b-e4aa40ecba`.
+Unchanged official static tools measure S=515, D=1
+(declared/unverified). Current native matrix gaps are being filled before
+pushing. Actual round-four official run IDs/axes remain pending.
+
+## B8 retained for actual-box trial — direct hybrid storage and early release
+
+The capacity census motivated eliminating redundant frequent-term postings
+and releasing private term buffers immediately after their global merge.
+Global actual frequencies select sparse/dense layouts and exact phrase anchors.
+Five native public pairs: middle-three0.633509 ->0.590427 s, max process
+RSS503,054,336 ->443,072,512 B. All hashes pass. Current source
+`cdba1869c9f1396ed1919b8252f2bf8d46357dccc397fe42a0125fd2685b407b`
+passes full current-source semantic/sanitizer/sample/independent-full matrix,
+actual x86 sanitizer fixtures, clean offline build, five public sandbox runs
+and fresh full7 sandbox. S515/D1 declared-unverified. Actual points pending.

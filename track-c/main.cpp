@@ -189,7 +189,7 @@ std::string money(int64_t value) {
 int main(int argc, char** argv) {
     try {
         std::string data_dir = "/data", out_dir = "/out";
-        size_t worker_count = 4;
+        size_t worker_count = 6;
         for (int i = 1; i < argc; ++i) {
             std::string arg = argv[i];
             if (i + 1 < argc && arg == "--data") data_dir = argv[++i];

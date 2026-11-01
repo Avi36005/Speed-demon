@@ -17,6 +17,7 @@
 #include <thread>
 #include <unistd.h>
 #include <vector>
+
 #if defined(__x86_64__)
 #include <immintrin.h>
 #endif
@@ -167,21 +168,33 @@ bool phrase_matches(std::string_view text, const Query& query, const Vocabulary&
 
 Posting evaluate(const Query& query, const std::vector<Posting>& index,
                  const std::vector<std::string_view>& documents, const Vocabulary& vocabulary,
-                 const std::vector<std::vector<uint64_t>>& bitmaps) {
+                 const std::vector<std::vector<uint64_t>>& bitmaps,
+                 const std::vector<uint32_t>& frequencies) {
     if (query.phrase) {
         auto anchor = *std::min_element(query.terms.begin(), query.terms.end(), [&](auto a, auto b) {
-            return index[a].size() < index[b].size();
+            return frequencies[a] < frequencies[b];
         });
         Posting result;
-        for (auto doc : index[anchor]) {
-            bool present = true;
+        auto consider = [&](uint32_t doc) {
             for (auto term : query.terms) {
-                if (!std::binary_search(index[term].begin(), index[term].end(), doc)) {
-                    present = false;
-                    break;
+                const auto& bits = bitmaps[term];
+                bool present = bits.empty()
+                    ? std::binary_search(index[term].begin(), index[term].end(), doc)
+                    : ((bits[doc / 64] >> (doc % 64)) & 1) != 0;
+                if (!present) return;
+            }
+            if (phrase_matches(documents[doc], query, vocabulary)) result.push_back(doc);
+        };
+        if (bitmaps[anchor].empty()) {
+            for (auto doc : index[anchor]) consider(doc);
+        } else {
+            for (size_t word = 0; word < bitmaps[anchor].size(); ++word) {
+                uint64_t bits = bitmaps[anchor][word];
+                while (bits) {
+                    consider(static_cast<uint32_t>(word * 64 + std::countr_zero(bits)));
+                    bits &= bits - 1;
                 }
             }
-            if (present && phrase_matches(documents[doc], query, vocabulary)) result.push_back(doc);
         }
         return result;
     }
@@ -315,21 +328,42 @@ int main(int argc, char** argv) {
             std::string_view text(start, p++ - start);
             documents.push_back(text);
         }
-        // Documents are complete views before workers begin. Each worker owns
-        // its postings and an ordered range of document IDs. Concatenating ranges
-        // in worker order therefore preserves sorted, duplicate-free postings.
-        std::vector<std::vector<Posting>> partial(worker_count - 1, std::vector<Posting>(index.size()));
+        // Each document range starts on a bitmap word boundary. A private
+        // term promotes once its bitmap is smaller than its postings; common
+        // terms never retain a second full posting representation.
+        struct LocalTerm {
+            Posting sparse;
+            std::vector<uint64_t> dense;
+            uint32_t frequency = 0, last = UINT32_MAX;
+        };
+        size_t words = (documents.size() + 63) / 64;
+        size_t threshold = std::max(size_t{64}, documents.size() / 64);
+        std::vector<std::vector<LocalTerm>> partial(worker_count, std::vector<LocalTerm>(index.size()));
         const Vocabulary& needed = vocabulary;
         auto build_index = [&](size_t worker) {
-            auto& local = worker == 0 ? index : partial[worker - 1];
-            size_t first = documents.size() * worker / worker_count;
-            size_t last = documents.size() * (worker + 1) / worker_count;
+            auto& local = partial[worker];
+            size_t first_word = words * worker / worker_count;
+            size_t last_word = words * (worker + 1) / worker_count;
+            size_t first = first_word * 64;
+            size_t last = std::min(documents.size(), last_word * 64);
+            size_t local_threshold = std::max(size_t{16}, (last - first) / 64);
             for (size_t doc = first; doc < last; ++doc) {
                 tokenize(documents[doc], [&](std::string_view token) {
                     uint32_t term = needed.find(token);
                     if (term == UINT32_MAX) return;
-                    auto& posting = local[term];
-                    if (posting.empty() || posting.back() != doc) posting.push_back(static_cast<uint32_t>(doc));
+                    auto& value = local[term];
+                    if (value.last == doc) return;
+                    value.last = static_cast<uint32_t>(doc);
+                    ++value.frequency;
+                    if (value.dense.empty()) {
+                        value.sparse.push_back(static_cast<uint32_t>(doc));
+                        if (value.sparse.size() > local_threshold) {
+                            value.dense.resize(last_word - first_word, 0);
+                            for (auto id : value.sparse)
+                                value.dense[id / 64 - first_word] |= uint64_t{1} << (id % 64);
+                            Posting{}.swap(value.sparse);
+                        }
+                    } else value.dense[doc / 64 - first_word] |= uint64_t{1} << (doc % 64);
                 });
             }
         };
@@ -338,25 +372,51 @@ int main(int argc, char** argv) {
             threads.values.emplace_back(build_index, worker);
         build_index(0);
         threads.join();
-        for (size_t term = 0; term < index.size(); ++term) {
-            auto& posting = index[term];
-            size_t total = posting.size();
-            for (const auto& local : partial) total += local[term].size();
-            posting.reserve(total);
-            for (const auto& local : partial)
-                posting.insert(posting.end(), local[term].begin(), local[term].end());
-        }
-        partial.clear();
-        // Dense terms receive compact bitmaps; sparse terms retain just postings.
-        // Keeping sorted postings also gives phrase anchors without bitmap scans.
         std::vector<std::vector<uint64_t>> bitmaps(index.size());
-        size_t threshold = std::max(size_t{64}, documents.size() / 64);
-        for (size_t term = 0; term < index.size(); ++term) {
-            if (index[term].size() <= threshold) continue;
-            auto& bits = bitmaps[term];
-            bits.resize((documents.size() + 63) / 64, 0);
-            for (auto id : index[term]) bits[id / 64] |= uint64_t{1} << (id % 64);
-        }
+        std::vector<uint32_t> frequencies(index.size(), 0);
+        std::atomic<size_t> next_term{0};
+        auto merge_terms = [&] {
+            for (;;) {
+                size_t term = next_term.fetch_add(1, std::memory_order_relaxed);
+                if (term >= index.size()) break;
+                uint32_t total = 0;
+                for (const auto& local : partial) total += local[term].frequency;
+                frequencies[term] = total;
+                bool dense = total > threshold;
+                if (dense) bitmaps[term].resize(words, 0);
+                else index[term].reserve(total);
+                for (size_t worker = 0; worker < worker_count; ++worker) {
+                    auto& value = partial[worker][term];
+                    size_t first_word = words * worker / worker_count;
+                    if (value.dense.empty()) {
+                        for (auto id : value.sparse) {
+                            if (dense) bitmaps[term][id / 64] |= uint64_t{1} << (id % 64);
+                            else index[term].push_back(id);
+                        }
+                    } else if (dense) {
+                        std::copy(value.dense.begin(), value.dense.end(), bitmaps[term].begin() + first_word);
+                    } else {
+                        for (size_t word = 0; word < value.dense.size(); ++word) {
+                            uint64_t bits = value.dense[word];
+                            while (bits) {
+                                index[term].push_back(static_cast<uint32_t>((first_word + word) * 64 + std::countr_zero(bits)));
+                                bits &= bits - 1;
+                            }
+                        }
+                    }
+                    // The term is complete globally; release its private
+                    // storage before allocating the next merged term.
+                    Posting{}.swap(value.sparse);
+                    std::vector<uint64_t>{}.swap(value.dense);
+                }
+            }
+        };
+        threads.values.clear();
+        for (size_t worker = 1; worker < worker_count; ++worker)
+            threads.values.emplace_back(merge_terms);
+        merge_terms();
+        threads.join();
+        partial.clear();
         // Queries read immutable indexes and own their temporary sets. Output
         // slots are disjoint; the final write preserves original query order.
         std::vector<std::string> answers(queries.size());
@@ -366,7 +426,7 @@ int main(int argc, char** argv) {
                 size_t first = next_query.fetch_add(16, std::memory_order_relaxed);
                 if (first >= queries.size()) break;
                 for (size_t q = first; q < std::min(first + 16, queries.size()); ++q) {
-                    Posting result = evaluate(queries[q], index, documents, vocabulary, bitmaps);
+                    Posting result = evaluate(queries[q], index, documents, vocabulary, bitmaps, frequencies);
                     uint64_t sum = std::accumulate(result.begin(), result.end(), uint64_t{0});
                     auto& answer = answers[q];
                     answer = std::to_string(result.size()) + ' ' + std::to_string(sum);

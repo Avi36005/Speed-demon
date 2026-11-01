@@ -46,3 +46,52 @@ T/M/K is inferred. Raw `containers.jsonl`, artifact `.work/containers/d-19907ed6
 Unchanged official static tools now measure S=146, D=1
 (declared/unverified dependency basis). Final candidate repeated sandbox and
 fresh-data release checks remain separate from this intermediate checkpoint.
+
+## Official live-board checkpoint — cec7edf
+
+Run `run-de4b3b2aeb82`, ended 2026-11-01T18:21:18Z. All check/build/correctness/
+timeout/sandbox gates passed. Public full native scoring-box T=9.731496 s,
+cgroup M=115,175,424 B, S=146, D=1, K=3.426991,
+machine points=26.745647. Registered in this feed: False.
+Raw receipt `../benchmarks/board/2026-11-01T182140.380992Z.json`.
+This is one real live public run, not final holdout/judging.
+
+## Official round-three result — 7f739ca
+
+Run `run-8705e4261a3d`, 2026-11-01T18:37:37Z; all gates pass. T=9.149643 s,
+cgroup M=115,265,536 B, S=146, D=1, K=3.533725,
+points=27.411636. Registered=False. Raw receipt
+`../benchmarks/board/2026-11-01T183856.248929Z.json`. Single live public run.
+
+## D3 retained for actual-box trial — exact bidirectional candidate
+
+The candidate combines two-pass forward/reverse CSR, exact bidirectional search,
+reused touched labels and independent query workers. Individual contributions
+are not separately measured. All-pairs random graphs, first-meeting trap, zero
+cycles, parallel/reverse edges, UINT32_MAX chains, isolated/same-node cases and
+small four-worker sanitizers pass, as do sample42 and fresh full seed7.
+Five alternating public runs: scalar D0 middle-three4.557196 s, candidate two
+workers1.018434 s, process RSS207,028,224 ->200,949,760 B. Later identical-source
+worker sweeps: two0.774196 ->four0.483856 s (RSS223,444,992 B); independent
+two0.767158 ->six0.425847 s (RSS281,526,272 B). Four chosen as a provisional
+time/memory compromise; these separate blocks are not a direct four/six
+controlled comparison. Raw comparisons.jsonl retains every sample and digest.
+
+Current default-four source `10d03e6f17ee6df7f44e11816f767b8daf8f37e73873c2e9c267e4eb41d1332a`
+passed a fresh full7 reference check and five exact repeated runs:
+0.498242,0.496833,0.497163,0.497189,0.497724 s; peak wait4 RSS223,232,000 B.
+Fresh output SHA256 `66d63e1c9c1f80583914b835d82fd24e1bd78fba3bdc1cf73efb7f60ed4fe646`.
+These are ARM64 process measurements. Current-source clean container proof and
+real D3 board axes are still pending. Registration remains false in the feed.
+
+## Round-four exact-source proof
+
+Digest `10d03e6f17ee6df7f44e11816f767b8daf8f37e73873c2e9c267e4eb41d1332a`. Five public native runs pass; local middle-three mean
+0.484321 s, max wait4 process RSS 223,592,448 B. These
+ARM process samples include input mapping and are not scoring-machine axes.
+Clean offline amd64 build plus FIVE restricted public runs and independent
+full7 all pass, including exact outputs, libraries and filesystem diff checks.
+Public container record `.work/containers/d-e845297277`; fresh `.work/containers/d-638e3df206`.
+Unchanged official static tools measure S=239, D=1
+(declared/unverified). Current native matrix gaps are being filled before
+pushing. Actual round-four official run IDs/axes remain pending.

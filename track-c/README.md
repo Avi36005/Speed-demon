@@ -2,7 +2,7 @@
 
 C++20 and POSIX mmap, zero third-party runtime dependencies. Read
 `/data/records.csv` and `/data/regions.csv`; write only `/out/aggregates.txt`.
-Local paths: `--data DIR --out DIR`; workers: `--workers 1..12` (default four).
+Local paths: `--data DIR --out DIR`; workers: `--workers 1..12` (default six for the current scoring-box trial).
 MIT; see ../LICENSE.
 
 Each parser consumes complete CSV fields, scans literal quoted runs in bounded

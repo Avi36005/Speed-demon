@@ -91,7 +91,7 @@ void parse(const char* p, const char* end, Worker& worker) {
 int main(int argc, char** argv) {
     try {
         std::string data_dir = "/data", out_dir = "/out";
-        size_t worker_count = 6;
+        size_t worker_count = 12;
         for (int i = 1; i < argc; ++i) {
             std::string arg = argv[i];
             if (i + 1 < argc && arg == "--data") data_dir = argv[++i];

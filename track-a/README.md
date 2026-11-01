@@ -4,7 +4,7 @@ C++20, standard library and POSIX mmap only. Read `/data/requests.log` and write
 `/out/summary.txt`. Local checks may pass `--data DIR --out DIR`.
 
 The program parses the documented timestamp fields directly, discovers endpoint
-strings from the input, and stores unsigned 32-bit latencies in contiguous endpoint/hour slices. Six workers (override with `--workers 1..12`) parse independent
+strings from the input, and stores unsigned 32-bit latencies in contiguous endpoint/hour slices. Twelve workers in the current scoring-box trial (override with `--workers 1..12`) parse independent
 whole-line ranges into private count tables and row buffers. Prefix sums assign
 disjoint slices, then workers scatter exact latencies into one contiguous array. Hour tasks then sort disjoint buckets and format independent strings in parallel.
 The final write visits those strings chronologically. Each bucket yields the

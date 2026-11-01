@@ -162,3 +162,41 @@ yet. This is a deliberate board trial, not a claimed improvement.
 Round-three source axes: S=348, D=1 (declared/unverified).
 Clean build source digest matches `651a929898722a4320bad9ef995bf20580d855fe366ef9c2e7867d53ba4b6c97`; all three restricted
 public full runs pass. Actual next board result remains pending.
+
+## Official round-three result — 7f739ca
+
+Run `run-da17fb250ea9`, 2026-11-01T18:37:24Z; all gates pass. T=0.253467 s,
+cgroup M=15,585,280 B, S=348, D=1, K=11.916644,
+points=53.807698. Registered=True. Raw receipt
+`../benchmarks/board/2026-11-01T183856.248929Z.json`. Single live public run.
+
+## C7 rejected — owner-partitioned name references
+
+Each name hash selected one private owner; compact field references avoided
+per-record locks, with a wide-offset fallback. Public hashes passed, but the
+five paired ARM mean regressed0.080532 ->0.089120 s and process RSS increased
+218,464,256 ->245,350,400 B. The extra reference storage and second name parse
+do not pay in this test. Preserve isolated source/raw comparison; C6 remains.
+These warm timings are only comparable within this block, not to earlier
+blocks taken under different load or different source digests.
+
+## Round-four exact-source proof
+
+Digest `e22ce04db09dcf0ade071fd6dd6bac715f148986e477fbfd8769965377fe1134`. Five public native runs pass; local middle-three mean
+0.088605 s, max wait4 process RSS 218,578,944 B. These
+ARM process samples include input mapping and are not scoring-machine axes.
+Clean offline amd64 build plus FIVE restricted public runs and independent
+full7 all pass, including exact outputs, libraries and filesystem diff checks.
+Public container record `.work/containers/c-4794a1bbf4`; fresh `.work/containers/c-c71fc76b28`.
+Unchanged official static tools measure S=348, D=1
+(declared/unverified). Current native matrix gaps are being filled before
+pushing. Actual round-four official run IDs/axes remain pending.
+
+## C6 worker trial — six
+
+Sharing the name table removes C5's per-worker dictionary replication. Native
+4-vs6 means0.081181 ->0.088334 s; 4-vs12 means0.081300 ->0.089488 s. All
+outputs match and memory rises only slightly. Those Mac regressions do not
+establish the Intel optimum: six is an explicit test of the box's six P-cores,
+with exact-source native/fresh/repeated restricted-container proof. The
+actual box must justify it before retention; four at7f739ca is preserved.

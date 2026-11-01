@@ -32,18 +32,24 @@ def main():
     ap.add_argument('--baseline-workers', type=int)
     ap.add_argument('--candidate-source', type=Path,
                     help='isolated development source, instead of the track working file')
+    ap.add_argument('--baseline-source', type=Path,
+                    help='isolated baseline source; its digest supersedes revision source')
     args = ap.parse_args()
     work = SUB / '.work/compare' / (args.track + '-' + uuid.uuid4().hex[:10])
     work.mkdir(parents=True)
     data = (args.data or SUB.parent / f'data/track-{args.track}/full-seed1').resolve()
     manifest = json.loads((SUB.parent / 'docs/SHA256SUMS.json').read_text())['tracks'][args.track]
     expected = args.expected or manifest['expected_output_sha256'][0]
-    original = subprocess.run(['git', '-C', str(SUB), 'show', f'{args.baseline}:track-{args.track}/main.cpp'],
-                              capture_output=True, check=True).stdout
+    original = (args.baseline_source.read_bytes() if args.baseline_source else
+                subprocess.run(['git', '-C', str(SUB), 'show', f'{args.baseline}:track-{args.track}/main.cpp'],
+                               capture_output=True, check=True).stdout)
     current = (args.candidate_source or SUB / f'track-{args.track}/main.cpp').read_bytes()
     flags = ['-std=c++20', '-O3', '-DNDEBUG', '-pthread']
     record = {'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'track': args.track,
-              'hypothesis': args.hypothesis, 'baseline_revision': args.baseline,
+              'hypothesis': args.hypothesis,
+              'baseline_revision': None if args.baseline_source else args.baseline,
+              'baseline_source': str(args.baseline_source.resolve()) if args.baseline_source else None,
+              'repository_context_revision': args.baseline,
               'architecture': platform.machine(), 'platform': platform.platform(), 'official': False,
               'compiler': subprocess.run(['clang++', '--version'], capture_output=True, text=True).stdout,
               'flags': flags, 'data': str(data), 'inputs': {p.name: sha(p) for p in sorted(data.iterdir())},

@@ -80,3 +80,45 @@ B3 kept: six-worker paired means 9.294215 s → 2.764396 s (see exact raw values
 in comparisons.jsonl; prose rounded). Twelve-worker candidate 3.273262 s.
 One worker regressed; six chosen provisionally. Stop tuning and finish release
 verification. No x86 or official score improvement is inferred.
+
+## Renewed tuning after official evidence — 2026-11-01
+
+First official b4f7240 run: registered overall43.243; A52.866460/B39.011708/
+C39.208881, with every gate passed. The next tested checkpointcec7edf reached
+50.305507; 7f739ca reached55.002670. Every actual run ID and all axes are
+archived under board/ and in each PERF.md. The requested92 target remains
+unmet. Final holdout and judge scores remain separate.
+
+Retained: A2 parallel hour completion, A3 contiguous count/prefix/scatter;
+B4 compact exact vocabulary, B5 KMP phrases and provisionallyB6-SSE; C2 bulk
+quoted runs, C4 owned exact name table, then C6 shared sharded membership.
+C5 private dictionaries were correct but C6's actual memory/time tradeoff
+scored better: C43.811309 ->53.807698, M57,143,296 ->15,585,280 B.
+A3 had identical source/build bytes atcec7edf and7f739ca yet T0.131601 ->
+0.098343; that change is run variation, not an invented A optimization.
+B6-SSE's +0.524536 point single-run gain remains modest and not isolated
+from ordinary variation.
+
+Rejected/isolated: A4 memchr scans regressed; A5 compact endpoint lookup was
+within noise; C3 borrowed intern keys were inconclusive; C7 owner queues
+regressed time and memory; B9 short-key hash was only about2% locally; B10
+borrowed token views regressed locally. AVX2B6 and its diagnostic hung under
+local Rosetta, so they stayed out of submitted source. The SSE2 alternative
+passed actual x86 sanitizer/boundary/full-data checks. No speculative gain
+from an ARM or emulator time is counted as a box score.
+
+Round4 candidate: A12 and C6-default6 are explicit scoring-machine worker
+trials; Mac results do not decide the Intel optimum. B8 directly constructs
+sparse/dense private indexes and frees each private term after merge; its
+paired ARM mean0.633509 ->0.590427 s and RSS503,054,336 ->443,072,512 B
+justify a real memory/time trial. D3 replaces scalar Dijkstra with a tested
+bidirectional CSR design. It passes an independent all-pairs oracle and fresh
+full seed7, plus full worker1/2/4/6/12 checks; four is the provisional default.
+All current tracks pass the complete current-source native matrix, five
+restricted public container runs and a separate full7 container check.
+Actual round4 axes/points remain pending; revert any unjustified regressions.
+
+Next bounded hypotheses: build-time GCC PGO on generator sample seed8675309
+(prototype isolated, no scoring input in training), then profile B's remaining
+index construction or D's construction/search split. Stop paths that remain
+inconclusive and reserve the final two hours before freeze for verification.

@@ -16,12 +16,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--team", default="Kryptonite")
     args = parser.parse_args()
-    request = urllib.request.Request(SOURCE, headers={"Cache-Control": "no-cache"})
+    fetch_url = SOURCE + '?checked=' + datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S')
+    request = urllib.request.Request(fetch_url, headers={"Cache-Control": "no-cache", "Accept-Encoding": "identity"})
     with urllib.request.urlopen(request, timeout=30) as response:
-        feed = json.load(response)
+        raw = response.read()
+        length = response.headers.get('Content-Length')
+        if length is not None and len(raw) != int(length):
+            raise RuntimeError(f'incomplete feed: received {len(raw)} of {length} bytes; previous receipt preserved')
+        feed = json.loads(raw)
     teams = [team for team in feed["teams"] if team["team"] == args.team]
     now = datetime.datetime.now(datetime.timezone.utc)
-    receipt = {"checked_at_utc": now.isoformat(), "source_url": SOURCE,
+    receipt = {"checked_at_utc": now.isoformat(), "source_url": SOURCE, "retrieved_url": fetch_url,
                "feed_generated_at": feed.get("generated_at"), "teams": teams,
                "measurement_scope": "single live public-data run; final holdout/judging separate",
                "runtime_inputs_by_commit": {}}

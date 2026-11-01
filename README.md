@@ -42,15 +42,15 @@ all indexing, parsing and aggregation performed from the actual inputs at runtim
 
 ### Engineering decisions
 
-**A — exact aggregation with independent workers.** Six workers parse complete
+**A — exact aggregation with independent workers.** Workers parse complete
 log-line ranges into private endpoint/hour count tables. Prefix sums and
 disjoint scatter slices pack the latency values into one contiguous array;
 independent hour tasks sort and format the exact nearest-rank results. Endpoint strings are discovered from the input and compared exactly.
 
-**C — a CSV parser that preserves the data.** A scalar quote-aware parser handles
+**C — a CSV parser that preserves the data.** Quote-aware workers handle
 escaped quotes, multiline fields, mixed line endings and record-boundary BOMs.
-Amounts use integer cents. Globally interned decoded names and per-country bitsets
-provide exact distinct counts while reducing allocation.
+Amounts use integer cents. A shared sharded table owns decoded names once;
+protected name/country membership bits give exact distinct counts.
 
 **B — build only the index the queries need.** Query terms determine the
 vocabulary. Workers build sorted postings over disjoint document ranges;

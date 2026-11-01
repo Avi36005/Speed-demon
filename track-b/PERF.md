@@ -15,3 +15,15 @@ Apple Clang 17, C++20, O3, NDEBUG, pthread. Image preparation and other local
 verification overlapped the session, so these samples are not a controlled
 comparison. Worked/targeted fixtures, wide ID sum, small sanitizer checks,
 tiny seeds 1/2/3/42 and sample seed 1 passed.
+
+## B1 — hybrid Boolean representation
+
+Frequent terms and dense intermediate results use bitmaps; sparse sets retain
+sorted postings. Every operator still runs left to right. Alternating full seed 1
+means were 12.132796 s (baseline a45c753) and 10.003015 s (hybrid). RSS peaks
+438,960,128 and 448,430,080 B. Raw samples have substantial spread, but the
+candidate was faster in every paired iteration. This modest local gain does not
+establish a scoring gain once source cost is included; no K is calculated.
+All fixtures, small sanitizer checks, sample seeds 2/3/42, full seeds 1/7 pass.
+Next: the unchanged index scan remains a major cost, so test independent
+document-range index construction before making a final representation decision.

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <fcntl.h>
 #include <fstream>
@@ -72,7 +73,8 @@ bool phrase_matches(std::string_view text, const Query& query, const Vocabulary&
 }
 
 Posting evaluate(const Query& query, const std::vector<Posting>& index,
-                 const std::vector<std::string_view>& documents, const Vocabulary& vocabulary) {
+                 const std::vector<std::string_view>& documents, const Vocabulary& vocabulary,
+                 const std::vector<std::vector<uint64_t>>& bitmaps) {
     if (query.phrase) {
         auto anchor = *std::min_element(query.terms.begin(), query.terms.end(), [&](auto a, auto b) {
             return index[a].size() < index[b].size();
@@ -90,17 +92,76 @@ Posting evaluate(const Query& query, const std::vector<Posting>& index,
         }
         return result;
     }
-    Posting result = index[query.terms[0]], next;
+    size_t words = (documents.size() + 63) / 64;
+    size_t threshold = std::max(size_t{64}, documents.size() / 64);
+    bool dense = !bitmaps[query.terms[0]].empty();
+    std::vector<uint64_t> bits = bitmaps[query.terms[0]];
+    Posting result = dense ? Posting{} : index[query.terms[0]], next;
+    auto contains = [](const auto& bitmap, uint32_t id) {
+        return (bitmap[id / 64] >> (id % 64)) & 1;
+    };
+    auto make_dense = [&] {
+        bits.assign(words, 0);
+        for (auto id : result) bits[id / 64] |= uint64_t{1} << (id % 64);
+        dense = true;
+        result.clear();
+    };
     for (size_t i = 0; i < query.ops.size(); ++i) {
         const auto& rhs = index[query.terms[i + 1]];
+        const auto& rhs_bits = bitmaps[query.terms[i + 1]];
+        char op = query.ops[i];
         next.clear();
-        if (query.ops[i] == 'A')
-            std::set_intersection(result.begin(), result.end(), rhs.begin(), rhs.end(), std::back_inserter(next));
-        else if (query.ops[i] == 'O')
+        if (!dense && op == 'O' && !rhs_bits.empty()) make_dense();
+        if (dense && !rhs_bits.empty()) {
+            for (size_t w = 0; w < words; ++w) {
+                if (op == 'A') bits[w] &= rhs_bits[w];
+                else if (op == 'O') bits[w] |= rhs_bits[w];
+                else bits[w] &= ~rhs_bits[w];
+            }
+            continue;
+        }
+        if (dense) {
+            if (op == 'A') {
+                for (auto id : rhs) if (contains(bits, id)) next.push_back(id);
+                dense = false;
+                result.swap(next);
+            } else {
+                for (auto id : rhs) {
+                    uint64_t mask = uint64_t{1} << (id % 64);
+                    if (op == 'O') bits[id / 64] |= mask;
+                    else bits[id / 64] &= ~mask;
+                }
+            }
+            continue;
+        }
+        if (!rhs_bits.empty()) {
+            for (auto id : result)
+                if (contains(rhs_bits, id) == (op == 'A')) next.push_back(id);
+        } else if (op == 'A') {
+            const Posting* small = &result;
+            const Posting* large = &rhs;
+            if (small->size() > large->size()) std::swap(small, large);
+            if (small->size() * 16 < large->size()) {
+                for (auto id : *small)
+                    if (std::binary_search(large->begin(), large->end(), id)) next.push_back(id);
+            } else
+                std::set_intersection(result.begin(), result.end(), rhs.begin(), rhs.end(), std::back_inserter(next));
+        } else if (op == 'O')
             std::set_union(result.begin(), result.end(), rhs.begin(), rhs.end(), std::back_inserter(next));
         else
             std::set_difference(result.begin(), result.end(), rhs.begin(), rhs.end(), std::back_inserter(next));
         result.swap(next);
+        if (result.size() > threshold) make_dense();
+    }
+    if (dense) {
+        result.clear();
+        for (size_t w = 0; w < bits.size(); ++w) {
+            uint64_t value = bits[w];
+            while (value) {
+                result.push_back(static_cast<uint32_t>(w * 64 + std::countr_zero(value)));
+                value &= value - 1;
+            }
+        }
     }
     return result;
 }
@@ -158,9 +219,19 @@ int main(int argc, char** argv) {
                 if (posting.empty() || posting.back() != doc) posting.push_back(doc);
             });
         }
+        // Dense terms receive compact bitmaps; sparse terms retain just postings.
+        // Keeping sorted postings also gives phrase anchors without bitmap scans.
+        std::vector<std::vector<uint64_t>> bitmaps(index.size());
+        size_t threshold = std::max(size_t{64}, documents.size() / 64);
+        for (size_t term = 0; term < index.size(); ++term) {
+            if (index[term].size() <= threshold) continue;
+            auto& bits = bitmaps[term];
+            bits.resize((documents.size() + 63) / 64, 0);
+            for (auto id : index[term]) bits[id / 64] |= uint64_t{1} << (id % 64);
+        }
         std::ofstream out(out_dir + "/results.txt", std::ios::binary);
         for (const auto& query : queries) {
-            Posting result = evaluate(query, index, documents, vocabulary);
+            Posting result = evaluate(query, index, documents, vocabulary, bitmaps);
             uint64_t sum = std::accumulate(result.begin(), result.end(), uint64_t{0});
             out << result.size() << ' ' << sum;
             for (size_t i = 0; i < std::min(size_t{10}, result.size()); ++i) out << ' ' << result[i];

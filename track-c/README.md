@@ -1,37 +1,37 @@
-# Track C — exact CSV join
+# Track C — exact concurrent CSV join
 
-C++20 with zero third-party runtime dependencies. Read `/data/records.csv` and
-`/data/regions.csv`; write `/out/aggregates.txt`. Native checks support
-`--data DIR --out DIR`. MIT; see ../LICENSE.
+C++20 and POSIX mmap, zero third-party runtime dependencies. Read
+`/data/records.csv` and `/data/regions.csv`; write only `/out/aggregates.txt`.
+Local paths: `--data DIR --out DIR`; workers: `--workers 1..12` (default four).
+MIT; see ../LICENSE.
 
-Each parser uses bounded bulk scans over literal quoted runs and consumes
-a whole quoted field before interpreting record terminators. Escaped quote pairs count as one decoded byte. A BOM is skipped
-only at the start of a record, so embedded BOMs and LFs remain field data.
-Both LF and CRLF and an unterminated final record are supported. Name strings
-retain trailing spaces; the two empty encodings decode to the same string.
-Notes are counted while scanning without materializing their text.
+Each parser consumes complete CSV fields, scans literal quoted runs in bounded
+bulk operations and decodes escaped quote pairs exactly. BOMs are skipped only
+at record starts; embedded LFs/BOMs remain field bytes. Mixed LF/CRLF, empty
+names, meaningful trailing spaces and an unterminated final record are handled.
+Quote parity over the actual bytes locates chunk boundaries at LFs outside
+quotes. Escaped pairs flip twice, so physical newlines alone never split records.
 
-A dense uint16 region table maps known IDs to dynamically discovered country
-IDs. Holes and above-range IDs map to `_UNMATCHED`. Decoded names are interned
-globally in a compact probing table with exact string equality. Only unique
-names are copied; repeated plain names use transient input views. Each country uses a dynamically sized bitset
-of those IDs to count distinct names, plus 64-bit totals and min/max initialized
-from integer extremes. The bitsets represent exact name IDs rather than hashes.
-Money uses integer cents throughout, including negative fractional amounts.
-Hash collisions use exact string equality. Countries without records are omitted.
+A dense region lookup maps known IDs to discovered country IDs and holes or
+above-range IDs to `_UNMATCHED`. Each worker owns numeric country aggregates
+with 64-bit counts/sums and integer cents, including negative fractions.
 
-The Dockerfile uses pinned allowlisted GCC 15 and Debian 13, statically linking
-libstdc++ and libgcc for runtime compatibility. Final container checks and
-official scoring are tracked in ../STATUS.md. The harness treats the declared
-D=1 as unverified; the official tooling locally measures S=218. Clean amd64
-emulated sandbox checks pass full seeds 1 and 7. The original baseline passed the official live board; new candidate checks
-and measurements appear in PERF.md.
+Decoded names are owned once in an exact table partitioned across independent
+locks. Fingerprints only filter probes; complete string equality resolves
+collisions. A name's country-membership bits are protected by its shard lock.
+Exactly the first insertion of each name/country pair increments one worker's
+private distinct count; joining and summing the private counts is therefore
+exact across workers. Membership stride follows the actual country count.
+No replicated name-pool translation or global distinct-count approximation is
+used. All table construction and queries run inside the timed process.
 
-With another 24 hours: profile the remaining scanning and hashing costs, then
-measure faster exact name interning and select worker counts on the real box. The selected
-implementation uses four private workers by default (`--workers 1..12`).
-Chunk starts use quote parity over the actual bytes, then advance to an LF
-outside quotes; escaped pairs flip twice. Physical newlines alone never identify
-records. Worker-local name IDs translate to a merged exact dictionary, and
-independent country merges OR translated bitsets before counting distinct names.
-All parsing threads join before reading any private result.
+GCC 15 and Debian 13 are pinned to allowed digests; builds are offline and C++
+runtime libraries link statically. The current candidate passes native hostile
+grammar/sanitizer/fresh-seed checks and three exact restricted amd64 public
+container runs. These local runs are ARM-host emulation. Official T/M/S/K and
+real run IDs are in PERF.md for each recorded commit.
+
+The shared-table version is a measured memory/time tradeoff trial: it is slower
+locally than replicated private tables but uses substantially less process RSS.
+The real cgroup-memory score must decide whether it stays. Next: profile lock
+traffic and numeric parsing, then select workers on the scoring machine.

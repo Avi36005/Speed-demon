@@ -44,19 +44,22 @@ def main():
     ap.add_argument("--workers", type=int)
     ap.add_argument("--compiler", default="clang++")
     ap.add_argument("--binary", type=Path, help="use an already built binary (e.g. baseline)")
+    ap.add_argument("--source", type=Path, help="compile an isolated development candidate")
     args = ap.parse_args()
     module, name = NAMES[args.track]
     track = SUB / f"track-{args.track}"
+    source = (args.source or track / 'main.cpp').resolve()
     stamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
     safe = re.sub(r"[^a-zA-Z0-9_.-]", "_", stamp + "-" + args.label)
     work = SUB / ".work" / f"track-{args.track}" / safe
     work.mkdir(parents=True)
     commands = []
-    default_workers = re.search(r"size_t worker_count = (\d+);", (track / "main.cpp").read_text())
+    default_workers = re.search(r"size_t worker_count = (\d+);", source.read_text())
     effective_workers = args.workers if args.workers is not None else (int(default_workers[1]) if default_workers else 1)
     record = {"utc": stamp, "track": args.track, "dataset": args.label,
               "data": str(args.data.resolve()), "architecture": platform.machine(),
-              "platform": platform.platform(), "source_sha256": None if args.binary else digest(track / "main.cpp"),
+              "platform": platform.platform(), "source_sha256": None if args.binary else digest(source),
+              "compiled_source": str(source),
               "working_source_sha256": digest(track / "main.cpp"),
               "workers": None if args.binary and args.workers is None else effective_workers,
               "requested_workers": args.workers, "board_run_id": None, "official": False,
@@ -71,7 +74,7 @@ def main():
         record["compiler"] = run([args.compiler, "--version"], commands).stdout.decode().strip()
         record["flags"] = flags if not args.binary else None
         if not args.binary:
-            run([args.compiler, *flags, track / "main.cpp", "-o", binary], commands)
+            run([args.compiler, *flags, source, "-o", binary], commands)
         record["binary_sha256"] = digest(binary)
         candidate, reference = work / "candidate", work / "reference"
         candidate.mkdir()

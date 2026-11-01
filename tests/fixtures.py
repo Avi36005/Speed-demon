@@ -89,6 +89,13 @@ def make_b():
         mod.docs_file(["." * i + "Z" * 32 + "-aa—BÜrich" for i in range(32)]),
         b'BOOL ' + b'z' * 32 + b'\nPHRASE "' + b'z' * 32 + b' aa b rich"\n')
     answer("b", "token-block-boundaries", b"32 496 0 1 2 3 4 5 6 7 8 9\n" * 2)
+    cases["dense-phrase-anchor"] = (
+        mod.docs_file(["common common" if i % 3 == 0 else "common gap common" for i in range(130)]),
+        b'PHRASE "common common"\nPHRASE "common gap common"\nBOOL common NOT gap\n')
+    answer("b", "dense-phrase-anchor",
+           b"44 2838 0 3 6 9 12 15 18 21 24 27\n"
+           b"86 5547 1 2 4 5 7 8 10 11 13 14\n"
+           b"44 2838 0 3 6 9 12 15 18 21 24 27\n")
     answer("b", "targeted", b"2 4 1 3\n2 4 1 3\n2 4 1 3\n1 2 2\n0 0\n1 4 4\n")
     answer("b", "wide-sum", b"100000 4999950000 0 1 2 3 4 5 6 7 8 9\n"*2)
     for label, (docs, queries) in cases.items():

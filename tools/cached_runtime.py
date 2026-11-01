@@ -28,6 +28,7 @@ def main():
     ap.add_argument('--expected')
     ap.add_argument('--sanitize', action='store_true')
     ap.add_argument('--workers', type=int)
+    ap.add_argument('--runtime-timeout', type=int, default=30)
     args = ap.parse_args()
     source = (args.source or SUB / f'track-{args.track}/main.cpp').resolve()
     work = SUB / '.work/cached-runtime' / (args.track + '-' + uuid.uuid4().hex[:10])
@@ -88,7 +89,7 @@ def main():
                        DEBIAN, '/candidate/solution']
                 if args.workers is not None:
                     cmd += ['--workers', str(args.workers)]
-                run(cmd)
+                run(cmd, timeout=args.runtime_timeout)
                 diff = run(['docker', 'diff', container]).splitlines()
                 diff = [line for line in diff if line.split(maxsplit=1)[-1] not in
                         ('/candidate', '/data', '/out', '/tmp')]

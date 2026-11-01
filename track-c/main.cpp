@@ -1,6 +1,7 @@
 #include <algorithm>
-#include <atomic>
-#include <bit>
+#include <array>
+#include <functional>
+#include <mutex>
 #include <thread>
 #include <cstdint>
 #include <cstring>
@@ -114,50 +115,61 @@ struct Country {
     uint64_t count = 0, ids = 0, name_bytes = 0, note_bytes = 0;
     int64_t sum = 0, min = std::numeric_limits<int64_t>::max();
     int64_t max = std::numeric_limits<int64_t>::min();
-    std::vector<uint64_t> names;
     uint64_t distinct = 0;
     explicit Country(std::string key) : code(std::move(key)) {}
 };
 
-// IDs, not pointers, survive vector growth. Only unique decoded names are
-// copied, and every fingerprint hit is checked against the complete name.
+// A name/country membership is inserted under exactly one shard lock. The
+// caller adds its first-membership count to private numeric aggregates, so
+// duplicate names across parser workers are counted once without a large merge.
 class Names {
     struct Slot { uint32_t fingerprint = 0, id = 0; };
-    std::vector<Slot> slots = std::vector<Slot>(1024);
-    std::vector<std::string> keys;
-    size_t locate(std::string_view key, size_t hash) const {
-        size_t pos = hash & (slots.size() - 1);
-        while (slots[pos].id &&
-               (slots[pos].fingerprint != static_cast<uint32_t>(hash >> 32) ||
-                keys[slots[pos].id - 1] != key))
-            pos = (pos + 1) & (slots.size() - 1);
-        return pos;
-    }
+    struct alignas(64) Shard {
+        std::mutex mutex;
+        std::vector<Slot> slots = std::vector<Slot>(32);
+        std::vector<std::string> keys;
+        std::vector<uint64_t> memberships;
+        size_t locate(std::string_view key, size_t hash) const {
+            size_t pos = (hash >> 8) & (slots.size() - 1);
+            while (slots[pos].id &&
+                   (slots[pos].fingerprint != static_cast<uint32_t>(hash >> 32) ||
+                    keys[slots[pos].id - 1] != key))
+                pos = (pos + 1) & (slots.size() - 1);
+            return pos;
+        }
+    };
+    std::array<Shard, 256> shards;
+    size_t words;
 public:
-    size_t size() const { return keys.size(); }
-    std::string_view word(uint32_t id) const { return keys[id]; }
-    uint32_t intern(std::string_view key) {
-        if ((keys.size() + 1) * 2 > slots.size()) {
-            slots.assign(slots.size() * 2, Slot{});
-            for (uint32_t id = 0; id < keys.size(); ++id) {
-                size_t hash = std::hash<std::string_view>{}(keys[id]);
-                slots[locate(keys[id], hash)] = {static_cast<uint32_t>(hash >> 32), id + 1};
+    explicit Names(size_t countries) : words((countries + 63) / 64) {}
+    bool add(std::string_view key, uint16_t country) {
+        size_t hash = std::hash<std::string_view>{}(key);
+        auto& shard = shards[hash & 255];
+        std::lock_guard lock(shard.mutex);
+        if ((shard.keys.size() + 1) * 2 > shard.slots.size()) {
+            shard.slots.assign(shard.slots.size() * 2, Slot{});
+            for (uint32_t id = 0; id < shard.keys.size(); ++id) {
+                size_t old_hash = std::hash<std::string_view>{}(shard.keys[id]);
+                shard.slots[shard.locate(shard.keys[id], old_hash)] = {
+                    static_cast<uint32_t>(old_hash >> 32), id + 1};
             }
         }
-        size_t hash = std::hash<std::string_view>{}(key);
-        auto& slot = slots[locate(key, hash)];
+        auto& slot = shard.slots[shard.locate(key, hash)];
         if (!slot.id) {
-            keys.emplace_back(key);
-            slot = {static_cast<uint32_t>(hash >> 32), static_cast<uint32_t>(keys.size())};
+            shard.keys.emplace_back(key);
+            shard.memberships.resize(shard.keys.size() * words, 0);
+            slot = {static_cast<uint32_t>(hash >> 32), static_cast<uint32_t>(shard.keys.size())};
         }
-        return slot.id - 1;
+        auto& word = shard.memberships[(slot.id - 1) * words + country / 64];
+        uint64_t mask = uint64_t{1} << (country % 64);
+        bool inserted = !(word & mask);
+        word |= mask;
+        return inserted;
     }
 };
 
 struct Worker {
     std::vector<Country> countries;
-    Names names;
-    std::vector<uint32_t> translation;
 };
 
 struct Threads {
@@ -229,6 +241,7 @@ int main(int argc, char** argv) {
             }
             boundaries[i] = cut;
         }
+        Names names(countries.size());
         std::vector<Worker> partial(worker_count);
         for (auto& worker : partial) worker.countries = countries;
         auto parse = [&](size_t i) {
@@ -248,7 +261,8 @@ int main(int argc, char** argv) {
             ++csv.p;
             int64_t amount = csv.cents();
             csv.terminator();
-            auto& country = worker.countries[region < regions.size() ? regions[region] : 0];
+            uint16_t country_id = region < regions.size() ? regions[region] : 0;
+            auto& country = worker.countries[country_id];
             ++country.count;
             country.ids += id;
             country.sum += amount;
@@ -256,62 +270,27 @@ int main(int argc, char** argv) {
             country.max = std::max(country.max, amount);
             country.name_bytes += name_bytes;
             country.note_bytes += note_bytes;
-            // Interning compares decoded bytes exactly. Membership bits share
-            // those IDs across countries; they do not stand in for name hashes.
-            uint32_t name_id = worker.names.intern(name_view);
-            size_t word = name_id / 64;
-            if (word >= country.names.size()) country.names.resize(word + 1, 0);
-            uint64_t mask = uint64_t{1} << (name_id % 64);
-            if (!(country.names[word] & mask)) {
-                country.names[word] |= mask;
-                ++country.distinct;
-            }
+            country.distinct += names.add(name_view, country_id);
         }
         };
         Threads threads;
         for (size_t i = 1; i < worker_count; ++i) threads.values.emplace_back(parse, i);
         parse(0);
         threads.join();
-        Names merged;
-        for (auto& worker : partial) {
-            worker.translation.resize(worker.names.size());
-            for (uint32_t id = 0; id < worker.names.size(); ++id)
-                worker.translation[id] = merged.intern(worker.names.word(id));
-        }
-        // Each country merge owns its output and bitmap. Only immutable local
-        // dictionaries and translations are read after parsing has joined.
-        std::atomic<size_t> next_country{0};
-        auto merge = [&] {
-            for (;;) {
-                size_t c = next_country.fetch_add(1, std::memory_order_relaxed);
-                if (c >= countries.size()) break;
+        for (const auto& worker : partial) {
+            for (size_t c = 0; c < countries.size(); ++c) {
                 auto& target = countries[c];
-                target.names.resize((merged.size() + 63) / 64, 0);
-                for (const auto& worker : partial) {
-                    const auto& local = worker.countries[c];
-                    target.count += local.count;
-                    target.ids += local.ids;
-                    target.sum += local.sum;
-                    target.min = std::min(target.min, local.min);
-                    target.max = std::max(target.max, local.max);
-                    target.name_bytes += local.name_bytes;
-                    target.note_bytes += local.note_bytes;
-                    for (size_t word = 0; word < local.names.size(); ++word) {
-                        uint64_t bits = local.names[word];
-                        while (bits) {
-                            uint32_t id = worker.translation[word * 64 + std::countr_zero(bits)];
-                            target.names[id / 64] |= uint64_t{1} << (id % 64);
-                            bits &= bits - 1;
-                        }
-                    }
-                }
-                for (uint64_t word : target.names) target.distinct += std::popcount(word);
+                const auto& local = worker.countries[c];
+                target.count += local.count;
+                target.ids += local.ids;
+                target.sum += local.sum;
+                target.min = std::min(target.min, local.min);
+                target.max = std::max(target.max, local.max);
+                target.name_bytes += local.name_bytes;
+                target.note_bytes += local.note_bytes;
+                target.distinct += local.distinct;
             }
-        };
-        threads.values.clear();
-        for (size_t i = 1; i < worker_count; ++i) threads.values.emplace_back(merge);
-        merge();
-        threads.join();
+        }
         std::sort(countries.begin(), countries.end(), [](const Country& a, const Country& b) {
             return a.code < b.code;
         });

@@ -19,8 +19,11 @@ Phrases use the smallest posting as an anchor, check membership of all terms,
 then tokenize each candidate document and check the exact contiguous sequence.
 Unneeded tokens occupy sentinel positions and cannot create false adjacency.
 Repeated terms require repeated positions; document boundaries never overlap.
-ASCII A–Z alone are lowercased, ASCII letters/digits form tokens, every other
-byte separates. Stopwords and zero-padded numbers retain their literal identity.
+On x86-64, bounded SSE2 blocks classify and ASCII-fold sixteen bytes at a
+time; a scalar tail and ARM fallback preserve the same tokenizer. Maximal
+tokens can cross blocks, including the 32-byte limit; no block reads past its
+document view. ASCII A–Z alone are lowercased, ASCII letters/digits form tokens,
+every other byte separates. Stopwords and zero-padded numbers retain their literal identity.
 
 Sorted results give count, a 64-bit full ID sum, and the ten smallest IDs.
 Input-backed keys and document views live as long as their mappings. Hash
@@ -32,7 +35,8 @@ answer slot. Joining before serialization preserves the original query order.
 
 Pinned allowlisted GCC 15 builds offline, with libstdc++/libgcc linked statically;
 Debian 13 supplies glibc. See ../STATUS.md for final runtime and board evidence.
-The official tooling locally measures S=350 and declared D=1 (unverified basis).
+Source counts are versioned in PERF.md and static-axis receipts; declared D=1
+has an unverified basis.
 The clean amd64 image passes five full public sandbox runs and full seed 7;
 these are ARM-host emulation checks. The original baseline passed the official live board; updated candidate
 measurements and checks appear in PERF.md.

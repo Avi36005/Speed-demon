@@ -19,6 +19,7 @@ def main():
     ap.add_argument("--scale", choices=["tiny", "sample", "full"], default="sample")
     ap.add_argument("--fixtures", action="store_true")
     ap.add_argument("--workers", type=int)
+    ap.add_argument("--source", type=Path, help="isolated development candidate source")
     args = ap.parse_args()
     records = []
     commands = []
@@ -43,6 +44,8 @@ def main():
         command = [str(x) for x in command]
         if args.workers is not None and str(SUB / "tools/dev.py") in command:
             command += ["--workers", str(args.workers)]
+        if args.source is not None and str(SUB / "tools/dev.py") in command:
+            command += ["--source", str(args.source.resolve())]
         proc = subprocess.run(command, capture_output=True, text=True)
         records.append({"argv": command, "exit": proc.returncode, "stdout": proc.stdout, "stderr": proc.stderr})
         label = command[command.index("--label") + 1] if "--label" in command else command[-1]

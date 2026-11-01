@@ -165,3 +165,85 @@ motivated C6's shared sharded exact name/country membership experiment. B7's
 first local comparison improved time/RSS modestly; static tooling overlapped
 early samples, so confirm a promising final version in an isolated repeat.
 Do not claim either candidate is currently selected.
+
+## GitHub checkpoint acknowledged — 2026-11-01T18:20:45.131072+00:00
+
+`cec7edfdd6b56865e896a2a9953fa93fb4fdbe05` pushed successfully to origin
+(speed-demon); remote advanced from b4f7240. User explicitly reiterated GitHub
+commits, then said goodnight/bye; no new archive/file handoff was made because
+the 92 target is not achieved. The first feed check was just before the watcher
+noticed the new push; it still showed the old run. Check later without replacing
+the queued commit until this official baseline finishes.
+
+C6 exploratory exact shared-shard candidate: five pairs slower (0.331750 ->
+0.505700 s) but local RSS lower (277,528,576 -> 219,758,592 B). Keep UNSELECTED
+for a possible real-memory tradeoff experiment; local RSS cannot resolve its
+scoring K. Exact public outputs pass; concurrency/edge/fresh-seed proof pending.
+
+Next active command: cached_runtime.py b --source .work/candidates/b6.cpp
+--fixtures plus full seed1 hash, six workers. This validates the actual AVX2
+branch on linux/amd64; no speed gain is claimed from ARM native timing.
+B7 remains isolated and unselected; five ARM pairs improved 1.663428 ->
+1.516719 s and RSS 509,968,384 -> 488,226,816 B. Need meaningful regression,
+fresh full seed and clean build before adoption.
+
+## Official improvement confirmed — 2026-11-01T18:21:40Z receipt
+
+Commit cec7edf passed all gates on all four track runs. Registered A/B/C
+overall calculated from official machine points is 50.305507, up from
+43.243. Actual A61.224820 / B47.460558 / C43.811309. D26.745647 also
+measured and passed, but `registered:false`; do not infer a form update.
+All real run IDs/axes are appended to PERF.md and archived in the dated feed
+receipt. 92 not achieved. Do not replace these with local extrapolated scores.
+
+C5 official T0.370713/M57,143,296/S373 confirms its memory cost limits its
+gain. C6 local lower RSS may be worth an actual live tradeoff trial after
+concurrency/fresh-seed checks. B5 official T1.136726/M223,354,880/S404 leaves
+indexing and memory as major targets. B6 AVX2 verification still running;
+inspect whether the cached compile, runtime or helper is stalled.
+
+## Next scoring experiment preparation — 2026-11-01T18:31:38.763049+00:00
+
+Official cec7edf overall 50.305507 is archived; user asked commits and said
+goodnight. All score claims remain from the actual feed. No 92 handoff.
+
+Current runtime working-tree changes (not yet committed/pushed):
+- B6-SSE: `.work/candidates/b6-sse.cpp` copied to track-b/main.cpp. The
+  128-bit SSE2 classifier passed ALL fixtures, max-32 token/block offsets,
+  dense anchors, Linux x86 ASan/UBSan at twelve workers, public full seed1
+  and independent full seed7. ARM retains its scalar fallback. AVX2 B6 and
+  a bounded diagnostic hung inside indexing under Rosetta and were rejected;
+  no root cause or actual-box speed claim is inferred. Initial SSE conversion
+  had intrinsic-name compilation errors, corrected before the passing source.
+- C6-clean: exact shared sharded membership locks with private numeric sums,
+  copied to track-c/main.cpp. Original C6 twelve-worker grammar/sanitizer/
+  sample42 and full seed7 pass; cleaned source full7 passes. Runtime slower
+  locally but much lower RSS; this is an explicit official memory/time tradeoff
+  trial, not a claimed improvement. Current clean repeated containers pending.
+
+Active tool batch: clean offline B6-SSE then C6, three restricted public full
+runs each. Only push if latest source digests and all exact gates pass. Then
+measure new static axes; preserve cec7edf if a trial regresses on the real board.
+B7 direct-hybrid layout remains ISOLATED, not selected. It passed native small
+sanitisers, all fixture semantics, sample42 and independent full7. Do not
+confuse B7 evidence with B6-SSE source hashes.
+
+Isolated `.work/candidates/d3.cpp` now implements exact bidirectional Dijkstra
+with valid-frontier stopping, two-pass forward/reverse CSR, touched resets and
+two independent query workers. It is UNTESTED. Run all-pairs/first-meeting
+fixtures before any full-data comparison. D0 in track-d remains unchanged.
+
+## Round-three board trial ready — 2026-11-01T18:35:27.220058+00:00
+
+Current B6-SSE and C6-clean exact source digests match clean offline builds
+and three repeated restricted full public passes. B6-SSE also has actual
+x86 Linux ASan/UBSan fixture and full7 proof. Source axes in static-round3.
+Commit and push these concrete experiments next; candidate points are unknown.
+D3 passed native all-pairs/first-meeting/sanitizer/sample42 checks and five
+alternating public full comparisons: D0 4.557196 s -> D3 1.018434 s, RSS
+207,028,224 -> 200,949,760 B. This changes search/layout/reuse/query workers
+as one candidate design, so the individual contribution of each is unmeasured.
+D3 remains isolated until fresh full data and clean-container proof.
+A detailed diagnostic measured parse 0.177511 s, merge counts 0.002445,
+prefix 0.000575, scatter 0.006165, sort/format 0.025470 (instrumented ARM).
+A4 bulk delimiter scan is the next isolated comparison, not currently submitted.

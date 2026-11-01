@@ -134,3 +134,41 @@ T/M/K is inferred. Raw `containers.jsonl`, artifact `.work/containers/b-6cfd2971
 Unchanged official static tools now measure S=404, D=1
 (declared/unverified dependency basis). Final candidate repeated sandbox and
 fresh-data release checks remain separate from this intermediate checkpoint.
+
+## Official live-board checkpoint — cec7edf
+
+Run `run-30ea7d750cef`, ended 2026-11-01T18:21:01Z. All check/build/correctness/
+timeout/sandbox gates passed. Public full native scoring-box T=1.136726 s,
+cgroup M=223,354,880 B, S=404, D=1, K=8.896336,
+machine points=47.460558. Registered in this feed: True.
+Raw receipt `../benchmarks/board/2026-11-01T182140.380992Z.json`.
+This is one real live public run, not final holdout/judging.
+
+## B6 rejected pending diagnosis — isolated AVX2 tokenizer
+
+A bounded 32-byte ASCII classifier compiled under the pinned linux/amd64
+GCC and linked successfully, but the first worked fixture hung in the local
+emulated runtime. It was stopped manually, with the failed cached-runtime
+record retained. No score, speedup, or correctness pass is claimed. Submitted
+B5 at cec7edf is unchanged and passed all official gates. Diagnose the isolated
+source and prove token-boundary behavior before considering a new board push.
+
+## B6-SSE official experiment candidate
+
+Hypothesis: bounded 16-byte SSE2 ASCII folding/classification plus bulk LF
+location reduces per-byte parser work on x86-64. ARM keeps its scalar path.
+The AVX2 prototype hung under local Rosetta while indexing and was rejected.
+The SSE2 source passes all worked/Boolean/phrase/UTF8/digit/wide-sum/overlap/
+32-byte-block/dense-anchor fixtures on actual linux/amd64 code, plus small
+Linux x86 ASan/UBSan at twelve workers, public full seed1 and independent
+full seed7. Raw proof is in cached-runtime.jsonl with explicit fallback scope.
+The first SSE conversion had intrinsic suffix compile errors; they were fixed
+before the source that passed. No score or speed is inferred from emulation.
+A clean offline build and three restricted public-full runs also pass, with
+exact hashes and no unexpected filesystem diffs (`containers.jsonl`).
+Publish as a real-box experiment against B5 at cec7edf; retain only if its
+measured time/memory/source tradeoff justifies it. No candidate board ID yet.
+
+Round-three source axes: S=448, D=1 (declared/unverified).
+Clean build source digest matches `6ea3e83399bcfa329bcfb3fb1a23937a3477acdccdc8072c5e90eaf9e562e331`; all three restricted
+public full runs pass. Actual next board result remains pending.

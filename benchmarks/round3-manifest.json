@@ -1,0 +1,27 @@
+{
+  "utc": "2026-11-01T18:35:27.220453+00:00",
+  "base_commit": "cec7edfdd6b56865e896a2a9953fa93fb4fdbe05",
+  "status": "real-board experiment: checked B6-SSE/C6-clean, not yet measured on board",
+  "tracks": {
+    "a": {
+      "main.cpp": "2af732d7e2b6c2bcdeea34521cf3f391033859e1e81c43e1026b48ed58994f99",
+      "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      ".speed-demon.toml": "b2b684e6fff97846ada04662eb0f8850b7786039925e30cdb1a8c010ea501564"
+    },
+    "b": {
+      "main.cpp": "6ea3e83399bcfa329bcfb3fb1a23937a3477acdccdc8072c5e90eaf9e562e331",
+      "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      ".speed-demon.toml": "625871dfe8f3cc66517f22cfc910583968e36f3a958e562dda4d831366dbddea"
+    },
+    "c": {
+      "main.cpp": "651a929898722a4320bad9ef995bf20580d855fe366ef9c2e7867d53ba4b6c97",
+      "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      ".speed-demon.toml": "82561d3cf9545bb00643eeefd7b29b1fb3e4c636831858ac1eac013927e94ad8"
+    },
+    "d": {
+      "main.cpp": "0b096c6c3884f90804850fd41461da0cf784c2325fe558a1a400ec5352ec20ca",
+      "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      ".speed-demon.toml": "4d9ffc87eddf41682b837f8bc3ef497ef008685ff322662a4f67ccd5442e624f"
+    }
+  }
+}

@@ -2,6 +2,7 @@
 #include <atomic>
 #include <bit>
 #include <cstdint>
+#include <cstring>
 #include <fcntl.h>
 #include <fstream>
 #include <functional>
@@ -16,6 +17,9 @@
 #include <thread>
 #include <unistd.h>
 #include <vector>
+#if defined(__x86_64__)
+#include <immintrin.h>
+#endif
 
 struct Input {
     const char* data = "";
@@ -39,10 +43,48 @@ struct Input {
 };
 
 template<class Callback>
+#if defined(__x86_64__)
+__attribute__((target("sse2")))
+#endif
 void tokenize(std::string_view text, Callback callback) {
     char token[32];  // frozen maximum token length, in bytes
     size_t length = 0;
-    for (unsigned char byte : text) {
+    size_t offset = 0;
+#if defined(__x86_64__)
+    // Fold ASCII capitals and classify 16 bounded bytes at once. Bytes with
+    // the high bit set fail the signed range tests and stay separators.
+    for (; offset + 16 <= text.size(); offset += 16) {
+        __m128i bytes = _mm_loadu_si128(reinterpret_cast<const __m128i*>(text.data() + offset));
+        __m128i capitals = _mm_and_si128(_mm_cmpgt_epi8(bytes, _mm_set1_epi8('A' - 1)),
+                                          _mm_cmpgt_epi8(_mm_set1_epi8('Z' + 1), bytes));
+        bytes = _mm_or_si128(bytes, _mm_and_si128(capitals, _mm_set1_epi8(32)));
+        __m128i letters = _mm_and_si128(_mm_cmpgt_epi8(bytes, _mm_set1_epi8('a' - 1)),
+                                         _mm_cmpgt_epi8(_mm_set1_epi8('z' + 1), bytes));
+        __m128i digits = _mm_and_si128(_mm_cmpgt_epi8(bytes, _mm_set1_epi8('0' - 1)),
+                                        _mm_cmpgt_epi8(_mm_set1_epi8('9' + 1), bytes));
+        uint32_t mask = static_cast<uint32_t>(_mm_movemask_epi8(_mm_or_si128(letters, digits)));
+        alignas(16) char lowered[16];
+        _mm_store_si128(reinterpret_cast<__m128i*>(lowered), bytes);
+        if (length && !(mask & 1)) {
+            callback(std::string_view(token, length));
+            length = 0;
+        }
+        while (mask) {
+            unsigned first = std::countr_zero(mask);
+            unsigned run = std::countr_one(mask >> first);
+            std::memcpy(token + length, lowered + first, run);
+            length += run;
+            unsigned end = first + run;
+            if (end < 16) {
+                callback(std::string_view(token, length));
+                length = 0;
+                mask &= ~((uint32_t{1} << end) - 1);
+            } else break;
+        }
+    }
+#endif
+    for (; offset < text.size(); ++offset) {
+        unsigned char byte = text[offset];
         if (byte >= 'A' && byte <= 'Z') byte += 'a' - 'A';
         if ((byte >= 'a' && byte <= 'z') || (byte >= '0' && byte <= '9')) {
             token[length++] = static_cast<char>(byte);
@@ -236,7 +278,7 @@ int main(int argc, char** argv) {
         const char* end = p + query_file.size;
         while (p < end) {
             const char* start = p;
-            while (*p != '\n') ++p;
+            p = static_cast<const char*>(std::memchr(p, '\n', end - p));
             std::string_view line(start, p++ - start);
             Query query{line.starts_with("PHRASE"), {}, {}, {}};
             auto words = query.phrase ? line.substr(8, line.size() - 9) : line.substr(5);
@@ -269,7 +311,7 @@ int main(int argc, char** argv) {
         while (p < end) {
             while (*p++ != '\t') {}  // ids are dense and ascending
             const char* start = p;
-            while (*p != '\n') ++p;
+            p = static_cast<const char*>(std::memchr(p, '\n', end - p));
             std::string_view text(start, p++ - start);
             documents.push_back(text);
         }

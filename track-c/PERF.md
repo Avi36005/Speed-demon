@@ -129,3 +129,36 @@ T/M/K is inferred. Raw `containers.jsonl`, artifact `.work/containers/c-6ea23756
 Unchanged official static tools now measure S=373, D=1
 (declared/unverified dependency basis). Final candidate repeated sandbox and
 fresh-data release checks remain separate from this intermediate checkpoint.
+
+## C6 unselected tradeoff — shared sharded membership
+
+A shared exact name/country table under independent locks avoids private-name
+replication and translation. Five paired public outputs pass, but local time
+regresses: C5 0.331750 -> C6 0.505700 s. Local wait4 RSS falls
+277,528,576 -> 219,758,592 B. This does not establish the official cgroup-memory
+tradeoff. Keep the source isolated in `.work/candidates/c6.cpp`; additional
+correctness and actual scoring-box axes would be needed before selection.
+
+## Official live-board checkpoint — cec7edf
+
+Run `run-94076763b165`, ended 2026-11-01T18:21:05Z. All check/build/correctness/
+timeout/sandbox gates passed. Public full native scoring-box T=0.370713 s,
+cgroup M=57,143,296 B, S=373, D=1, K=7.520145,
+machine points=43.811309. Registered in this feed: True.
+Raw receipt `../benchmarks/board/2026-11-01T182140.380992Z.json`.
+This is one real live public run, not final holdout/judging.
+
+## C6 clean official experiment candidate
+
+The unused private-name bitmap fields/includes were removed from the isolated
+C6 source. Its exact shared sharded membership algorithm is unchanged. Native
+fresh full seed7 passes for the cleaned digest; the original C6 also passes
+twelve-worker hostile grammar/sanitizer/sample42 checks. Clean offline amd64
+build and three exact restricted public-full runs pass, with library and
+filesystem checks. Runtime/process-memory comparison remains the earlier
+local C5/C6 experiment; the official cgroup/time tradeoff has not been measured
+yet. This is a deliberate board trial, not a claimed improvement.
+
+Round-three source axes: S=348, D=1 (declared/unverified).
+Clean build source digest matches `651a929898722a4320bad9ef995bf20580d855fe366ef9c2e7867d53ba4b6c97`; all three restricted
+public full runs pass. Actual next board result remains pending.

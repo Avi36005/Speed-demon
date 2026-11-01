@@ -18,8 +18,9 @@
 ---
 
 > **Optimization in progress:** A, B and C passed the official live board at
-> commit `b4f7240`. Faster candidates are undergoing fresh-seed and container
-> checks. A correct local D baseline has been added; its board registration is
+> commit `b4f7240`. The tested cec7edf improvements also passed the
+> board. Further candidates remain isolated. D passed its first measured run;
+> its board registration is
 > still pending. Current evidence and outstanding checks are in [STATUS.md](STATUS.md).
 
 ## The entry
@@ -63,20 +64,23 @@ edges; exact forward Dijkstra uses 64-bit distances and a standard min-heap.
 Local adversarial, random-oracle and repeated public-full checks pass. It is
 still an optimization candidate with separate registration and release checks.
 
-## Official live-board baseline
+## Official live-board measurements
 
-The first real run at `b4f7240` passed every build, correctness, timeout and
-sandbox gate. These are single public-data runs; final holdout and judging
-remain separate. New candidate results will replace this dated baseline only
-after the board actually measures them.
+The tested optimization checkpoint `cec7edf` passed every build, correctness,
+timeout and sandbox gate. Registered A/B/C machine scores give overall
+**50.306**, up from **43.243** at the first baseline. The requested 92 target
+is not achieved. These are single public-data runs; final holdout and judging
+remain separate. D was measured but is still marked unregistered in the feed.
 
 | Track | Machine points | Time | cgroup peak | Real run ID |
 | :--- | ---: | ---: | ---: | :--- |
-| A | 52.866460 | 0.275095 s | 69,869,568 B | `run-3051ba50d6d4` |
-| B | 39.011708 | 2.585927 s | 222,953,472 B | `run-be2e577bbf36` |
-| C | 39.208881 | 1.133017 s | 15,106,048 B | `run-6b26d216e245` |
+| A | 61.224820 | 0.131601 s | 53,760,000 B | `run-ed6691497140` |
+| B | 47.460558 | 1.136726 s | 223,354,880 B | `run-30ea7d750cef` |
+| C | 43.811309 | 0.370713 s | 57,143,296 B | `run-94076763b165` |
+| D | 26.745647 | 9.731496 s | 115,175,424 B | `run-de4b3b2aeb82` |
 
-[Official evidence receipt](benchmarks/board/2026-11-01-first-public-run.json) ·
+[Official checkpoint receipt](benchmarks/board/2026-11-01T182140.380992Z.json) ·
+[First baseline receipt](benchmarks/board/2026-11-01-first-public-run.json) ·
 [Kryptonite on the live board](https://speeddemon.dev/board/#kryptonite-96429f)
 
 ## Verification

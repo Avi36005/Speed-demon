@@ -30,7 +30,14 @@ def phase(label):
 
 if track == 'a':
     replace('Input input(data_dir', begin + 'Input input(data_dir')
-    replace('std::vector<std::string_view> order;', phase('ingest') + 'std::vector<std::string_view> order;')
+    if 'using Endpoint =' in text:
+        replace('threads.join();  // every worker finishes before any merging',
+                'threads.join();\n' + phase('parse'))
+        replace('using Endpoint =', phase('merge_counts') + 'using Endpoint =')
+        replace('std::vector<uint32_t> values(total);', phase('prefix') + 'std::vector<uint32_t> values(total);')
+        replace('partial.clear();', 'partial.clear();\n' + phase('scatter'))
+    else:
+        replace('std::vector<std::string_view> order;', phase('ingest') + 'std::vector<std::string_view> order;')
     replace('std::ofstream out(', phase('sort_and_serialize') + 'std::ofstream out(')
 elif track == 'c':
     replace('std::vector<Country> countries;', begin + 'std::vector<Country> countries;')

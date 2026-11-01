@@ -4,8 +4,8 @@ C++20 with zero third-party runtime dependencies. Read `/data/records.csv` and
 `/data/regions.csv`; write `/out/aggregates.txt`. Native checks support
 `--data DIR --out DIR`. MIT; see ../LICENSE.
 
-The scalar parser consumes a whole quoted field before interpreting record
-terminators. Escaped quote pairs count as one decoded byte. A BOM is skipped
+The scalar parser uses bounded bulk scans over literal quoted runs and consumes
+a whole quoted field before interpreting record terminators. Escaped quote pairs count as one decoded byte. A BOM is skipped
 only at the start of a record, so embedded BOMs and LFs remain field data.
 Both LF and CRLF and an unterminated final record are supported. Name strings
 retain trailing spaces; the two empty encodings decode to the same string.
@@ -23,8 +23,8 @@ The Dockerfile uses pinned allowlisted GCC 15 and Debian 13, statically linking
 libstdc++ and libgcc for runtime compatibility. Final container checks and
 official scoring are tracked in ../STATUS.md. The harness treats the declared
 D=1 as unverified; the official tooling locally measures S=218. Clean amd64
-emulated sandbox checks pass full seeds 1 and 7. Official board performance
-is unknown.
+emulated sandbox checks pass full seeds 1 and 7. The original baseline passed the official live board; new candidate checks
+and measurements appear in PERF.md.
 
 With another 24 hours: profile the remaining scanning and hashing costs, then
 measure parallel parsing with proven quote-aware record boundaries. The selected

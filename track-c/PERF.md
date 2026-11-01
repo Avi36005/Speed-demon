@@ -68,3 +68,14 @@ native scoring box: T=1.133017 s, cgroup M=15,106,048 B,
 S=218, D=1, K=6.083838, machine points=39.208881.
 This is the live board's single public-data run, not the final five-run holdout
 or judging. Raw receipt: `../benchmarks/board/2026-11-01-first-public-run.json`.
+
+## C2 retained provisionally for the next exact-data experiment
+
+Bounded memchr scans over quoted literal runs preserve commas, LFs and BOM
+bytes and account for escaped pairs separately. Five alternating native
+full-seed-1 middle-three means were 1.333985 s (b4f7240) and 0.988294 s.
+Raw spread is substantial (baseline 0.803–1.560 s, candidate 0.786–1.188 s);
+one paired run regressed. Treat the speed gain as provisional, not a scoring
+claim. Peak local wait4 RSS 219,693,056 and 219,463,680 B. All hashes match;
+worked/general-grammar/empty sanitizer fixtures, sample seed 42 and full seed 7
+pass. Candidate static/amd64/board proof still pending.

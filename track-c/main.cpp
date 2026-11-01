@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 #include <fcntl.h>
 #include <fstream>
 #include <iostream>
@@ -53,12 +54,18 @@ struct Parser {
         if (p < end && *p == '"') {
             ++p;
             while (p < end) {
-                char byte = *p++;
-                if (byte == '"') {
-                    if (p == end || *p != '"') break;
-                    ++p;
-                }
-                if (decoded) decoded->push_back(byte);
+                // A quoted run has no structural byte except a quote. libc's
+                // bounded search skips literal commas/LFs/BOMs together.
+                const char* quote = static_cast<const char*>(std::memchr(p, '"', end - p));
+                size_t run = quote ? static_cast<size_t>(quote - p) : static_cast<size_t>(end - p);
+                if (decoded) decoded->append(p, run);
+                length += run;
+                p += run;
+                if (p == end) break;
+                ++p;
+                if (p == end || *p != '"') break;
+                ++p;
+                if (decoded) decoded->push_back('"');
                 ++length;
             }
         } else {

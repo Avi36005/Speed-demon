@@ -1,61 +1,77 @@
 # Kryptonite — Speed Demon entry status
 
-Updated 2026-11-01T14:39:13.939441+00:00. Local implementation and available verification COMPLETE.
-Branch: `speed-demon`; remote `https://github.com/Avi36005/Speed-demon`.
-Source push confirmed on 2026-11-01T14:39:13.939441+00:00; first acknowledged remote tip
-`9ba13f4a2ca0b7693c9da1f5699c642126767fdd` contained 69 commits, including 56 nonempty file imports.
-Original development history and actual timestamps are preserved. The import
-commits use their real creation times. Runtime track files match verified
-`90a353b` byte for byte. Repository visibility remains PRIVATE; default branch
-is `speed-demon`. See `benchmarks/publication.json`. MIT licence.
-Clean runtime/build inputs verified from commit `47bb5276e4296119b3774b564a72f13a3692ffd0`.
-Later commits contain delivery documentation and evidence; exact runtime hashes
-are pinned in `benchmarks/runtime-manifest.json`. Use `git rev-parse HEAD` for the
-current delivery commit. All official checkouts remain unchanged.
+Optimization resumed 2026-11-01. User target: **92 overall live-board machine
+points**. Target not achieved; hold the new file handoff until it is achieved.
+Freeze is 2026-11-02 15:00 UTC / 20:30 IST; reserve the final two hours for proof.
 
-## Final implementations
+Branch `speed-demon`, remote `https://github.com/Avi36005/Speed-demon.git`.
+Known passing official baseline: `b4f72402d632209fd3f063d6e52f64d04fb97da1`.
+Current working changes: A2 hour-level parallel completion, B4 compact vocabulary
+lookup and C2 bulk quoted-run scanning. All original baseline sources remain
+recoverable. B4/C2 additional regression/container checks are still pending. Earlier passing
+revisions and real commit timestamps are preserved. MIT; repository private
+at the last check. Do not change visibility without the user's authorization.
 
-- A: six worker-local whole-line parsers, exact uint32 latency vectors, full per-group sorting. Baseline 886e42b, parallel version 2dab849.
-- C: scalar quote-aware CSV, direct region join, exact global name IDs and country bitsets, integer cents. Baseline cc0f0e3, selected change 673bb07.
-- B: query-term postings, sparse/dense Boolean operations, exact phrase verification, six workers for indexing and independent queries. Baselines a45c753 / f63225a / e9fc252, selected B3 a3adf36.
-- All tracks declare team Kryptonite, language C++, zero non-stdlib runtime dependencies.
+## First official live-board baseline
 
-## Passed evidence
+Snapshot generated 2026-11-01T15:19:46Z, retrieved 15:19:52Z. Overall 43.243
+from the user's board snapshot (rank 92 in that snapshot, not a permanent rank).
+All three tracks passed check/build/correctness/timeout/sandbox. Registration for
+A/B/C and successful board access to the private repo are now evidenced by the
+public feed; final individual-registration attestations are not in that feed.
 
-- Exact official worked/targeted fixtures and hand-computed bytes; small ASan/UBSan builds.
-- Final-source tiny/sample/full seed 1, sample seeds 2/3/42 and independently generated full seed 7 against untouched references. Public full inputs match the published input hashes.
-- Five repeated native full seed 1 runs per track; all outputs deterministic. A/B worker counts 1/2/4/6/12 checked repeatedly. C deliberately scalar.
-- Clean archived offline no-cache linux/amd64 build for each independent track; allowlist checker, runtime libraries, entrypoint and image cap pass. Images about 30 MB.
-- Five public full sandbox runs per image plus a full seed 7 run: unprivileged, read-only root/data, no network, 8 GB/no swap, PID/scratch limits, exact output names/hashes, exit 0, no unexpected filesystem diffs.
-- Official static tools locally measure S: A=187, C=218, B=350; D=1 each, basis `declared, unverified`.
-- Native ARM64 final middle-three means: A=0.250590 s, C=0.885086 s, B=2.230760 s. Local process RSS is recorded separately and is not official cgroup M.
+| Track | T seconds | cgroup M bytes | S | K | Machine points | Real run ID |
+|---|---:|---:|---:|---:|---:|---|
+| A | 0.275095 | 69,869,568 | 187 | 11.411144 | 52.866460 | `run-3051ba50d6d4` |
+| B | 2.585927 | 222,953,472 | 350 | 6.028846 | 39.011708 | `run-be2e577bbf36` |
+| C | 1.133017 | 15,106,048 | 218 | 6.083838 | 39.208881 | `run-6b26d216e245` |
 
-## External proof/actions still pending
+Raw receipt: `benchmarks/board/2026-11-01-first-public-run.json`. All D=1.
+Live board evidence is a single public-data run. Final five-run holdout and
+judge scores remain pending. Local ARM process RSS and emulated Docker time
+remain distinct from these official measurements.
 
-No official board run IDs, scoring-machine T/M/K, judge scores or submission are claimed.
-This ARM64 Mac/Docker Desktop supports emulated sandbox/process-timer checks,
-but the full official harness requires Linux-host/Colima cgroup access unavailable
-here. Native i5-13500 performance and official cgroup memory remain outstanding.
-Entrant repository: `Avi36005/Speed-demon` (private). Registration, team form and
-Board App access remain unconfirmed. Source push has succeeded; changing
-visibility, installing the app and submitting forms have not been requested.
-Freeze: 2026-11-02 20:30 IST; recorded source must be public under MIT by 21:30 IST.
+## Passing implementations and previous verification
 
-## Resume
+- A: six line-boundary workers, per-endpoint/hour uint32 vectors, exact sorting.
+- C: scalar quote-aware CSV, exact decoded-name interning, country bitsets,
+  dense region lookup, integer cents.
+- B: six index/query workers, query-term sparse postings, dense Boolean bitmaps,
+  strict left-to-right operations and exact phrase re-tokenization.
+- Every runtime/build/metadata hash for the official baseline is archived with
+  the board receipt and in `benchmarks/runtime-manifest.json`.
+- Worked/adversarial fixtures, small ASan/UBSan, public tiny/sample/full seed 1,
+  extra sample seeds 2/3/42, full seed 7, five native deterministic repetitions,
+  A/B workers 1/2/4/6/12, clean offline amd64 builds, runtime libraries and five
+  emulated restricted-container repetitions plus full seed 7 all passed before
+  this tuning round. The board now supplies actual native scoring-box proof.
+- Original official checkouts and references remain untouched.
 
-Read `SUBMISSION_REPORT.md`, `benchmarks/DECISIONS.md` and per-track PERF.md.
-Next local reproduction command: `python3.13 tools/final_check.py` (reuses matching
-current-source proof); full commands are in the report. Source is pushed and the local branch tracks `origin/speed-demon`.
-Next external steps: complete/confirm each member's registration, grant the Board
-App access to `Avi36005/Speed-demon`, and submit Kryptonite / C++ / A+B+C / this
-repo URL in the team form. Links and copyable values are in
-`SUBMISSION_CHECKLIST.md`. The public board feed checked at
-2026-11-01T14:38:06Z did not yet contain Kryptonite; that does not prove which
-account step is missing. Make the recorded source public by the stated deadline.
-No algorithm experiment is active. Future candidates: B phrase/vocabulary lookup
-cost and A exact multi-selection on the real scoring CPU. Stop tuning paths that
-produce inconclusive gains and retain a final verification window.
+## Active work / resume
 
-## README and entrant handoff refresh
+Read the master and optimization brief in full again. The master now links
+`../docs/codex-prompts/07-track-d.md`, which explicitly calls for reassessing
+and implementing a measured fourth entry after preserving A/B/C. That brief
+has been read; the D spec/reference/generator/tests still need full reads.
+D is not implemented or registered; no D score is claimed.
 
-Updated 2026-11-01T14:48:17.608921+00:00. Root README redesigned with a local SVG banner, track navigation, evidence tables, honest ARM64 measurements, build/run commands and leaderboard instructions. `SUBMISSION_DETAILS.txt` supplies copy-ready team-form values and official links. GitHub Markdown rendering, relative links/anchors and SVG preview pass. Runtime/build/metadata hashes remain identical to the verified manifest. A Git source ZIP is prepared under ignored `.work/deliverables/` for direct download; the board still consumes the GitHub branch, and registration/App/form state remains unconfirmed.
+1. Current-source native phase diagnostics for A, C, B completed serially via
+   `python3.13 tools/profile.py a`, then c, then b. Do not run performance jobs
+   concurrently. Save phase results in their existing profiles.jsonl records.
+2. A2 measured and passed native regression/worker checks: 0.301456 -> 0.166677
+   s, middle-three of five alternating runs. Candidate board/container proof
+   remains pending. Next A experiment: compact count/scatter groups to reduce
+   allocations and eliminate unused per-worker hour-vector storage.
+3. Next weak-track opportunities: C decoded-name copies/hash lookups and scalar
+   parsing; B repeated phrase re-tokenization and vocabulary lookup. Measure
+   before keeping changes. Consider compact exact tables and safe parallelism.
+4. Read D's complete authoritative materials and establish a correct baseline
+   before advanced shortest-path work. Extend tools without breaking old proof.
+5. Push only tested candidates (authorized earlier by the user), record actual
+   new board IDs and all axes, retain known-passing source. No fake score or
+   timing claims. The 92 target is aspirational until the official feed says so.
+
+README, submission report and source ZIP currently describe the earlier local
+release and need a final refresh after the new candidates are selected. The
+old ZIP in the project folder remains the old passing runtime, not a new
+optimized delivery. Do not call old docs current release proof.

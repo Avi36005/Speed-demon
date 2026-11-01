@@ -7,7 +7,9 @@ The program parses the documented timestamp fields directly, discovers endpoint
 strings from the input, and retains unsigned 32-bit latencies in each endpoint's
 72 hour buckets. Six workers (override with `--workers 1..12`) parse independent
 whole-line ranges into private tables. Their exact vectors and error counts are
-merged after joining all threads. It sorts every bucket and takes the three exact nearest ranks.
+merged after joining all threads. Hour tasks then sort disjoint buckets and format independent strings in parallel.
+The final write visits those strings chronologically. Each bucket yields the
+three exact nearest ranks.
 Errors are precisely 500–599; counts and ppm arithmetic use 64 bits. Endpoints
 are sorted by ASCII bytes and hours emitted chronologically. Duplicate lines
 are retained. Empty input produces a zero-byte file.
@@ -20,7 +22,8 @@ Build: `g++ -std=c++20 -O3 -DNDEBUG -pthread main.cpp -o solution`.
 The offline Docker build statically links the GCC C++ and compiler support
 libraries to avoid requiring the build compiler's libstdc++ in the runtime image;
 glibc remains supplied by Debian 13. Final amd64 emulated container compatibility
-and five full-input sandbox runs have passed.
+and five full-input sandbox runs passed for the original baseline. New
+candidate container evidence is tracked in PERF.md.
 
 Dependencies: zero non-standard-library runtime dependencies (declared D=1;
 the harness marks this declaration unverified). MIT, see repository LICENSE.

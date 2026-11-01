@@ -4,7 +4,8 @@ First baseline: mmap, input-backed endpoint keys, uint32 latency vectors, full
 bucket sorting, one worker. Measurements will be recorded by `tools/dev.py` in
 `benchmarks/track-a/experiments.jsonl`, including source digest and commands.
 
-Official board runs: none. Official T, M, S, K and points: unknown.
+At the initial local-baseline checkpoint, official board results were unavailable.
+The first real live-board result is recorded in the dated section below.
 Final container/runtime validation has passed; local RSS is not cgroup memory.
 
 ## 2026-11-01 native baseline
@@ -75,4 +76,27 @@ Five full seed 1 runs and one full seed 7 run pass in the read-only/unprivileged
 sandbox, with no unexpected root filesystem changes and all hashes exact.
 Final runtime library inspection succeeds. These are ARM-host emulated checks.
 Official tooling locally reports S=187, D=1 (declared, unverified).
-Official board IDs, scoring-machine T/M/K and judge scores remain unknown.
+This release checkpoint preceded the first live-board run recorded below.
+Final holdout and judge results remain pending.
+
+## First official live-board result — 2026-11-01
+
+Commit `b4f72402d632209fd3f063d6e52f64d04fb97da1`, run `run-3051ba50d6d4`.
+All check/build/correctness/timeout/sandbox gates passed. Public full seed 1,
+native scoring box: T=0.275095 s, cgroup M=69,869,568 B,
+S=187, D=1, K=11.411144, machine points=52.866460.
+This is the live board's single public-data run, not the final five-run holdout
+or judging. Raw receipt: `../benchmarks/board/2026-11-01-first-public-run.json`.
+
+## A2 retained locally — parallel hour completion
+
+Diagnostic at the original live-board source measured ingestion 0.213473 s and
+serial sorting/formatting 0.141328 s (instrumented ARM64 development copy).
+Hour tasks now sort disjoint group vectors and write disjoint ordered strings.
+Five alternating full-seed-1 runs against b4f7240 gave local middle-three
+means 0.301456 s baseline and 0.166677 s candidate; peak wait4 process RSS
+311,328,768 and 301,236,224 B. First samples were cold/high (0.922/0.521 s);
+all ten output hashes matched. Raw evidence: comparisons.jsonl, A2 hypothesis.
+Worked/edge/empty/targeted sanitizer cases, sample seed 42, full seed 7 and
+full public worker counts 1/2/4/6/12 all pass. This ARM result is provisional
+until an actual new board run. No candidate K or points are inferred.

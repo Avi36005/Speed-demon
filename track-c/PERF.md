@@ -57,4 +57,14 @@ Five full seed 1 runs and one full seed 7 run pass in the read-only/unprivileged
 sandbox, with no unexpected root filesystem changes and all hashes exact.
 Final runtime library inspection succeeds. These are ARM-host emulated checks.
 Official tooling locally reports S=218, D=1 (declared, unverified).
-Official board IDs, scoring-machine T/M/K and judge scores remain unknown.
+This release checkpoint preceded the first live-board run recorded below.
+Final holdout and judge results remain pending.
+
+## First official live-board result — 2026-11-01
+
+Commit `b4f72402d632209fd3f063d6e52f64d04fb97da1`, run `run-6b26d216e245`.
+All check/build/correctness/timeout/sandbox gates passed. Public full seed 1,
+native scoring box: T=1.133017 s, cgroup M=15,106,048 B,
+S=218, D=1, K=6.083838, machine points=39.208881.
+This is the live board's single public-data run, not the final five-run holdout
+or judging. Raw receipt: `../benchmarks/board/2026-11-01-first-public-run.json`.

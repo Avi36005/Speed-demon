@@ -1,0 +1,76 @@
+{
+  "utc": "2026-11-01T15:36:49.863883+00:00",
+  "experiment": "A2 hour workers",
+  "source_sha256": "5c02af8ccf582e9ba036e2fab9846c8393179028a8eea54a38fe3184c65efa2b",
+  "data": "public full seed 1",
+  "official": false,
+  "prior_wrapper_failure": "Relative Path.parent resolved to submission/data; candidate could not open requests.log. Corrected to absolute workspace root before rerunning.",
+  "checks": [
+    {
+      "argv": [
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/compare/a-d5aeb7c12f/candidate/solution",
+        "--data",
+        "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1",
+        "--out",
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/a2-workers/out",
+        "--workers",
+        "1"
+      ],
+      "exit": 0,
+      "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3"
+    },
+    {
+      "argv": [
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/compare/a-d5aeb7c12f/candidate/solution",
+        "--data",
+        "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1",
+        "--out",
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/a2-workers/out",
+        "--workers",
+        "2"
+      ],
+      "exit": 0,
+      "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3"
+    },
+    {
+      "argv": [
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/compare/a-d5aeb7c12f/candidate/solution",
+        "--data",
+        "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1",
+        "--out",
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/a2-workers/out",
+        "--workers",
+        "4"
+      ],
+      "exit": 0,
+      "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3"
+    },
+    {
+      "argv": [
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/compare/a-d5aeb7c12f/candidate/solution",
+        "--data",
+        "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1",
+        "--out",
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/a2-workers/out",
+        "--workers",
+        "6"
+      ],
+      "exit": 0,
+      "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3"
+    },
+    {
+      "argv": [
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/compare/a-d5aeb7c12f/candidate/solution",
+        "--data",
+        "/Users/avinashgehi3/projects/Speed Demon/data/track-a/full-seed1",
+        "--out",
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/a2-workers/out",
+        "--workers",
+        "12"
+      ],
+      "exit": 0,
+      "output_sha256": "495ca09682b9673ef836a506496177680bb4a3af54255174befddb1f83481cd3"
+    }
+  ],
+  "passed": true
+}

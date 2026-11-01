@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <cstdint>
 #include <fcntl.h>
 #include <fstream>
@@ -125,13 +126,23 @@ int main(int argc, char** argv) {
             }
         }
         partial.clear();
-        std::vector<std::string_view> order;
-        for (const auto& [key, groups] : endpoints) order.push_back(key);
-        std::sort(order.begin(), order.end());  // ASCII byte order, prefixes first
-        std::string output;
-        for (size_t h = 0; h < hours.size(); ++h) {
-            for (auto endpoint : order) {
-                auto& group = endpoints.at(endpoint)[h];
+        using Endpoint = std::pair<std::string_view, std::array<Group, 72>*>;
+        std::vector<Endpoint> order;
+        for (auto& [key, groups] : endpoints) order.emplace_back(key, &groups);
+        std::sort(order.begin(), order.end(), [](const auto& a, const auto& b) {
+            return a.first < b.first;  // ASCII byte order, prefixes first
+        });
+        // Different hours own disjoint vectors and output strings. The map is
+        // complete before these workers start; no shared lookup or insertion.
+        std::array<std::string, 72> outputs;
+        std::atomic<size_t> next_hour{0};
+        auto finish_hours = [&] {
+          for (;;) {
+            size_t h = next_hour.fetch_add(1, std::memory_order_relaxed);
+            if (h >= hours.size()) break;
+            auto& output = outputs[h];
+            for (auto [endpoint, groups] : order) {
+                auto& group = (*groups)[h];
                 auto& values = group.values;
                 if (values.empty()) continue;
                 std::sort(values.begin(), values.end());
@@ -145,9 +156,15 @@ int main(int argc, char** argv) {
                 output += ' ' + std::to_string(group.errors);
                 output += ' ' + std::to_string(group.errors * 1000000 / n) + '\n';
             }
-        }
+          }
+        };
+        threads.values.clear();
+        for (size_t i = 1; i < worker_count; ++i)
+            threads.values.emplace_back(finish_hours);
+        finish_hours();
+        threads.join();
         std::ofstream out(out_dir + "/summary.txt", std::ios::binary);
-        out.write(output.data(), output.size());
+        for (const auto& output : outputs) out.write(output.data(), output.size());
         if (!out) throw std::runtime_error("output write failed");
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';

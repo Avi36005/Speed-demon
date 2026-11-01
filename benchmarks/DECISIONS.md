@@ -29,6 +29,20 @@ views first, use read-only vocabulary lookups, and concatenate worker postings
 in range order. Tradeoff: extra posting containers, merge work and temporary
 capacity. Test 1/2/4/6/12 workers, sanitizers and full seeds 1/7. Baseline f63225a.
 
+B2 preserved at e9fc252 after all counts and full seeds 1/7 passed. Diagnostic
+with six workers: query parse 0.0455 s, index 1.6726 s, query/serialization 6.2981 s.
+Queries now dominate. Source/temporary memory costs and noisy worker means are
+in PERF.md and comparisons.jsonl; no official scoring claim.
+
+## B3 — independent query execution (final bounded tuning experiment)
+
+Hypothesis: independent queries over immutable postings/bitmaps can use the
+available workers. Claim small chunks dynamically to balance expensive phrases,
+write each answer into its own slot, then serialize slots in original order.
+Tradeoff: temporary result sets per worker and ~1.5 MB answer storage. Compare
+against B2 with its index workers fixed at six; test counts 1/2/4/6/12 and full
+seeds 1/7. Stop tuning after this experiment and complete the release matrix.
+
 ## C1 — global exact names and country bitsets (kept)
 
 Baseline cc0f0e3. Diagnostic: lookup 0.0135 s, parse/aggregate 3.0318 s. Baseline
@@ -61,3 +75,8 @@ paired baseline was 0.4620 s. Twelve workers were within noise of six and used
 all measurements above are ARM64. Scalar construction remains available with
 `--workers 1`. A rejected jthread build is retained; explicit thread ownership
 works on this Mac's libc++ and GCC.
+
+B3 kept: six-worker paired means 9.293824 s → 2.764384 s (see exact raw values
+in comparisons.jsonl; prose rounded). Twelve-worker candidate 3.273262 s.
+One worker regressed; six chosen provisionally. Stop tuning and finish release
+verification. No x86 or official score improvement is inferred.

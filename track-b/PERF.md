@@ -46,3 +46,27 @@ ARM64 Apple Clang 17. This is a worker exploration, not the official five-run
 estimator. Baseline drift is substantial. Exact outputs pass all counts and
 full seeds 1/7; small twelve-worker fixtures pass ASan/UBSan. The combined
 B1/B2 version is preserved before a final diagnostic of remaining query cost.
+
+## B3 retained — independent query execution
+
+Six-worker B2 phase diagnostic: index 1.67258 s, query/serialization 6.29807 s.
+Hypothesis: distribute queries over immutable indexes, keep temporary results
+private, and serialize disjoint answer slots after joining.
+
+| Candidate workers | B2 with 6 index workers (s) | B3 mean (s) | B3 peak RSS (bytes) |
+|---|---:|---:|---:|
+| 1 | 8.545682 | 10.313355 | 451,903,488 |
+| 2 | 9.737697 | 7.620825 | 487,505,920 |
+| 4 | 11.635603 | 4.133578 | 497,434,624 |
+| 6 | 9.294215 | 2.764396 | 504,283,136 |
+| 12 | 10.882747 | 3.273262 | 531,251,200 |
+
+Three alternating runs per version per block, all outputs exact, same native
+ARM64 compiler/flags/data. Means use all three samples, not the official
+five-run estimator. Baselines drift; use paired blocks. Six workers selected,
+twelve did not help on this Mac. The one-worker variant regressed and is not
+the selected default. Temporary sets and output slots add memory/source cost;
+no K or official score claim is possible. This ends the tuning phase.
+
+Final-source required matrix, native five-run samples and amd64 clean offline
+checks follow in the structured evidence and SUBMISSION_REPORT.md.

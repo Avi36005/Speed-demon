@@ -29,6 +29,7 @@ def main():
     ap.add_argument('--data', type=Path)
     ap.add_argument('--expected')
     ap.add_argument('--workers', type=int)
+    ap.add_argument('--baseline-workers', type=int)
     args = ap.parse_args()
     work = SUB / '.work/compare' / (args.track + '-' + uuid.uuid4().hex[:10])
     work.mkdir(parents=True)
@@ -46,6 +47,7 @@ def main():
               'flags': flags, 'data': str(data), 'inputs': {p.name: sha(p) for p in sorted(data.iterdir())},
               'expected_sha256': expected, 'board_run_id': None, 'decision': 'pending review',
               'candidate_workers': args.workers,
+              'baseline_workers': args.baseline_workers,
               'memory_method': 'wait4 ru_maxrss, local process RSS, not cgroup M',
               'artifact_dir': str(work.relative_to(SUB)), 'versions': {}, 'commands': []}
     try:
@@ -67,6 +69,8 @@ def main():
                 command = [str(folder / 'solution'), '--data', str(data), '--out', str(folder / 'out')]
                 if version == 'candidate' and args.workers is not None:
                     command += ['--workers', str(args.workers)]
+                if version == 'baseline' and args.baseline_workers is not None:
+                    command += ['--workers', str(args.baseline_workers)]
                 with open(folder / 'stdout', 'wb') as stdout, open(folder / 'stderr', 'wb') as stderr:
                     start = time.perf_counter()
                     proc = subprocess.Popen(command, stdout=stdout, stderr=stderr)

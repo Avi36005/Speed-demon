@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <atomic>
 #include <bit>
 #include <cstdint>
 #include <fcntl.h>
@@ -176,7 +177,7 @@ Posting evaluate(const Query& query, const std::vector<Posting>& index,
 int main(int argc, char** argv) {
     try {
         std::string data_dir = "/data", out_dir = "/out";
-        size_t worker_count = 1;
+        size_t worker_count = 6;
         for (int i = 1; i < argc; ++i) {
             std::string arg = argv[i];
             if (i + 1 < argc && arg == "--data") data_dir = argv[++i];
@@ -264,14 +265,32 @@ int main(int argc, char** argv) {
             bits.resize((documents.size() + 63) / 64, 0);
             for (auto id : index[term]) bits[id / 64] |= uint64_t{1} << (id % 64);
         }
+        // Queries read immutable indexes and own their temporary sets. Output
+        // slots are disjoint; the final write preserves original query order.
+        std::vector<std::string> answers(queries.size());
+        std::atomic<size_t> next_query{0};
+        auto answer_queries = [&] {
+            while (true) {
+                size_t first = next_query.fetch_add(16, std::memory_order_relaxed);
+                if (first >= queries.size()) break;
+                for (size_t q = first; q < std::min(first + 16, queries.size()); ++q) {
+                    Posting result = evaluate(queries[q], index, documents, vocabulary, bitmaps);
+                    uint64_t sum = std::accumulate(result.begin(), result.end(), uint64_t{0});
+                    auto& answer = answers[q];
+                    answer = std::to_string(result.size()) + ' ' + std::to_string(sum);
+                    for (size_t i = 0; i < std::min(size_t{10}, result.size()); ++i)
+                        answer += ' ' + std::to_string(result[i]);
+                    answer += '\n';
+                }
+            }
+        };
+        threads.values.clear();
+        for (size_t worker = 1; worker < worker_count; ++worker)
+            threads.values.emplace_back(answer_queries);
+        answer_queries();
+        threads.join();
         std::ofstream out(out_dir + "/results.txt", std::ios::binary);
-        for (const auto& query : queries) {
-            Posting result = evaluate(query, index, documents, vocabulary, bitmaps);
-            uint64_t sum = std::accumulate(result.begin(), result.end(), uint64_t{0});
-            out << result.size() << ' ' << sum;
-            for (size_t i = 0; i < std::min(size_t{10}, result.size()); ++i) out << ' ' << result[i];
-            out << '\n';
-        }
+        for (const auto& answer : answers) out.write(answer.data(), answer.size());
         if (!out) throw std::runtime_error("output write failed");
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';

@@ -39,8 +39,13 @@ elif track == 'c':
 elif track == 'b':
     replace('Input query_file(', begin + 'Input query_file(')
     replace('std::vector<Posting> index(', phase('queries') + 'std::vector<Posting> index(')
-    replace('std::ofstream out(', phase('index') + 'std::ofstream out(')
-    replace('if (!out) throw', phase('evaluate_and_serialize') + 'if (!out) throw')
+    if 'std::vector<std::string> answers(' in text:
+        replace('std::vector<std::string> answers(', phase('index') + 'std::vector<std::string> answers(')
+        replace('std::ofstream out(', phase('evaluate_and_format') + 'std::ofstream out(')
+        replace('if (!out) throw', phase('write') + 'if (!out) throw')
+    else:
+        replace('std::ofstream out(', phase('index') + 'std::ofstream out(')
+        replace('if (!out) throw', phase('evaluate_and_serialize') + 'if (!out) throw')
 else:
     raise ValueError(track)
 

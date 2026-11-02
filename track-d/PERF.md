@@ -150,3 +150,21 @@ pass. Five paired QEMU means1.001046 ->
 0.873029s; not scoring-machine T/M. Exact
 proof ledger benchmarks/four-track-portfolio-trial.json. Native ASan and board
 effect pending; preserve prior source and select by complete native axes.
+
+### Actual four-track native result —7b28c32
+
+run-adaac22899f6: all five gates pass; T0.393055s/M131268608B/
+S273/D1/K15.123224/58.98222machine points. Receipt
+benchmarks/board/2026-11-02T115249.223434Z.json. A and sparse D improve;
+C key-line experiment regresses and is being restored. B66.338782 remains
+close to its historical best66.489154, with capped memory. Native CI41439655126
+and committed-archive unused full seed20261102 five runs also pass this source.
+
+## Private query-state small-page trial
+
+Keep already-built CSR huge pages, disable THP only before private query-state
+allocations. This targets wasted huge-page padding while retaining graph locality.
+S275/D1. QEMU1.190711->1.200737s is inconclusive; native memory/time tradeoff
+pending. Exact proof portfolio-refine-trial.json. A separate smaller-distance
+frontier strategy regressed1.255573->3.125763s and is rejected; smaller heap
+remains the expansion rule. Do not repeat that strategy line.

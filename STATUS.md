@@ -1,67 +1,49 @@
-# Kryptonite — four-track native checkpoint
+# Kryptonite — active refinement checkpoint
 
-Updated 2026-11-02 11:47 UTC.
-Target90/top three unmet. Stop broad rewrites18:30IST (13:00UTC); freeze20:30IST.
-Latest pushed b6ebbc890b712b40d155c824f16e09181d76d380 passes all five board gates,
-all four registered. Latest trial overall72.622399; historical best-three73.343024.
-B6 regressed64.548498 and was rejected; new selected B restores twelve workers.
-A compact allocation is retained79.952250; C unchanged source observed74.215556.
+Updated2026-11-02 12:54 UTC.
+Target90/top three remains unmet. Stop broad rewrites18:30IST/13:00UTC; freeze20:30IST.
+Pushed7b28c326cf3c32f0862ca1e126cbdf31bae7e138 passes all native board gates,
+all four registered. Actual latest head73.233294; historical best-three73.428587.
+Receipt benchmarks/board/2026-11-02T115249.223434Z.json. Native points:
+A80.232397 (run-6827b903f16b), B66.338782 (run-ea09eb10b8f4),
+C73.791859 (run-0bb5937ce0ca), D58.982220 (run-adaac22899f6).
+Sparse D memory131,268,608B vs272MB, runtime.393055 vs.47s: keep.
+C key-line/new-array trial regressed; restore stronger winner, do not repeat.
 
-|Track|Points|Time s|M bytes|Run at b6ebbc8|
-|---|---:|---:|---:|---|
-|A|79.95225|0.027008|23,781,376|run-3e475613b1fe|
-|B|64.548498|0.369951|39,047,168|run-081abd790d21|
-|C|74.215556|0.042425|12,247,040|run-bc13d0d4199a|
-|D|54.227357|0.470085|272,011,264|run-74efb88d7bc1|
+## Current selected refinement, ready to push
 
-## Selected new all-four trial — next push
+benchmarks/portfolio-refine-trial.json pins all hashes/proofs. A unchanged b2470c2a.
+B f64ad04b S798 packs unchanged slot/fingerprint into16-byte token records.
+C7efd1e76 S355 restores winner; atomic_ref operates on proper uint64 slot objects.
+Its GCC15 release binary EXACTLY matches old b3d9888e winner (hash in manifest).
+D24b09441 S275 retains graph THP but uses small pages for private query tables.
+All D1. All pass UBSan/bounds fixtures1/12, full7, five offline-image full1 plus
+fresh7 image. QEMU means B1.275765->1.251320, C.294932->.286939,
+D1.190711->1.200737 (screens only; no native gain claimed).
+Next commit/push, native CI tracksbcd B12, observe exact native metrics. Preserve
+A7b winner, Bf1ed726 at7b, Cb3d9888 at036/b6 (atomicref candidate same binary),
+D055f90ac at7b as fallbacks. Smaller-distance frontier D candidate lost2.49x;
+unselected. B inline-short/hot-key/dependent-prefetch variants rejected.
 
-benchmarks/four-track-portfolio-trial.json pins exact hashes and proofs.
-A b2470c2a... S443: sort <=24-value groups once for all exact percentile ranks.
-B f1ed726d... S791: free dead query buffers; bounded spin plus atomic wait for
-idle workers/main, explicit notify and original acquire/release publication.
-C c18bd52a... S357: prefetch record header AND actual key line, explicitly
-construct shared atomic slots. Exact key equality and name-local bits unchanged.
-D055f90ac... S273: sparse private exact distance tables instead of two full-node
-arrays per worker. Exact64-bit side maps, stale-heap checks and bounds preserved.
-All D1. All four pass fixtures UBSan/bounds1/12, independently derived and
-oracle-checked edge cases, full7, five public pair hashes, exact offline images
-five full1/one full7. QEMU screens: A.404389->.393222; B1.335104->1.176699;
-C.632634->.630418; D1.001046->.873029. Never official T/M. D local cgroup
-349,085,696->234,524,672B includes emulator/page cache. Native effect pending.
+## Strong verification already complete
 
-Next: commit/push selected sources, dispatch native CI tracksabcd B12, fetch
-exact board runs, keep/reject by complete axes. No scored gains claimed until
-observed. Preserve A7094ac6 atb6ebbc8, B a8bde297 at036225c (old best9b64023),
-C b3d9888e at036225c/b6ebbc8, D bb065b3e atb6ebbc8 for fallbacks.
+Native CI41439655126 PASSED7b all four: A7checks6ASan, B17checks15ASan,
+C9checks8ASan, D11checks10ASan, fresh sample42 and native phase diagnostics.
+Artifacts benchmarks/native-ci/41439655126. Compiler GCC13.3 Xeon; separate
+from scoring13500/GCC15. Earlier CI41413513572 and41415961602 retained.
+Clean COMMITTED archive7b images passed FIVE runs each on unused full seed
+20261102 plus public1: benchmarks/committed-release-7b28c32.json COMPLETE.
+The seed's generator/reference hashes and exact bytes are independently prepared
+in benchmarks/holdout-oracle-manifests/20261102.json. It is for final correctness,
+never performance tuning. Recheck changed refined images from committed archive.
 
-## Native verification already completed
-
-CI41413513572 passed036225c B/C native ASan/UBSan fixtures, sample42 at12 and
-full-public phase checks. CI41415961602 passedb6ebbc8 A12/B6 native sanitizers,
-sample42 and full-public diagnostics. Artifacts benchmarks/native-ci/<runID>.
-Native dependent-key prefetch B experiment regressed1.274706->1.304224 and was
-rejected. New all-four source native sanitizer matrix is still pending.
-
-Local source compatibility uses QEMU10.2.3 Haswell; its ASan cannot initialize,
-so do not substitute local UBSan for native ASan. GCC15 pinned Debian13 images
-build offline; native CI GCC13.3 Xeon is distinct from official13500 performance.
-No official specs, references, datasets or scoring/harness behavior modified.
-
-## Final unused-seed preparation running
-
-Session61253: tools/prepare_holdout.py seed20261102 generates untouched full
-inputs/reference bytes for all four. This prepares ORACLES ONLY, never claims
-entry passed. .work/final-holdout-preparation.stdout and
-benchmarks/holdout-oracle-manifests/20261102.json show completion. After final
-source selection, run exact committed-archive images against these inputs.
-Do not tune performance on this seed. Preserve interrupted preparation state.
-
-Keep records append-only and source-matched. Single writer; Claude stopped.
-Tested ordinary speed-demon pushes authorized; no force/backdate/fake metrics.
-Repo private, MIT retained. Public by21:30IST requires applicable authorization.
-No current rank/90 claim, no new ZIP handoff. Project ZIP historical.
-Reserve18:30–20:30IST for final source selection, clean committed-archive images,
-unused-seed correctness, determinism, branch/watch/head/license verification.
-Python3.13 required. Docker isolated .work/docker-public-config,
-DOCKER_HOST unix:///Users/avinashgehi3/.docker/run/docker.sock. No agents/goals.
+Local QEMU Haswell compatibility, source-matched UBSan/bounds and exact images
+are not native Intel timing/memory. New refined source native ASan pending.
+No official specs/references/generators/harness were changed. Single writer.
+User authorizes ordinary tested speed-demon pushes; no force/backdate/fake metrics.
+Repo private, MIT retained. Public-source deadline21:30IST still needs applicable
+authorization. No new ZIP handed off; old project ZIP is historical.
+At18:30IST assemble strongest verified versions and reserve two final hours for
+unused-seed/current-archive tests, deterministic output, metadata/watch/head checks.
+Python3.13 explicit. Docker .work/docker-public-config and
+unix:///Users/avinashgehi3/.docker/run/docker.sock. No agents/goals/automations.

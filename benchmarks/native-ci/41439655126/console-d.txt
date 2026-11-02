@@ -1,0 +1,12 @@
+direction_matters PASS
+long_chain_of_max_weights_fits_in_int64 PASS
+parallel_edges_lighter_listed_first PASS
+parallel_edges_three_way_and_exact_duplicates PASS
+source_with_no_out_edges_and_target_with_no_in_edges PASS
+worked_example PASS
+zero_weight_cycle_and_zero_distance PASS
+empty-edges PASS
+first-meeting-trap PASS
+random-all-pairs PASS
+/home/runner/work/Speed-demon/Speed-demon/submission/.work/data/track-d/sample-seed42 PASS
+sample-seed42 PASS

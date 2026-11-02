@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <string>
 #include <sys/mman.h>
+#include <sys/prctl.h>
 #include <sys/stat.h>
 #include <thread>
 #include <unordered_map>
@@ -172,6 +173,8 @@ int main(int argc, char** argv) {
         });
         std::vector<uint32_t>().swap(out_at), std::vector<uint32_t>().swap(in_at);
 
+        // CSR is already backed. Avoid huge-page padding in private query tables.
+        prctl(PR_SET_THP_DISABLE, 1, 0, 0, 0);
         std::vector<std::pair<uint32_t, uint32_t>> queries;
         for (const char* q = qtext; q < qtext + qsize;) {
             uint32_t s = number(q), t = number(q);

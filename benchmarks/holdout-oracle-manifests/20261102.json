@@ -1,0 +1,179 @@
+{
+  "purpose": "Prepare independent full-seed reference bytes; does not test an entrant.",
+  "seed": 20261102,
+  "scale": "full",
+  "official": false,
+  "entrant_runtime_checked": false,
+  "complete": true,
+  "tracks": {
+    "a": {
+      "generator_sha256": "d82b43b8f617016808f85cbe9be86af1fee8466296a0848ab8e6908ee3c4b0b4",
+      "reference_sha256": "6c3cff053f5d620aa873038e30bb32a31319bcbcd79b3b662a2ae152bb2664f1",
+      "commands": [
+        {
+          "argv": [
+            "/opt/homebrew/opt/python@3.13/bin/python3.13",
+            "/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/generators/a_ingest.py",
+            "--seed",
+            "20261102",
+            "--scale",
+            "full",
+            "--out",
+            "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-a/full-seed20261102"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-a/full-seed20261102/requests.log: 3100000 lines, 242940500 bytes, 12.4 s\n"
+        },
+        {
+          "argv": [
+            "/opt/homebrew/opt/python@3.13/bin/python3.13",
+            "/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/reference/a_ingest.py",
+            "--data",
+            "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-a/full-seed20261102",
+            "--out",
+            "/Users/avinashgehi3/projects/Speed Demon/submission/.work/holdout-oracles/20261102/track-a"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "inputs": {
+        "requests.log": "625c044d8e487d790a2ecb196b971e01eff3d3b609e8ac6b480556162ae14c99"
+      },
+      "data": "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-a/full-seed20261102",
+      "reference_output": "/Users/avinashgehi3/projects/Speed Demon/submission/.work/holdout-oracles/20261102/track-a/summary.txt",
+      "output_name": "summary.txt",
+      "expected_sha256": "a573e67bbbecda02d79861b113bbc44b1923071856c019533b9cfd0196a50899"
+    },
+    "b": {
+      "generator_sha256": "370ae0d056e3f6d1cf9cd1bf59f5d2ccc0ebcf5745481f904aa55f466850bcdd",
+      "reference_sha256": "02d7148fa38ed1968b1177147e91a4e1c2151b65c6f709f30a546e5205e6b1ad",
+      "commands": [
+        {
+          "argv": [
+            "/opt/homebrew/opt/python@3.13/bin/python3.13",
+            "/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/generators/b_index.py",
+            "--seed",
+            "20261102",
+            "--scale",
+            "full",
+            "--out",
+            "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-b/full-seed20261102"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": "docs=250000 docs_bytes=252466716 queries=50000 queries_bytes=1759101 distinct_tokens=609764 seconds=48.3\n"
+        },
+        {
+          "argv": [
+            "/opt/homebrew/opt/python@3.13/bin/python3.13",
+            "/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/reference/b_index.py",
+            "--data",
+            "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-b/full-seed20261102",
+            "--out",
+            "/Users/avinashgehi3/projects/Speed Demon/submission/.work/holdout-oracles/20261102/track-b"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "inputs": {
+        "queries.txt": "6368827a0abb6d5a041c9e267969779c3629aad9ef9b6fe0d0cb7821ce572a6b",
+        "docs.txt": "64cd3ac329cd6dc8b6241c1b6f394a3c3aab784645ec0fe05d75b8e8eb4d8804"
+      },
+      "data": "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-b/full-seed20261102",
+      "reference_output": "/Users/avinashgehi3/projects/Speed Demon/submission/.work/holdout-oracles/20261102/track-b/results.txt",
+      "output_name": "results.txt",
+      "expected_sha256": "cf3bef1751eb2a75515cb1f5e6ff96482edf50ba36c71bf4a6505f41d4ef21fb"
+    },
+    "c": {
+      "generator_sha256": "9e61672eb814fa4e1bc2e3cf30c8e7ca9629804191ce5ae60a66c8b61ba704f2",
+      "reference_sha256": "caef796f05b971037bb6b70989dcdb2cb600698bd4d261195a8a7aa260617577",
+      "commands": [
+        {
+          "argv": [
+            "/opt/homebrew/opt/python@3.13/bin/python3.13",
+            "/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/generators/c_join.py",
+            "--seed",
+            "20261102",
+            "--scale",
+            "full",
+            "--out",
+            "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-c/full-seed20261102"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/opt/homebrew/opt/python@3.13/bin/python3.13",
+            "/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/reference/c_join.py",
+            "--data",
+            "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-c/full-seed20261102",
+            "--out",
+            "/Users/avinashgehi3/projects/Speed Demon/submission/.work/holdout-oracles/20261102/track-c"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "inputs": {
+        "regions.csv": "b27bee5f786af5da6c5dc635079a86cfda03e8d3eee29a08819b792138896ce5",
+        "records.csv": "5a07533b93827660f4e468ef6797d81dec9d55afc3d77c9c58062f68535cd253"
+      },
+      "data": "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-c/full-seed20261102",
+      "reference_output": "/Users/avinashgehi3/projects/Speed Demon/submission/.work/holdout-oracles/20261102/track-c/aggregates.txt",
+      "output_name": "aggregates.txt",
+      "expected_sha256": "5134b6aed438acb74b3233b456ffc1f89f5722c2dad8884b1093cc9f2cd6da17"
+    },
+    "d": {
+      "generator_sha256": "bbf37741159004149c5896265a98ae00b90e90a05ad48c2912ecf8bdce126d65",
+      "reference_sha256": "342f2f7ccab7c22e30c5dcb34a9958da41387e0171cf8c3283a79439e73fff27",
+      "commands": [
+        {
+          "argv": [
+            "/opt/homebrew/opt/python@3.13/bin/python3.13",
+            "/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/generators/d_traverse.py",
+            "--seed",
+            "20261102",
+            "--scale",
+            "full",
+            "--out",
+            "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-d/full-seed20261102"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "/opt/homebrew/opt/python@3.13/bin/python3.13",
+            "/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/reference/d_traverse.py",
+            "--data",
+            "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-d/full-seed20261102",
+            "--out",
+            "/Users/avinashgehi3/projects/Speed Demon/submission/.work/holdout-oracles/20261102/track-d"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        }
+      ],
+      "inputs": {
+        "queries.txt": "f5914f25b3c58f24ee823385be1a9a509f63fdff9ae860a645716f959a977c3b",
+        "graph.txt": "d7c5b5fb861df03cbcde0d83602965809ef06b16044dd1f969e3729fc8dc91be"
+      },
+      "data": "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-d/full-seed20261102",
+      "reference_output": "/Users/avinashgehi3/projects/Speed Demon/submission/.work/holdout-oracles/20261102/track-d/distances.txt",
+      "output_name": "distances.txt",
+      "expected_sha256": "c7ea9eb93b0328b8c7905eca2ea2c032e3dbda27103a26156ebd48a71ff01f9c"
+    }
+  },
+  "official_revision": "158894dcefde61f459c0adfae841900458dbeb7f",
+  "updated_utc": "2026-11-02T11:50:39.345534+00:00"
+}

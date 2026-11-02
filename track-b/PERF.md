@@ -398,3 +398,18 @@ pass. Five paired QEMU means1.335104 ->
 1.176699s; not scoring-machine T/M. Exact
 proof ledger benchmarks/four-track-portfolio-trial.json. Native ASan and board
 effect pending; preserve prior source and select by complete native axes.
+
+### Actual four-track native result —7b28c32
+
+run-ea09eb10b8f4: all five gates pass; T0.312758s/M42500096B/
+S791/D1/K21.221479/66.338782machine points. Receipt
+benchmarks/board/2026-11-02T115249.223434Z.json. A and sparse D improve;
+C key-line experiment regresses and is being restored. B66.338782 remains
+close to its historical best66.489154, with capped memory. Native CI41439655126
+and committed-archive unused full seed20261102 five runs also pass this source.
+
+## Compact pending token metadata trial
+
+Pack exactly the existing18-bit slot and14-bit fingerprint into32bits. Pending
+tokens shrink24->16bytes; exact dictionary comparisons are unchanged. S798/D1.
+QEMU1.275765->1.251320s, screen only. Full proof portfolio-refine-trial.json.

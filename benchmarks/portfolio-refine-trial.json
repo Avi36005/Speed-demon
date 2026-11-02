@@ -1,0 +1,70 @@
+{
+  "utc": "2026-11-02T12:54:26.060099+00:00",
+  "parent_commit": "7b28c326cf3c32f0862ca1e126cbdf31bae7e138",
+  "official_result": null,
+  "changes": {
+    "b": {
+      "source_sha256": "f64ad04b13cbcafe5ac632d0f08dfd86d275710f892689f61144b67826b5f294",
+      "S": 798,
+      "D": 1,
+      "checks": [
+        ".work/cached-runtime/b-6af1dd4965",
+        ".work/cached-runtime/b-452efc9752",
+        ".work/cached-runtime/b-e864e1e366"
+      ],
+      "exact_images": [
+        ".work/containers/b-3e7f6aa8d9",
+        ".work/containers/b-b23f352af0"
+      ],
+      "paired_record": ".work/linux-compare/b-4ab7d1dbdf",
+      "qemu_means": {
+        "baseline": 1.2757654823333333,
+        "candidate": 1.2513203896666667
+      },
+      "native_effect": null
+    },
+    "c": {
+      "source_sha256": "7efd1e76363fcf580d114e9843b3e004dafc35b8a30d7036289a913dc303f898",
+      "S": 355,
+      "D": 1,
+      "checks": [
+        ".work/cached-runtime/c-0ac7f68acb",
+        ".work/cached-runtime/c-f8ab672fbe",
+        ".work/cached-runtime/c-573eadf611"
+      ],
+      "exact_images": [
+        ".work/containers/c-2452e04c4e",
+        ".work/containers/c-3e6a354a05"
+      ],
+      "paired_record": ".work/linux-compare/c-89d07d81c2",
+      "qemu_means": {
+        "baseline": 0.294931597,
+        "candidate": 0.286938722
+      },
+      "native_effect": null
+    },
+    "d": {
+      "source_sha256": "24b0944181cd82a2c1d4725bca09fe1722c99bfb2ceaa39bdb5e563e9294f795",
+      "S": 275,
+      "D": 1,
+      "checks": [
+        ".work/cached-runtime/d-36b69077a4",
+        ".work/cached-runtime/d-a8f0002c1e",
+        ".work/cached-runtime/d-528a044466"
+      ],
+      "exact_images": [
+        ".work/containers/d-e0010f5c85",
+        ".work/containers/d-a7ef043af5"
+      ],
+      "paired_record": ".work/linux-compare/d-ae705a0f28",
+      "qemu_means": {
+        "baseline": 1.1907108063333334,
+        "candidate": 1.2007374033333333
+      },
+      "native_effect": null
+    }
+  },
+  "c_winner_binary_sha256": "5e4c4f4f677ab4ccc3c65d4b6dda56d281b18b9df43654fe97aba7533be9c66c",
+  "c_binary_note": "atomic_ref candidate exactly matches the GCC15 release binary of the C winner b3d9888e; source S changes353->355. Native source-specific ASan pending.",
+  "scope": "A unchanged. All changed tracks pass UBSan/bounds fixtures1/12, full7, exact offline public images5/fresh7 image1. QEMU screens only. New native source ASan pending."
+}

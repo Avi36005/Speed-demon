@@ -297,3 +297,20 @@ pass. Five paired QEMU means0.632634 ->
 0.630418s; not scoring-machine T/M. Exact
 proof ledger benchmarks/four-track-portfolio-trial.json. Native ASan and board
 effect pending; preserve prior source and select by complete native axes.
+
+### Actual four-track native result —7b28c32
+
+run-0bb5937ce0ca: all five gates pass; T0.043988s/M12230656B/
+S357/D1/K29.911431/73.791859machine points. Receipt
+benchmarks/board/2026-11-02T115249.223434Z.json. A and sparse D improve;
+C key-line experiment regresses and is being restored. B66.338782 remains
+close to its historical best66.489154, with capped memory. Native CI41439655126
+and committed-archive unused full seed20261102 five runs also pass this source.
+
+## Restore winning C binary with atomic_ref slot lifetimes
+
+The key-line/new-array trial7b scored73.791859 versus parent74.215556. Restore
+its measured winner path. Slots are zero-initialized uint64 objects accessed
+through atomic_ref, avoiding raw unconstructed atomic objects. GCC15 release
+binary matches winner exactly:5e4c4f4f677ab4ccc3c65d4b6dda56d281b18b9df43654fe97aba7533be9c66c.
+S355 vs353; source-specific native ASan pending. Proof portfolio-refine-trial.json.

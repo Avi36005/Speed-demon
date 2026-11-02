@@ -1,0 +1,189 @@
+{
+  "utc": "2026-11-02T11:48:21.554775+00:00",
+  "official": false,
+  "method": "Bounded native x86 differential verification; never official score evidence.",
+  "tracks": "abcd",
+  "workers": {
+    "a": 12,
+    "b": 12,
+    "c": 12,
+    "d": 12
+  },
+  "commit": "7b28c326cf3c32f0862ca1e126cbdf31bae7e138",
+  "official_commit": "158894dcefde61f459c0adfae841900458dbeb7f",
+  "runtime_hashes_before": {
+    "track-a/.speed-demon.toml": "b2b684e6fff97846ada04662eb0f8850b7786039925e30cdb1a8c010ea501564",
+    "track-a/Dockerfile": "fa7a3091e52e548734b736ef5cde7991ffe2746f4d7582b195c56a784525ccf4",
+    "track-a/main.cpp": "b2470c2a995f821ac26a295fc992370278d04a1a8de430cedad3e8b713c53e61",
+    "track-b/.speed-demon.toml": "625871dfe8f3cc66517f22cfc910583968e36f3a958e562dda4d831366dbddea",
+    "track-b/Dockerfile": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
+    "track-b/main.cpp": "f1ed726d6e8830bde2b83112919f4ddb67841cdd0cc6eeb2695bc7e5cdc46a9c",
+    "track-c/.speed-demon.toml": "82561d3cf9545bb00643eeefd7b29b1fb3e4c636831858ac1eac013927e94ad8",
+    "track-c/Dockerfile": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
+    "track-c/main.cpp": "c18bd52a58ba17836285c5d7af96405067f6dcc0d6c1eec837de1a5fb4f869de",
+    "track-d/.speed-demon.toml": "4d9ffc87eddf41682b837f8bc3ef497ef008685ff322662a4f67ccd5442e624f",
+    "track-d/Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+    "track-d/main.cpp": "055f90aca740e30b7acf3b28092176e8e4f23b6364018b6d4d9c9cded52fd226"
+  },
+  "python": "3.13.17 (main, Oct 22 2026, 02:40:32) [GCC 13.3.0]",
+  "compiler": "g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "cpu": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nAddress sizes:                           48 bits physical, 48 bits virtual\nByte Order:                              Little Endian\nCPU(s):                                  2\nOn-line CPU(s) list:                     0,1\nVendor ID:                               AuthenticAMD\nModel name:                              AMD EPYC 9V45 96-Core Processor\nCPU family:                              26\nModel:                                   2\nThread(s) per core:                      2\nCore(s) per socket:                      1\nSocket(s):                               1\nStepping:                                1\nBogoMIPS:                                5192.19\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology tsc_reliable nonstop_tsc cpuid extd_apicid aperfmperf tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext vmmcall fsgsbase bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves user_shstk avx_vnni avx512_bf16 clzero xsaveerptr rdpru arat npt nrip_save tsc_scale vmcb_clean flushbyasid decodeassists pausefilter pfthreshold v_vmsave_vmload avx512vbmi umip avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq rdpid fsrm avx512_vp2intersect\nVirtualization:                          AMD-V\nHypervisor vendor:                       Microsoft\nVirtualization type:                     full\nL1d cache:                               48 KiB (1 instance)\nL1i cache:                               32 KiB (1 instance)\nL2 cache:                                1 MiB (1 instance)\nL3 cache:                                32 MiB (1 instance)\nNUMA node(s):                            1\nNUMA node0 CPU(s):                       0,1\nVulnerability Gather data sampling:      Not affected\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Not affected\nVulnerability Itlb multihit:             Not affected\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Not affected\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Not affected\nVulnerability Spec rstack overflow:      Vulnerable: Safe RET, no microcode\nVulnerability Spec store bypass:         Vulnerable\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Retpolines; STIBP disabled; RSB filling; PBRSB-eIBRS Not affected; BHI Not affected\nVulnerability Srbds:                     Not affected\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Not affected\n",
+  "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+  "run_id": "41439655126",
+  "commands": [
+    {
+      "argv": [
+        "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python",
+        "/home/runner/work/Speed-demon/Speed-demon/submission/tools/suite.py",
+        "a",
+        "--fixtures",
+        "--seeds",
+        "42",
+        "--scale",
+        "sample",
+        "--workers",
+        "12"
+      ],
+      "exit": 0,
+      "console": "console-a.txt"
+    },
+    {
+      "argv": [
+        "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python",
+        "/home/runner/work/Speed-demon/Speed-demon/submission/tools/suite.py",
+        "b",
+        "--fixtures",
+        "--seeds",
+        "42",
+        "--scale",
+        "sample",
+        "--workers",
+        "12"
+      ],
+      "exit": 0,
+      "console": "console-b.txt"
+    },
+    {
+      "argv": [
+        "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python",
+        "/home/runner/work/Speed-demon/Speed-demon/submission/tools/suite.py",
+        "c",
+        "--fixtures",
+        "--seeds",
+        "42",
+        "--scale",
+        "sample",
+        "--workers",
+        "12"
+      ],
+      "exit": 0,
+      "console": "console-c.txt"
+    },
+    {
+      "argv": [
+        "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python",
+        "/home/runner/work/Speed-demon/Speed-demon/submission/tools/suite.py",
+        "d",
+        "--fixtures",
+        "--seeds",
+        "42",
+        "--scale",
+        "sample",
+        "--workers",
+        "12"
+      ],
+      "exit": 0,
+      "console": "console-d.txt"
+    },
+    {
+      "argv": [
+        "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python",
+        "/home/runner/work/Speed-demon/Speed-demon/official/speed-demon-2026/generators/a_ingest.py",
+        "--seed",
+        "1",
+        "--scale",
+        "full",
+        "--out",
+        "/home/runner/work/Speed-demon/Speed-demon/data/track-a/full-seed1"
+      ],
+      "exit": 0,
+      "console": "profile-a-0.txt"
+    },
+    {
+      "argv": [
+        "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python",
+        "/home/runner/work/Speed-demon/Speed-demon/submission/tools/phase_profile_linux.py",
+        "a",
+        "1",
+        "--native"
+      ],
+      "exit": 0,
+      "console": "profile-a-1.txt"
+    },
+    {
+      "argv": [
+        "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python",
+        "/home/runner/work/Speed-demon/Speed-demon/official/speed-demon-2026/generators/b_index.py",
+        "--seed",
+        "1",
+        "--scale",
+        "full",
+        "--out",
+        "/home/runner/work/Speed-demon/Speed-demon/data/track-b/full-seed1"
+      ],
+      "exit": 0,
+      "console": "profile-b-0.txt"
+    },
+    {
+      "argv": [
+        "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python",
+        "/home/runner/work/Speed-demon/Speed-demon/submission/tools/phase_profile_linux.py",
+        "b",
+        "1",
+        "--native"
+      ],
+      "exit": 0,
+      "console": "profile-b-1.txt"
+    },
+    {
+      "argv": [
+        "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python",
+        "/home/runner/work/Speed-demon/Speed-demon/official/speed-demon-2026/generators/c_join.py",
+        "--seed",
+        "1",
+        "--scale",
+        "full",
+        "--out",
+        "/home/runner/work/Speed-demon/Speed-demon/data/track-c/full-seed1"
+      ],
+      "exit": 0,
+      "console": "profile-c-0.txt"
+    },
+    {
+      "argv": [
+        "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python",
+        "/home/runner/work/Speed-demon/Speed-demon/submission/tools/phase_profile_linux.py",
+        "c",
+        "1",
+        "--native"
+      ],
+      "exit": 0,
+      "console": "profile-c-1.txt"
+    }
+  ],
+  "passed": true,
+  "runtime_hashes_after": {
+    "track-a/.speed-demon.toml": "b2b684e6fff97846ada04662eb0f8850b7786039925e30cdb1a8c010ea501564",
+    "track-a/Dockerfile": "fa7a3091e52e548734b736ef5cde7991ffe2746f4d7582b195c56a784525ccf4",
+    "track-a/main.cpp": "b2470c2a995f821ac26a295fc992370278d04a1a8de430cedad3e8b713c53e61",
+    "track-b/.speed-demon.toml": "625871dfe8f3cc66517f22cfc910583968e36f3a958e562dda4d831366dbddea",
+    "track-b/Dockerfile": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
+    "track-b/main.cpp": "f1ed726d6e8830bde2b83112919f4ddb67841cdd0cc6eeb2695bc7e5cdc46a9c",
+    "track-c/.speed-demon.toml": "82561d3cf9545bb00643eeefd7b29b1fb3e4c636831858ac1eac013927e94ad8",
+    "track-c/Dockerfile": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
+    "track-c/main.cpp": "c18bd52a58ba17836285c5d7af96405067f6dcc0d6c1eec837de1a5fb4f869de",
+    "track-d/.speed-demon.toml": "4d9ffc87eddf41682b837f8bc3ef497ef008685ff322662a4f67ccd5442e624f",
+    "track-d/Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+    "track-d/main.cpp": "055f90aca740e30b7acf3b28092176e8e4f23b6364018b6d4d9c9cded52fd226"
+  }
+}

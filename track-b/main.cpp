@@ -112,9 +112,13 @@ struct Vocabulary {
         return ((lo * 0x9E3779B97F4A7C15ull) ^ (hi * 0xC2B2AE3D27D4EB4Full) ^ len) * 0xD6E8FEB86659FD93ull;
     }
     const uint32_t* slot(uint64_t h) const { return &slots[h >> (64 - BITS)]; }
-    uint32_t find(const char* p, uint32_t len, uint64_t h) const {
-        uint32_t fp = static_cast<uint32_t>(h >> 18) & ~MASK;
-        for (uint32_t i = static_cast<uint32_t>(h >> (64 - BITS));; i = (i + 1) & MASK) {
+    static uint32_t packed(uint64_t h) {
+        return static_cast<uint32_t>(h >> (64 - BITS)) | (static_cast<uint32_t>(h >> 18) & ~MASK);
+    }
+    uint32_t find(const char* p, uint32_t len, uint64_t h) const { return find_packed(p, len, packed(h)); }
+    uint32_t find_packed(const char* p, uint32_t len, uint32_t code) const {
+        uint32_t fp = code & ~MASK;
+        for (uint32_t i = code & MASK;; i = (i + 1) & MASK) {
             uint32_t e = slots[i];
             if (e == NONE) return NONE;
             if ((e & ~MASK) == fp && same(keys[e & MASK], key_of(p, len))) return e & MASK;
@@ -282,11 +286,12 @@ int main(int argc, char** argv) {
         uint32_t pbase = 0;
         for (size_t ph = 0; ph < phases; ++ph) most = std::max<size_t>(most, (first[(ph + 1) * PR] - first[ph * PR] + 63) / 64);
         Threads threads;
+        // Sixteen-byte pending token: exact slot/fingerprint bits need32bits.
         struct Token {
             const char* key;
-            uint32_t len;
-            uint64_t h;
+            uint32_t len, code;
         };
+        static_assert(sizeof(Token) == 16);
         struct State {  // one per worker, kept across ranges and phases
             std::vector<uint32_t> last, seq, hits, at, seen, hot;  // seq: a document's token ids, NONE for others
             std::vector<uint64_t> touched;
@@ -314,12 +319,12 @@ int main(int argc, char** argv) {
                 tokens(t, nl, sc, [&](const char* key, uint32_t len) {
                     uint64_t h = len > 32 ? 0 : Vocabulary::hash(key, len);
                     __builtin_prefetch(vocab.slot(h));
-                    pt[n++] = {key, len, h};
+                    pt[n++] = {key, len, Vocabulary::packed(h)};
                 });
                 uint32_t* ids = seq.data();
                 st.hot.clear();  // positions of phrase anchors
                 for (size_t i = 0; i < n; ++i) {
-                    uint32_t id = pt[i].len > 32 ? NONE : vocab.find(pt[i].key, pt[i].len, pt[i].h);
+                    uint32_t id = pt[i].len > 32 ? NONE : vocab.find_packed(pt[i].key, pt[i].len, pt[i].code);
                     ids[i] = id;
                     if (id == NONE) continue;
                     if (last[id] != doc) last[id] = doc, hit(doc, p, id);

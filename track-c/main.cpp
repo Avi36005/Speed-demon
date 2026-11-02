@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
         // Shared name table. A slot holds a 16-bit hash tag and a pointer to an
         // arena record {length, country bits, bytes}: the inserting worker writes the
         // record, then publishes it with a release CAS; readers acquire it.
-        auto* slots = new std::atomic<uint64_t>[SLOTS]{};
+        auto* slots = static_cast<uint64_t*>(calloc(SLOTS, sizeof(uint64_t)));
         std::atomic<size_t> claim{0};
         std::vector<std::vector<std::unique_ptr<char[]>>> arenas(workers);  // live until exit
         std::vector<std::vector<Group>> part(workers, std::vector<Group>(G));
@@ -185,7 +185,7 @@ int main(int argc, char** argv) {
             const uint64_t tag = h >> 48 << 48;
             char* rec = nullptr;
             for (uint32_t i = static_cast<uint32_t>(h) & (SLOTS - 1);; i = (i + 1) & (SLOTS - 1)) {
-                uint64_t e = slots[i].load(std::memory_order_acquire);
+                uint64_t e = std::atomic_ref<uint64_t>(slots[i]).load(std::memory_order_acquire);
                 if (!e) {
                     if (!rec) {
                         size_t need = (header + len + 7) & ~size_t{7};
@@ -196,7 +196,7 @@ int main(int argc, char** argv) {
                         auto* bits = reinterpret_cast<std::atomic<uint64_t>*>(rec + 8);
                         for (size_t k = 0; k < bitwords; ++k) new (bits + k) std::atomic<uint64_t>{0};
                     }
-                    if (slots[i].compare_exchange_strong(e, tag | reinterpret_cast<uint64_t>(rec), std::memory_order_acq_rel)) return rec;
+                    if (std::atomic_ref<uint64_t>(slots[i]).compare_exchange_strong(e, tag | reinterpret_cast<uint64_t>(rec), std::memory_order_acq_rel)) return rec;
                 }
                 const char* other = reinterpret_cast<const char*>(e & ((1ull << 48) - 1));
                 uint32_t n;
@@ -249,11 +249,7 @@ int main(int argc, char** argv) {
                 uint64_t h = hash(nb, len);
                 __builtin_prefetch(&slots[h & (SLOTS - 1)]);
                 Pending& half = ring[(pending + 4) % 8];
-                if (pending >= 4) {
-                    uintptr_t rec = slots[half.h & (SLOTS - 1)].load(std::memory_order_relaxed) & ((1ull << 48) - 1);
-                    __builtin_prefetch(reinterpret_cast<const char*>(rec));
-                    __builtin_prefetch(reinterpret_cast<const char*>(rec + header));  // the exact key may occupy the next cache line
-                }
+                if (pending >= 4) __builtin_prefetch(reinterpret_cast<const char*>(std::atomic_ref<uint64_t>(slots[half.h & (SLOTS - 1)]).load(std::memory_order_relaxed) & ((1ull << 48) - 1)));
                 Pending& slot = ring[pending % 8];
                 if (pending >= 8) resolve(slot);
                 slot = {nb, len, static_cast<uint32_t>(&x - g.data()), h};

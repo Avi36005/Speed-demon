@@ -1,0 +1,34 @@
+{
+  "utc": "2026-11-02T11:54:33.323853+00:00",
+  "diagnostic": true,
+  "official": false,
+  "method": "Coarse source-matched diagnostics; QEMU by default, --native on x86 hosts.",
+  "native": true,
+  "source_sha256": "f1ed726d6e8830bde2b83112919f4ddb67841cdd0cc6eeb2695bc7e5cdc46a9c",
+  "instrumented_sha256": "33954328b467b332bfa0104438b0e62ac75ca465b4414bff22bbc81b4499e38a",
+  "artifact_dir": ".work/phase-profile/b-054e2a9f43",
+  "argv": [
+    "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python",
+    "/home/runner/work/Speed-demon/Speed-demon/submission/tools/dev.py",
+    "b",
+    "--source",
+    "/home/runner/work/Speed-demon/Speed-demon/submission/.work/phase-profile/b-054e2a9f43/main.cpp",
+    "--data",
+    "/home/runner/work/Speed-demon/Speed-demon/data/track-b/full-seed1",
+    "--label",
+    "diagnostic-full-public",
+    "--workers",
+    "1",
+    "--compiler",
+    "g++"
+  ],
+  "exit": 0,
+  "stdout": "{\n  \"utc\": \"2026-11-02T11:53:53.135297+00:00\",\n  \"track\": \"b\",\n  \"dataset\": \"diagnostic-full-public\",\n  \"data\": \"/home/runner/work/Speed-demon/Speed-demon/data/track-b/full-seed1\",\n  \"architecture\": \"x86_64\",\n  \"platform\": \"Linux-7.0.0-1017-azure-x86_64-with-glibc2.39\",\n  \"source_sha256\": \"33954328b467b332bfa0104438b0e62ac75ca465b4414bff22bbc81b4499e38a\",\n  \"compiled_source\": \"/home/runner/work/Speed-demon/Speed-demon/submission/.work/phase-profile/b-054e2a9f43/main.cpp\",\n  \"working_source_sha256\": \"f1ed726d6e8830bde2b83112919f4ddb67841cdd0cc6eeb2695bc7e5cdc46a9c\",\n  \"workers\": 1,\n  \"requested_workers\": 1,\n  \"board_run_id\": null,\n  \"official\": false,\n  \"artifact_dir\": \".work/track-b/2026-11-02T11_53_53.135297_00_00-diagnostic-full-public\",\n  \"time_samples_s\": [],\n  \"memory_method\": null,\n  \"peak_rss_bytes\": null,\n  \"compiler\": \"g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\\nCopyright (C) 2023 Free Software Foundation, Inc.\\nThis is free software; see the source for copying conditions.  There is NO\\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\",\n  \"flags\": [\n    \"-std=c++20\",\n    \"-pthread\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Wpedantic\",\n    \"-mavx2\",\n    \"-mbmi2\",\n    \"-O3\",\n    \"-DNDEBUG\"\n  ],\n  \"binary_sha256\": \"fd701c86b2b710e1785e2722cfeae48e8158896c1bc3524fb86be877d6610a16\",\n  \"reference_provenance\": {\n    \"mode\": \"fresh untouched-reference execution\"\n  },\n  \"output_sha256\": \"f86973c210228141bcb6f1f1b10188ad2a9b65f71e7cd7cf4590b38de4e80927\",\n  \"expected_sha256\": \"f86973c210228141bcb6f1f1b10188ad2a9b65f71e7cd7cf4590b38de4e80927\",\n  \"correctness_passed\": true,\n  \"passed\": true\n}\n",
+  "stderr": "",
+  "cached_runtime_proof": ".work/track-b/2026-11-02T11_53_53.135297_00_00-diagnostic-full-public",
+  "correctness_passed": true,
+  "phase_stderr": [
+    "PHASE map_and_query_vocabulary 0.007022184\nPHASE cuts_sample_and_dense_choice 0.011079098\nPHASE phrase_plan 0.002061688\nPHASE scan_and_inline_phrases 0.589136158\nPHASE block_metadata 0.004218279\nPHASE bool_evaluation 0.165540428\nPHASE phrase_merge_and_serialize 0.008074940\n"
+  ],
+  "environment": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39"
+}

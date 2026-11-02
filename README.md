@@ -17,11 +17,11 @@
 
 ---
 
-> **All-four optimization trial prepared.** Prior verified source remains preserved.
-> Historical best-three overall: **73.343**. Target: **90**, still unmet.
-> A compact allocation and C name-local membership gained; the B6 trial was rejected.
-> New A/B/C/D candidates pass fresh-seed and offline-image checks; native scoring is next.
-> See [STATUS.md](STATUS.md) and [the trial manifest](benchmarks/four-track-portfolio-trial.json).
+> **Verified four-track checkpoint `7b28c32`:** all native board gates and sanitizer CI pass.
+> A **80.232** · B **66.339** · C **73.792** · D **58.982**. Historical best-three **73.429**.
+> Target **90** remains unmet. All four clean committed images pass an unused full seed five times.
+> C's regressing tweak is being restored; further measured refinements are recorded separately.
+> See [STATUS.md](STATUS.md) for actual source, pending trials and exact run IDs.
 
 ## The entry
 
@@ -81,8 +81,8 @@ remain noisy. New A/B experiments are recorded separately until scored.
 
 Evidence is keyed by actual source/build/input hashes and worker options.
 Historical manifests certify their recorded source, rather than every later
-rewrite. The new all-four trial is pinned in
-[its manifest](benchmarks/four-track-portfolio-trial.json). Native scoring will determine selection.
+rewrite. The new refinement trial is pinned in
+[its manifest](benchmarks/portfolio-refine-trial.json). Native scoring will determine selection.
 
 | Check | Current evidence |
 | :--- | :--- |

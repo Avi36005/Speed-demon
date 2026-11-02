@@ -29,3 +29,9 @@ An unused full seed20261102 is preparing reference bytes, not checking the
 entrant yet. Final selected committed-archive images must pass those inputs.
 Stop broad rewrites18:30IST; final verification until freeze20:30IST. MIT source
 public deadline21:30IST still needs applicable authorization. No old ZIP is current.
+
+Current update:7b28c32 passed native CI41439655126 on all four sources and
+clean committed images passed unused full seed20261102 five times each/public1.
+A80.232397 and D58.982220 are retained; C73.791859 tweak is being restored to
+its stronger binary. New B/C/D source proof and pending state are pinned in
+benchmarks/portfolio-refine-trial.json; native effects remain unknown.

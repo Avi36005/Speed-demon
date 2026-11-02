@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Coarse source-matched phase diagnostics through QEMU; not Intel timing."""
+"""Coarse source-matched diagnostics; QEMU by default, --native on x86 hosts."""
 import datetime
 import hashlib
 import json
 from pathlib import Path
+import platform
 import subprocess
 import sys
 import uuid
 
 SUB = Path(__file__).resolve().parents[1]
 track = sys.argv[1]
-assert track in 'bc'
+assert track in 'abc'
 source = SUB / f'track-{track}/main.cpp'
 original = source.read_text()
 text = '#include <chrono>\n' + original
@@ -29,7 +30,13 @@ def lap(label):
 
 replace('    // The scoring box', '    using Clock = std::chrono::steady_clock;\n'
         '    auto mark=Clock::now();\n    // The scoring box')
-if track == 'b':
+if track == 'a':
+    replace('            if (stage == 0) {', '            if (stage == 0) {\n' + lap('parse_and_record'))
+    replace('            } else if (stage == 2) {',
+            '            } else if (stage == 1) {\n' + lap('group_and_exact_select') +
+            '            } else if (stage == 2) {\n' + lap('parallel_record_release'))
+    replace('        if (failed) throw', lap('output_and_join') + '        if (failed) throw')
+elif track == 'b':
     replace('        const size_t V = vocab.keys.size();', lap('map_and_query_vocabulary') +
             '        const size_t V = vocab.keys.size();')
     replace('        // Phrases are matched during the scan,', lap('cuts_sample_and_dense_choice') +
@@ -53,31 +60,43 @@ elif track == 'c':
     replace('        run([&](size_t w) {\n            auto& g', lap('cuts_and_allocations') +
             '        run([&](size_t w) {\n            auto& g')
     replace('        run([&](size_t w) { drop(', lap('parse_intern_aggregate') + '        run([&](size_t w) { drop(')
-    replace('        std::vector<uint64_t> distinct(G);', lap('parallel_input_drop') +
-            '        std::vector<uint64_t> distinct(G);')
+    after_drop = ('        std::vector<uint64_t> distinct(G);' if '        std::vector<uint64_t> distinct(G);' in text
+                  else '        std::string out;')
+    replace(after_drop, lap('parallel_input_drop') + after_drop)
     replace('        FILE* f = fopen(', lap('merge_popcount_serialize') + '        FILE* f = fopen(')
 
 work = SUB / '.work/phase-profile' / (track + '-' + uuid.uuid4().hex[:10])
 work.mkdir(parents=True)
 candidate = work / 'main.cpp'
 candidate.write_text(text)
-expected = json.loads((SUB.parent / 'docs/SHA256SUMS.json').read_text())['tracks'][track]['expected_output_sha256'][0]
-cmd = [sys.executable, str(SUB / 'tools/cached_runtime.py'), track, '--qemu', '--source', str(candidate),
-       '--data', str(SUB.parent / f'data/track-{track}/full-seed1'), '--expected', expected,
-       '--workers', sys.argv[2] if len(sys.argv) > 2 else '12', '--runtime-timeout', '180',
-       '--cxx-flag=-mavx2', '--cxx-flag=-mbmi2']
+native = '--native' in sys.argv
+workers = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2].isdigit() else '12'
+if native:
+    assert platform.machine() in ('x86_64', 'AMD64')
+    cmd = [sys.executable, str(SUB / 'tools/dev.py'), track, '--source', str(candidate),
+           '--data', str(SUB.parent / f'data/track-{track}/full-seed1'),
+           '--label', 'diagnostic-full-public', '--workers', workers, '--compiler', 'g++']
+else:
+    expected = json.loads((SUB.parent / 'docs/SHA256SUMS.json').read_text())['tracks'][track]['expected_output_sha256'][0]
+    cmd = [sys.executable, str(SUB / 'tools/cached_runtime.py'), track, '--qemu', '--source', str(candidate),
+           '--data', str(SUB.parent / f'data/track-{track}/full-seed1'), '--expected', expected,
+           '--workers', workers, '--runtime-timeout', '180', '--cxx-flag=-mavx2']
+    if track in 'bc':
+        cmd += ['--cxx-flag=-mbmi2']
 result = subprocess.run(cmd, capture_output=True, text=True)
 record = {'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'diagnostic': True,
-          'official': False, 'method': __doc__, 'source_sha256': hashlib.sha256(original.encode()).hexdigest(),
+          'official': False, 'method': __doc__, 'native': native, 'source_sha256': hashlib.sha256(original.encode()).hexdigest(),
           'instrumented_sha256': hashlib.sha256(text.encode()).hexdigest(), 'artifact_dir': str(work.relative_to(SUB)),
           'argv': cmd, 'exit': result.returncode, 'stdout': result.stdout, 'stderr': result.stderr}
-matches = [json.loads(line) for line in (SUB / f'benchmarks/track-{track}/cached-runtime.jsonl').read_text().splitlines()
+log = 'experiments.jsonl' if native else 'cached-runtime.jsonl'
+matches = [json.loads(line) for line in (SUB / f'benchmarks/track-{track}/{log}').read_text().splitlines()
            if json.loads(line)['source_sha256'] == record['instrumented_sha256']]
 if matches:
     proof = matches[-1]
     record['cached_runtime_proof'] = proof['artifact_dir']
     record['correctness_passed'] = proof.get('passed', False)
     record['phase_stderr'] = [c['stderr'] for c in proof['commands'] if 'PHASE ' in c['stderr']]
+    record['environment'] = proof.get('environment', proof.get('platform'))
 (work / 'record.json').write_text(json.dumps(record, indent=2) + '\n')
 with (SUB / f'benchmarks/track-{track}/profiles.jsonl').open('a') as f:
     f.write(json.dumps(record) + '\n')

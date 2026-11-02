@@ -6,39 +6,33 @@ may pass `--data DIR --out DIR --workers N` (default: the CPUs in the affinity m
 
 ## How it works
 
-1. **Block hour summary (pass one).** The file is split at 16 KiB block
-   boundaries, one range per worker. Each worker walks its lines (a newline
-   search starting 39 bytes in, since lines are at least 40 bytes) and records,
-   for every block, the set of hours that start a line there and the offset of
-   the block's first line. Ranges start on block boundaries, so no block is
-   shared between workers.
-2. **One hour at a time (pass two).** Workers claim hours in order. For hour
-   `h` a worker reads only the blocks whose summary contains `h` (3% more lines
-   than the hour itself at seed 1) and skips other hours' lines. For each line
-   of `h` it finds the method end with a word test, the endpoint end with two
-   AVX2 compares, and parses the latency with SWAR arithmetic.
-3. **Exact endpoints.** Each worker keeps an open-addressing table keyed by a
-   hash of the endpoint's first 16 and last 8 bytes. A hit is confirmed by an
-   exact byte comparison against a zero-padded 64-byte copy, and the tail of
-   longer endpoints is compared against the input itself. Endpoints are never
-   normalised; the 1,842-endpoint catalogue is discovered, not compiled in.
-4. **Exact percentiles.** The hour's `(endpoint, latency)` rows are
-   counting-sorted in place by endpoint (endpoints ordered by exact bytes, so
-   prefixes sort first), and the three nearest ranks `(p*n + 99) / 100` are
-   selected with a branch-free Lomuto quickselect. Each rank search reuses the
-   right partition of the previous one.
-5. **Ordered output.** Each finished hour is formatted with a two-digit lookup
-   table. Whoever finishes an hour writes every consecutive finished hour, so
-   workers never wait on each other to write.
+1. **One parse.** Workers claim complete-line pieces. AVX2 LF masks identify
+   line ends; fixed timestamp fields select the hour. Parsing from both ends
+   finds the exact endpoint, error flag and SWAR-decoded latency.
+2. **Compact records.** Each worker stores a 32-bit endpoint/error/latency
+   record in private per-hour chunks. Values outside the 19-bit latency field
+   use a following full-width escape, preserving every uint32 latency.
+3. **Exact endpoints.** One shared table hashes the first 16 and last 8 bytes.
+   A published entry owns its key and full tail; a fingerprint only rejects
+   probes. Exact byte comparisons decide equality, including long paths,
+   prefixes and case differences. The catalogue is discovered from the input.
+4. **Exact percentiles.** Workers claim hours, count and scatter records by
+   endpoint, and select nearest ranks `(p*n + 99) / 100`. Branch-free Lomuto
+   partitions reuse the right partition after each selected rank. Counts,
+   errors and compact percentile results determine each output slice's size.
+5. **Ordered output.** One persistent worker team coordinates through barriers.
+   Records are released before output pages are allocated. Exact byte offsets
+   let workers format independent hours directly into the mapped output,
+   using a two-digit table. Hour order and unsigned endpoint order are fixed.
 
 Errors are statuses 500–599 (499 is not), counts and ppm use 64-bit
 arithmetic, duplicate lines count twice, and an empty input gives an empty file.
 
 ## Memory
 
-Only one hour's rows (at most 73k at seed 1) are held per worker, plus a small
-endpoint table. There is no global latency array. The 10 MB output is the
-largest single allocation, and it is charged to the run either way because
-the board's `/out` is tmpfs.
+The parse retains compact per-hour records and one shared endpoint table.
+Each selecting worker reuses an hour-sized latency buffer. Those records are
+released before the roughly 10 MB public output is formatted; `/out` is tmpfs
+on the board, so its pages count toward the official peak too.
 
 See [PERF.md](PERF.md) for measurements.

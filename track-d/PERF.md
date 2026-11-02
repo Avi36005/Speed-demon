@@ -134,3 +134,9 @@ The owner-range fill was faster locally but slower on the board in two runs
 (0.608 s and 0.580 s against 0.471 s), so `e05f716` restores the atomic fill.
 Plain unidirectional Dijkstra was measured at 2.4× the bidirectional query time
 and was not used. D is still unregistered on the board.
+
+### Registration refresh
+
+D is registered and passing in current2026-11-02 receipts (including ccc259f/
+run-aa2034569555). Earlier unregistered statements describe historical snapshots.
+No D runtime change during these B/C trials; its timing fluctuations are variation.

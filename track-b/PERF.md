@@ -334,3 +334,22 @@ T0.311542s/M46,931,968B/S775/66.167402. QEMU screening did not predict a
 native gain; source increased too. Reject and restore42317bd B exactly. This is
 a measured regression, not an improvement. Source-identical other-track changes
 are board variation.
+
+## Exact sample hot256 cache rejected locally
+
+Source9bd7a250bafec0d853d5afdcae637ffac5095d42945e1ff7e902a5a5f9bba330;
+UBSan+bounds all fixtures12 pass, five full1 paired hashes pass. QEMU means
+2.193313 ->2.394439s, local cgroup315,768,832 ->316,215,296B includes emulator.
+Extra compare on all tokens outweighs dependent-load savings in this screen;
+unselected, no native score claimed. Stop this cache line.
+
+## Guaranteed-empty prefix simplification — native trial
+
+Propagate a sound empty-set bound through strict LTR operators: AND is empty
+when either operand is empty; OR is empty only when both are; NOT preserves
+a proven-empty left operand. A nonempty OR term discards that proven-empty
+prefix. This safely skips otherwise expensive mixed queries in absent phases.
+Expanded independent OR-revival fixture agrees with frozen oracle; UBSan/bounds
+fixtures1/12, full7 at1/12, five paired full1 hashes and exact offline image
+five full1/one full7 pass. QEMU means1.914635 ->1.836980s are screening only.
+S782/D1; native result pending. Ledger benchmarks/prefix-and-inline-bits-trial.json.

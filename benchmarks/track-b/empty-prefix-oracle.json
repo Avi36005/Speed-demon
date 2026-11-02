@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.13/bin/python3.13",
+    "../official/speed-demon-2026/reference/b_index.py",
+    "--data",
+    ".work/fixtures/b/rare-and-anchor",
+    "--out",
+    ".work/b-empty-prefix-reference"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "expected_sha256": "266cebc7d99af614d1fb90fda24c56ad179a6d5222f729db2fcfa4214d459c53",
+  "reference_sha256": "02d7148fa38ed1968b1177147e91a4e1c2151b65c6f709f30a546e5205e6b1ad"
+}

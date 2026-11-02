@@ -10,11 +10,11 @@ dependencies. Reads `/data/records.csv` and `/data/regions.csv`, writes
    ascend, so the table is sized from the last line. Unknown or out-of-range
    ids go to `_UNMATCHED`. Countries are printed in code order, with
    `_UNMATCHED` last.
-2. **Exact parallel record boundaries.** A byte is inside a quoted field
-   exactly when an odd number of `"` precede it, because `""` pairs and field
-   delimiters both contribute evenly. Workers count quotes in parallel. From
-   the prefix parity, each chunk start scans to its first LF outside quotes,
-   so embedded LFs, commas and quotes never cause a misplaced split.
+2. **Exact parallel record boundaries.** The frozen record grammar makes an
+   LF followed by an ID digit, after an optional BOM, a record boundary:
+   names contain no LF, and an embedded note LF is followed by a lowercase
+   word or quote. Pieces use this rule and are claimed dynamically. The parser
+   still treats embedded LFs and commas inside quoted fields as data.
 3. **Parsing.** Each record skips an optional BOM at its start, parses `id`,
    `region_id` and the amount's integer part with SWAR digit arithmetic, and
    scans quoted fields for `"` with AVX2, counting `""` pairs. Amounts are
@@ -23,12 +23,14 @@ dependencies. Reads `/data/records.csv` and `/data/regions.csv`, writes
    when their raw quoted bytes are equal, because unescaping is injective. An
    empty unquoted name and `""` are both empty. Names are interned by their
    raw bytes in one shared lock-free table: a slot holds a 16-bit tag and a
-   pointer to an arena record `{id, length, bytes}`, published with a
-   release/acquire CAS. Lookups are pipelined (hash and prefetch eight
-   records ahead), and each `(group, name)` bit is set in an atomic per-group
-   bitset after its word has been prefetched.
+   pointer to an arena record `{length, country bits, bytes}`, published with
+   a release/acquire CAS. Full bytes decide equality even when hashes collide.
+   Lookups are pipelined with prefetches. Each name's country words are aligned
+   atomics, constructed before publication and retained until workers finish.
+   Atomic first-set detection credits exactly one worker-local distinct count
+   for each `(country, exact name)` pair, regardless of concurrent encounters.
 5. **Aggregates.** Each worker keeps private per-group sums, min and max, and
    byte totals (raw length minus `""` pairs). These are combined at the end;
-   `names_distinct` is the popcount of each group's bitset.
+   distinct-name counts add because each pair was credited to exactly one worker.
 
 See [PERF.md](PERF.md) for measurements.

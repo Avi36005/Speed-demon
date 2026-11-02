@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.13/bin/python3.13",
+    "../official/speed-demon-2026/reference/c_join.py",
+    "--data",
+    ".work/fixtures/c/country-bit-boundaries",
+    "--out",
+    ".work/c-country-reference"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "expected_sha256": "5e470e6c4aad64c0da8f8e705358fb44b84feb7fd4c9c6428dadb1199fed4194",
+  "reference_sha256": "caef796f05b971037bb6b70989dcdb2cb600698bd4d261195a8a7aa260617577"
+}

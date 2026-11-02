@@ -1,0 +1,53 @@
+name: Native correctness
+
+on:
+  workflow_dispatch:
+    inputs:
+      tracks:
+        description: Tracks to verify
+        type: choice
+        options: [bc, abcd]
+        default: bc
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-correctness
+  cancel-in-progress: false
+
+jobs:
+  differential:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SD_CXX: g++
+      ASAN_OPTIONS: detect_leaks=0
+      UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+      PYTHONDONTWRITEBYTECODE: '1'
+      TRACKS: ${{ inputs.tracks }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          path: submission
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - name: Fetch frozen official oracle
+        run: |
+          git init official/speed-demon-2026
+          git -C official/speed-demon-2026 remote add origin https://github.com/hackathon-raptors/speed-demon-2026.git
+          git -C official/speed-demon-2026 fetch --depth=1 origin 158894dcefde61f459c0adfae841900458dbeb7f
+          git -C official/speed-demon-2026 checkout --detach FETCH_HEAD
+      - name: Native fixtures, sanitizers and fresh sample
+        working-directory: submission
+        run: python tools/native_ci.py
+      - name: Preserve native evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-correctness-${{ github.sha }}
+          path: submission/.work/ci-evidence
+          if-no-files-found: error
+          retention-days: 7

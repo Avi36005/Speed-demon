@@ -17,11 +17,11 @@
 
 ---
 
-> **Verified checkpoint `463de7b`:** all four registered tracks pass the board.
-> Latest assembled-head score: **72.804**. Historical best-three score: **72.996**.
-> Target: **90 live overall machine points**. A new exact B query optimization
-> has passed local screening and is awaiting its native scoring trial.
-> See [STATUS.md](STATUS.md) for current source and proof.
+> **Latest native trial `ccc259f`:** all four registered tracks pass the board.
+> Trial assembled-head score: **72.088**. Historical best-three: **73.012**.
+> Target: **90 live overall machine points**, still unmet. The regressing trial
+> was rejected. New B/C candidates passed local verification and await native runs.
+> See [STATUS.md](STATUS.md) for current source, selected candidates and proof.
 
 ## The entry
 
@@ -49,13 +49,13 @@ Endpoint equality and nearest-rank percentiles remain exact.
 
 **C — exact parallel CSV.** Record starts follow the frozen grammar. Raw
 canonical name bytes are interned in an exact shared table with prefetched
-lookups; per-country atomic bitsets count distinct names. Numeric aggregates
+lookups; country bits beside each name credit exact first-set counts. Numeric aggregates
 are private, use64-bit arithmetic and integer cents, and merge exactly.
 
 **B — one scan, bounded indexes.** AVX2 tokenization feeds inline exact phrase
 checks and ten phased sparse-run/bitmap indexes. Boolean operations preserve
-strict LTR order. For expressions with no OR, a rare positive AND operand can
-anchor membership tests without materializing a much larger first set.
+strict LTR order. Per-phase frequencies eliminate guaranteed-empty prefixes
+and preserve exact OR revival, reducing unnecessary query work.
 
 **D — exact directed graph search.** Parallel forward/reverse CSR construction
 feeds bidirectional Dijkstra. Compact32-bit distances have an exact64-bit side
@@ -63,34 +63,35 @@ map, and only a valid frontier bound terminates a search.
 
 ## Official live-board measurements
 
-| Track | Machine points | Time | cgroup peak | Real run at `463de7b` |
+| Track | Machine points | Time | cgroup peak | Real run at `ccc259f` |
 | :--- | ---: | ---: | ---: | :--- |
-| A | 79.864346 | 0.027029 s | 24,428,544 B | `run-b6aeae4ae6b5` |
-| B | 66.167402 | 0.311542 s | 46,931,968 B | `run-6b5417c586c5` |
-| C | 73.025777 | 0.045172 s | 13,053,952 B | `run-723ade7b4bf4` |
-| D | 53.879383 | 0.485033 s | 272,519,168 B | `run-9076dddcddde` |
+| A | 79.856533 | 0.026894 s | 24,780,800 B | `run-af057be8bbd9` |
+| B | 65.461918 | 0.333285 s | 46,641,152 B | `run-aba2bc28e2a3` |
+| C | 71.662257 | 0.049922 s | 12,931,072 B | `run-b603168892dc` |
+| D | 52.201648 | 0.566995 s | 271,425,536 B | `run-aa2034569555` |
 
-All four tracks are registered. The overall selects the best three; D is
-currently fourth. These are single public-data runs, with visible timing
-variation. Final hidden-seed measurements and judging are separate.
-[Immutable receipt](benchmarks/board/2026-11-02T064445.120607Z.json) ·
+All four tracks are registered. Overall selects the best three. These are
+single public-data runs; final holdout scoring and judging remain separate.
+This C record-lookahead trial regressed and was rejected; its exact result is
+retained instead of being presented as an improvement.
+[Immutable receipt](benchmarks/board/2026-11-02T080605.562657Z.json) ·
 [Kryptonite on the board](https://speeddemon.dev/board/#kryptonite-96429f)
 
 ## Verification
 
 Evidence is keyed by actual source/build/input hashes and worker options.
 Historical manifests certify their recorded source, rather than every later
-rewrite. The new B trial is pinned in
-[its manifest](benchmarks/sparse-and-anchor-trial.json).
+rewrite. The new B/C trial is pinned in
+[the B/C trial manifest](benchmarks/prefix-and-inline-bits-trial.json).
 
 | Check | Current evidence |
 | :--- | :--- |
-| **Native board** | All four tracks passed build, public-full correctness, timeout and sandbox gates at463de7b. |
+| **Native board** | All four tracks passed build, public-full correctness, timeout and sandbox gates at ccc259f. |
 | **Native development checks** | Matching parent-source x86 fixture, ASan/UBSan, generated-sample and worker checks are retained in per-track logs. |
 | **Independent full input** | Current A/C/D and proposed B match the untouched full-seed7 oracle; B also passes workers1/12. |
-| **Changed B semantics** | All fixtures pass UBSan with halt-on-error and C++ bounds assertions, including independent rare-AND, NOT and OR-revival cases. |
-| **Deterministic B output** | Five paired public-full executions and five exact-image sandbox runs retain the published output hash. |
-| **Clean B packaging** | Offline/no-cache amd64 build, runtime-library inspection, uid65534, read-only root/data, no network, exact output and empty filesystem diffs; fresh full7 also passes. |
+| **Changed B/C paths** | All fixtures pass UBSan with halt-on-error and C++ bounds assertions, including independent OR revival and concurrent country-word boundary cases. |
+| **Deterministic B/C output** | Five paired public-full executions and five exact-image sandbox runs retain the published output hash. |
+| **Clean B/C packaging** | Offline/no-cache amd64 build, runtime-library inspection, uid65534, read-only root/data, no network, exact output and empty filesystem diffs; fresh full7 also passes. |
 
 Current local compatibility checks use native ARM QEMU emulating x86 Haswell.
 They establish semantics and image compatibility. Their elapsed times and

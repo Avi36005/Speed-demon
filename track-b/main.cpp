@@ -512,23 +512,32 @@ int main(int argc, char** argv) {
                         for (; nsmall < 10 && nsmall < l.size(); ++nsmall) smallest[nsmall] = l[nsmall];
                     };
                     if (query.phrase) continue;  // phrases are tallied once, after the last phase
-                    // Without OR, a first or AND term absent from this phase empties the result.
-                    bool empty = terms[0] == NONE || !df[terms[0]], any_or = false;
-                    for (size_t i = 0; i + 1 < terms.size(); ++i)
-                        any_or |= ops[i] == 'O', empty |= ops[i] == 'A' && (terms[i + 1] == NONE || !df[terms[i + 1]]);
-                    if (empty && !any_or) continue;
+                    // A guaranteed-empty prefix stays empty through AND/NOT;
+                    // only a nonempty OR term revives it. A revival discards
+                    // that proven-empty prefix, preserving strict LTR semantics.
+                    bool empty = terms[0] == NONE || !df[terms[0]];
+                    size_t begin = 0;
+                    for (size_t i = 0; i + 1 < terms.size(); ++i) {
+                        bool absent = terms[i + 1] == NONE || !df[terms[i + 1]];
+                        if (ops[i] == 'A') empty |= absent;
+                        else if (ops[i] == 'O') {
+                            if (empty) begin = i + 1;
+                            empty &= absent;
+                        }
+                    }
+                    if (empty) continue;
                     {
                         // The running set is a sorted list or a bitmap (`bits`, which
                         // may still point at a term's own bitmap until first written).
                         const uint64_t* bits = nullptr;
-                        uint32_t t0 = terms[0];
+                        uint32_t t0 = terms[begin];
                         if (dense(t0)) bits = bits_of(t0);
                         else materialize(t0, list);
                         auto writable = [&] {
                             uint64_t* out = bits == own.data() ? spare.data() : own.data();
                             return out;
                         };
-                        for (size_t i = 0; i + 1 < terms.size(); ++i) {
+                        for (size_t i = begin; i + 1 < terms.size(); ++i) {
                             uint32_t t = terms[i + 1];
                             char op = ops[i];
                             if (bits && dense(t)) {

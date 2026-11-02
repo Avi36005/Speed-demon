@@ -257,3 +257,25 @@ five full1/one full7 pass. QEMU middle means0.413203 ->
 0.455003s regress; this does not model native dependency latency.
 One native board trial will decide; S418/D1. No improvement claimed.
 Proofledger benchmarks/c-record-batch16-trial.json. Native ASan unavailable locally.
+
+### Native record-lookahead trial rejected
+
+ccc259f/run-b603168892dc: all gates pass, T0.049922s/M12931072B/S418/D1/K27.117219/71.662257points.
+Prior identical-parent C at2d48af0 was.044476s/M13,066,240B/S379/73.190280.
+Both extra scan overhead and source penalty lose. Restore463 C exactly; do not
+pursue this lookahead line further. Receipt 2026-11-02T08:06:05.562657+00:00.
+
+## Name-local country membership — native trial
+
+Each immutable arena name owns its country words. Atomic fetch-or credits a
+worker-local distinct counter exactly when the old bit was clear. The global
+name-ID space and independent country-major bitsets are removed. Publication
+is release/acquire; constructed atomic words are aligned and live until workers
+join. Numeric fields and key bytes remain independent of atomic membership.
+New country indices0/63/64/127/128/191/192/239/240 fixture agrees with frozen
+oracle. UBSan/bounds fixtures1/12, forced one-hash collisions33workers, full7
+1/12, offline image five full1/one full7 pass. QEMU five-pair means1.131957 ->
+.910426s, local cgroup236,695,552 ->234,336,256B include emulator/page cache.
+Header-comment update retained an identical verified release binary. S353/D1
+versus379; native improvement unclaimed pending actual board. Full ledger:
+benchmarks/prefix-and-inline-bits-trial.json. Native ASan pending manual CI.

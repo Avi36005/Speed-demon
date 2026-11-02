@@ -77,6 +77,26 @@ def make_c():
     answer("c", label, "".join(
         f"{key} {a[0]} {a[1]} {money(a[2])} {money(a[3])} {money(a[4])} {len(a[5])} {a[6]} {a[7]}\n"
         for key, a in sorted(groups.items())))
+    # Country indices on both sides of each atomic-word boundary. Every
+    # repeated name is shared across workers and across country words.
+    codes = [chr(65 + i // 676) + chr(65 + i // 26 % 26) + chr(65 + i % 26) for i in range(240)]
+    records, groups = [b"id,name,note,region_id,amount\n"], {}
+    regions = ("region_id,country\n" + "".join(f"{i+1},{code}\n" for i, code in enumerate(codes))).encode()
+    for i in range(16384):
+        ident, region = 1000 + i, (1, 64, 65, 128, 129, 192, 193, 240, 999)[i % 9]
+        name, amount = ("", 'Ann "A"', "Shared ")[i % 3], (i % 101) - 50
+        country = codes[region - 1] if region <= 240 else "_UNMATCHED"
+        a = groups.setdefault(country, [0, 0, 0, amount, amount, set(), 0, 0])
+        a[0] += 1; a[1] += ident; a[2] += amount
+        a[3] = min(a[3], amount); a[4] = max(a[4], amount)
+        a[5].add(name); a[6] += len(name.encode())
+        field = "" if not name and i % 2 else '"' + name.replace('"', '""') + '"'
+        records.append(f'{ident},{field},"",{region},{money(amount)}\n'.encode())
+    label = "country-bit-boundaries"
+    cases[label] = (b"".join(records), regions)
+    answer("c", label, "".join(
+        f"{key} {a[0]} {a[1]} {money(a[2])} {money(a[3])} {money(a[4])} {len(a[5])} {a[6]} {a[7]}\n"
+        for key, a in sorted(groups.items())))
     # Put an escaped quote pair and a quoted LF at every vector offset.
     # Derive aggregates from values, independently of structural masks.
     records = [b"\xef\xbb\xbfid,name,note,region_id,amount\r\n"]
@@ -186,6 +206,12 @@ def make_b():
               ("BOOL wide AND rare NOT ban NOT other", rare - ban - other),
               ("BOOL missing AND rare", set()),
               ("BOOL wide AND missing OR rare", rare),
+              ("BOOL wide OR other AND missing", set()),
+              ("BOOL wide OR other AND missing OR rare", rare),
+              ("BOOL wide AND missing OR other NOT other OR rare", rare),
+              ("BOOL wide AND missing NOT ban OR other AND rare", other & rare),
+              ("BOOL wide AND missing OR missing NOT ban OR other", other),
+              ("BOOL missing OR missing", set()),
               ("BOOL missing OR rare AND other", rare & other),
               ("BOOL wide NOT ban OR other AND rare", ((wide - ban) | other) & rare)]
     values = {"wide": wide, "rare": rare, "ban": ban, "other": other}

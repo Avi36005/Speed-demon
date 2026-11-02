@@ -1,0 +1,55 @@
+{
+  "utc": "2026-11-02T08:28:07.309770+00:00",
+  "parent_commit": "ccc259f26ed733dedaa25ddaa57a35ee07ad4cf8",
+  "official_result": null,
+  "changes": {
+    "b": {
+      "source_sha256": "a8bde2979a70113b5deb64afea9867d0d4ce8e9d76235a26cdf8aea7b920610f",
+      "S": 782,
+      "D": 1,
+      "checks": [
+        ".work/cached-runtime/b-a3af0d9349",
+        ".work/cached-runtime/b-18d3ca6261",
+        ".work/cached-runtime/b-8936dd41ca",
+        ".work/cached-runtime/b-f2213b7278",
+        ".work/cached-runtime/b-2a2219b852"
+      ],
+      "images": [
+        ".work/containers/b-6b235fed29",
+        ".work/containers/b-23d861c240"
+      ],
+      "comparison": ".work/linux-compare/b-4020887bbd",
+      "comparison_source_sha256": "a8bde2979a70113b5deb64afea9867d0d4ce8e9d76235a26cdf8aea7b920610f",
+      "identical_release_binary_sha256": null,
+      "middle_mean_s": {
+        "baseline": 1.914635362,
+        "candidate": 1.8369798713333332
+      },
+      "native_effect": null
+    },
+    "c": {
+      "source_sha256": "b3d9888eba8dd86b10726344ef368866421191760680e1296e7106ebc6290226",
+      "S": 353,
+      "D": 1,
+      "checks": [
+        ".work/cached-runtime/c-e2860ed3c4",
+        ".work/cached-runtime/c-f0004010fc",
+        ".work/cached-runtime/c-6d6b82a52d",
+        ".work/cached-runtime/c-1620ca36f1"
+      ],
+      "images": [
+        ".work/containers/c-5e6194f367",
+        ".work/containers/c-4b49ae9c68"
+      ],
+      "comparison": ".work/linux-compare/c-fa1424bf31",
+      "comparison_source_sha256": "c142b8db97a2c566cc3b8276097d120372bc4e32aabb0ce03c43824ad792b4c5",
+      "identical_release_binary_sha256": "5e4c4f4f677ab4ccc3c65d4b6dda56d281b18b9df43654fe97aba7533be9c66c",
+      "middle_mean_s": {
+        "baseline": 1.1319574586666665,
+        "candidate": 0.9104264866666667
+      },
+      "native_effect": null
+    }
+  },
+  "interpretation": "Local QEMU is screening only; native complete axes decide. B prefix elimination and C name-local membership are independent. Native ASan still pending bounded manual CI."
+}

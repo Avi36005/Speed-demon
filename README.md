@@ -17,9 +17,9 @@
 
 ---
 
-> **Live-board checkpoint (`3f87fd9`, 2026-11-02):** all four tracks pass every
-> gate. Registered A/B/C score **≈70.0 overall** (A 73.4, B 65.9, C 70.8), up from
-> 57.2. The requested 92 is not reached: it is above the board's best entry on
+> **Live-board checkpoint (`0023e65`, 2026-11-02):** all four tracks pass every
+> gate. Registered A/B/C score **≈70.0 overall** (A 72.6, B 66.0, C 71.5; ≈70.7
+> from each track's best run), up from 57.2. The requested 92 is not reached: it is above the board's best entry on
 > every track. See [STATUS.md](STATUS.md) for every run and the scoring formula.
 
 ## The entry
@@ -66,10 +66,10 @@ meeting only as an upper bound.
 
 | Track | Machine points | Time | cgroup peak | Commit |
 | :--- | ---: | ---: | ---: | :--- |
-| A | 73.405801 | 0.048994 s | 29,573,120 B | `3f87fd9` |
-| B | 65.948586 | 0.245680 s | 96,985,088 B | `3f87fd9` |
-| C | 70.813991 | 0.055050 s | 13,545,472 B | `3f87fd9` |
-| D | 51.803895 | 0.580435 s | 272,244,736 B | `3f87fd9` (unregistered) |
+| A | 72.575434 | 0.053169 s | 29,184,000 B | `0023e65` |
+| B | 66.035647 | 0.245401 s | 95,227,904 B | `0023e65` |
+| C | 71.454685 | 0.053050 s | 12,742,656 B | `0023e65` |
+| D | 53.724257 | 0.496534 s | 272,211,968 B | `0023e65` (unregistered) |
 
 Single public-data runs; identical code varies by up to ~15% in time between
 runs. Final holdout scoring and judging are separate.

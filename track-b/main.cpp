@@ -256,12 +256,13 @@ int main(int argc, char** argv) {
             uint64_t h;
         };
         struct State {  // one per worker, kept across ranges and phases
-            std::vector<uint32_t> last, seq, hits, at, seen;  // seq: a document's token ids, NONE for others
+            std::vector<uint32_t> last, seq, hits, at, seen, hot;  // seq: a document's token ids, NONE for others
             std::vector<uint64_t> touched;
             std::vector<Token> pending;
             Scratch sc;
         };
         std::vector<State> states(workers);
+        std::vector<uint64_t> is_anchor(V / 64 + 1);  // phrase anchor terms, filled once the anchors are chosen
         auto scan = [&](size_t w, State& st, size_t limit, auto&& hit, auto&& whole) {
             auto& last = st.last;
             auto& sc = st.sc;
@@ -274,20 +275,25 @@ int main(int argc, char** argv) {
                 const char* nl = static_cast<const char*>(memchr(t, '\n', static_cast<size_t>(cut[w + 1] - t)));
                 hit(doc, p, NONE);
                 // Hash every token first and prefetch its slot, then resolve.
-                pending.clear();
+                // Tokens are separated, so a document holds at most len / 2 + 1.
+                size_t cap = static_cast<size_t>(nl - t) / 2 + 2, n = 0;
+                if (pending.size() < cap) pending.resize(2 * cap), seq.resize(2 * cap);
+                Token* pt = pending.data();
                 tokens(t, nl, sc, [&](const char* key, uint32_t len) {
-                    if (len > 32) return pending.push_back({key, len, 0});
-                    uint64_t h = Vocabulary::hash(key, len);
+                    uint64_t h = len > 32 ? 0 : Vocabulary::hash(key, len);
                     __builtin_prefetch(vocab.slot(h));
-                    pending.push_back({key, len, h});
+                    pt[n++] = {key, len, h};
                 });
-                seq.clear();
-                for (const Token& k : pending) {
-                    uint32_t id = k.len > 32 ? NONE : vocab.find(k.key, k.len, k.h);
-                    seq.push_back(id);
-                    if (id != NONE && last[id] != doc) last[id] = doc, hit(doc, p, id);
+                uint32_t* ids = seq.data();
+                st.hot.clear();  // positions of phrase anchors
+                for (size_t i = 0; i < n; ++i) {
+                    uint32_t id = pt[i].len > 32 ? NONE : vocab.find(pt[i].key, pt[i].len, pt[i].h);
+                    ids[i] = id;
+                    if (id == NONE) continue;
+                    if (last[id] != doc) last[id] = doc, hit(doc, p, id);
+                    if (is_anchor[id / 64] >> (id % 64) & 1) st.hot.push_back(static_cast<uint32_t>(i));
                 }
-                whole(doc, seq);
+                whole(doc, ids, n, st.hot);
                 p = nl + 1;
             }
         };
@@ -299,7 +305,7 @@ int main(int argc, char** argv) {
         threads.run(workers, [&](size_t w) {
             State own;  // the sample's "last document" marks must not leak into the scan
             scan(w * phases * 4, own, per, [&](uint32_t, const char*, uint32_t id) { id == NONE ? ++sampled[w] : ++counts[w][id]; },
-                 [](uint32_t, const std::vector<uint32_t>&) {});
+                 [](uint32_t, const uint32_t*, size_t, const std::vector<uint32_t>&) {});
         });
         std::vector<uint32_t> bitmap_of(V, NONE), df(V);
         size_t nbitmaps = 0, total = 0;
@@ -327,7 +333,6 @@ int main(int argc, char** argv) {
             ++anchor_at[t[j] + 2];
         }
         for (size_t t = 0; t < V; ++t) anchor_at[t + 2] += anchor_at[t + 1];
-        std::vector<uint64_t> is_anchor((V + 63) / 64);  // an L1-sized filter before the anchor lists
         for (size_t t = 0; t < V; ++t) if (anchor_at[t + 2] != anchor_at[t + 1]) is_anchor[t / 64] |= 1ull << (t % 64);
         anchors.resize(phrases.size());
         for (uint32_t p = 0; p < phrases.size(); ++p) anchors[anchor_at[all_terms[phrases[p]->at + offset[p]] + 1]++] = p;
@@ -390,14 +395,13 @@ int main(int argc, char** argv) {
                     if (doc - base == BLOCK) flush(), base = doc;
                 } else if (bitmap_of[id] != NONE) bitmaps[bitmap_of[id] * words + (doc - pbase) / 64] |= 1ull << (doc % 64);
                 else hits.push_back(id << 13 | (doc - base));
-            }, [&](uint32_t doc, const std::vector<uint32_t>& ids) {
-                for (size_t i = 0; i < ids.size(); ++i) {
-                    if (ids[i] == NONE || !(is_anchor[ids[i] / 64] >> (ids[i] % 64) & 1)) continue;
+            }, [&](uint32_t doc, const uint32_t* ids, size_t n, const std::vector<uint32_t>& hot) {
+                for (size_t i : hot) {
                     for (uint32_t e = anchor_at[ids[i]]; e < anchor_at[ids[i] + 1]; ++e) {
                         uint32_t ph = anchors[e], j = offset[ph], k = phrases[ph]->n;
-                        if (i < j || i - j + k > ids.size() || seen[ph] == doc) continue;
+                        if (i < j || i - j + k > n || seen[ph] == doc) continue;
                         const uint32_t* want = all_terms.data() + phrases[ph]->at;
-                        if (std::equal(want, want + k, ids.begin() + static_cast<std::ptrdiff_t>(i - j)))
+                        if (std::equal(want, want + k, ids + (i - j)))
                             seen[ph] = doc, mine.push_back(uint64_t{ph} << 32 | doc);
                     }
                 }
@@ -482,7 +486,13 @@ int main(int argc, char** argv) {
                         for (uint32_t d : l) sum += d;
                         for (; nsmall < 10 && nsmall < l.size(); ++nsmall) smallest[nsmall] = l[nsmall];
                     };
-                    if (!query.phrase) {
+                    if (query.phrase) continue;  // phrases are tallied once, after the last phase
+                    // Without OR, a first or AND term absent from this phase empties the result.
+                    bool empty = terms[0] == NONE || !df[terms[0]], any_or = false;
+                    for (size_t i = 0; i + 1 < terms.size(); ++i)
+                        any_or |= ops[i] == 'O', empty |= ops[i] == 'A' && (terms[i + 1] == NONE || !df[terms[i + 1]]);
+                    if (empty && !any_or) continue;
+                    {
                         // The running set is a sorted list or a bitmap (`bits`, which
                         // may still point at a term's own bitmap until first written).
                         const uint64_t* bits = nullptr;
@@ -554,8 +564,7 @@ int main(int argc, char** argv) {
                                 for (; x && nsmall < 10; x &= x - 1) smallest[nsmall++] = static_cast<uint32_t>(pbase + k * 64 + __builtin_ctzll(x));
                             }
                         } else report(list);
-                    } else
-                        continue;  // phrases are tallied once, after the last phase
+                    }
                     Tally& t = tally[q];
                     t.count += count, t.sum += sum;
                     for (uint32_t i = 0; i < nsmall && t.n < 10; ++i) t.smallest[t.n++] = smallest[i];

@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <atomic>
+#include <barrier>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -114,16 +115,6 @@ struct Worker {
     }
 };
 
-struct Threads {
-    std::vector<std::thread> list;
-    template <class F>
-    void run(size_t n, F f) {
-        for (size_t i = 1; i < n; ++i) list.emplace_back(f, i);
-        f(0);
-        for (auto& t : list) t.join();
-        list.clear();
-    }
-};
 
 // Quickselect with branch-free Lomuto partitions; the pivot is excluded each
 // round, so equal values still shrink the range. Small ranges use insertion sort.
@@ -217,8 +208,36 @@ int main(int argc, char** argv) {
         auto* names = new Names;
         std::vector<Worker> part(workers);
         std::atomic<size_t> claim{0};
-        Threads threads;
-        threads.run(workers, [&](size_t w) {
+        // One team of threads; the serial steps run in the barriers' completions.
+        std::vector<uint32_t> order;
+        size_t most = 0;
+        std::vector<std::vector<Group>> groups(HOURS);
+        std::vector<size_t> bytes(HOURS + 1);
+        std::atomic<uint32_t> next_hour{0}, stage{0};
+        char* text = nullptr;
+        bool failed = false;
+        std::barrier sync(static_cast<std::ptrdiff_t>(workers), [&]() noexcept {
+            if (stage == 0) {  // exact byte order of every endpoint (prefixes first)
+                const uint32_t E = std::min(names->next.load(), CAP);
+                order.resize(E);
+                for (uint32_t i = 0; i < E; ++i) order[i] = i;
+                auto name = [&](uint32_t id) { return std::string_view(names->full[id], names->lens[id]); };
+                std::sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) { return name(a) < name(b); });
+                for (uint32_t h = 0; h < HOURS; ++h) {
+                    size_t n = 0;
+                    for (auto& w : part) n += w.hours[h].size();
+                    most = std::max(most, n);
+                }
+            } else if (stage == 2) {  // hours' text sizes become offsets in the mapped output
+                for (uint32_t h = 0; h < HOURS; ++h) bytes[h + 1] += bytes[h];
+                failed = ftruncate(out, static_cast<off_t>(bytes[HOURS])) != 0;
+                if (!failed && bytes[HOURS]) text = static_cast<char*>(mmap(nullptr, bytes[HOURS], PROT_WRITE, MAP_SHARED, out, 0));
+                failed |= text == MAP_FAILED;
+                next_hour = 0;
+            }
+            ++stage;
+        });
+        auto team = [&](size_t w) {
             Worker& me = part[w];
             const __m256i lf = _mm256_set1_epi8('\n');
             const __m128i space = _mm_set1_epi8(' ');
@@ -258,23 +277,7 @@ int main(int argc, char** argv) {
                     p = e + 1;
                 }
             }
-        });
-        // Exact byte order of every endpoint (prefixes first).
-        const uint32_t E = std::min(names->next.load(), CAP);
-        std::vector<uint32_t> order(E);
-        for (uint32_t i = 0; i < E; ++i) order[i] = i;
-        auto name = [&](uint32_t id) { return std::string_view(names->full[id], names->lens[id]); };
-        std::sort(order.begin(), order.end(), [&](uint32_t a, uint32_t b) { return name(a) < name(b); });
-        size_t most = 0;
-        for (uint32_t h = 0; h < HOURS; ++h) {
-            size_t n = 0;
-            for (auto& w : part) n += w.hours[h].size();
-            most = std::max(most, n);
-        }
-        std::vector<std::vector<Group>> groups(HOURS);
-        std::vector<size_t> bytes(HOURS + 1);
-        std::atomic<uint32_t> next_hour{0};
-        threads.run(workers, [&](size_t w) {
+            sync.arrive_and_wait();
             drop(data + size * w / workers, data + size * (w + 1) / workers);
             std::vector<uint32_t> count(CAP), errors(CAP), fill(CAP);
             std::unique_ptr<uint32_t[]> values(new uint32_t[most + 1]);  // pages backed only as used
@@ -297,7 +300,7 @@ int main(int argc, char** argv) {
                         else values[fill[x >> 20]++] = x & ESC;
                     });
                 }
-                size_t text = 0;
+                size_t chars = 0;
                 auto& out_groups = groups[h];
                 for (uint32_t id : order) {
                     uint64_t n = count[id];
@@ -309,24 +312,18 @@ int main(int argc, char** argv) {
                         ranks[i] = *rank;
                     }
                     Group g{id, static_cast<uint32_t>(n), ranks[0], ranks[1], ranks[2], errors[id]};
-                    text += 21 + names->lens[id] + 7 + width(g.n) + width(g.p50) + width(g.p95) + width(g.p99) + width(g.errors) +
+                    chars += 21 + names->lens[id] + 7 + width(g.n) + width(g.p50) + width(g.p95) + width(g.p99) + width(g.errors) +
                             width(uint64_t{g.errors} * 1000000 / n);
                     out_groups.push_back(g);
                     count[id] = errors[id] = 0;
                 }
-                bytes[h + 1] = text;
+                bytes[h + 1] = chars;
             }
-        });
-        // Records are no longer needed: free them before the output's pages count.
-        threads.run(workers, [&](size_t w) {
+            sync.arrive_and_wait();
+            // Records are no longer needed: free them before the output's pages count.
             for (auto [p, n] : part[w].pools) munmap(p, n);
-        });
-        for (uint32_t h = 0; h < HOURS; ++h) bytes[h + 1] += bytes[h];
-        if (ftruncate(out, static_cast<off_t>(bytes[HOURS]))) throw std::runtime_error("ftruncate failed");
-        char* text = static_cast<char*>(mmap(nullptr, bytes[HOURS], PROT_WRITE, MAP_SHARED, out, 0));
-        if (text == MAP_FAILED) throw std::runtime_error("mmap of output failed");
-        next_hour = 0;
-        threads.run(workers, [&](size_t) {
+            sync.arrive_and_wait();
+            if (failed) return;
             for (uint32_t h; (h = next_hour.fetch_add(1)) < HOURS;) {
                 uint32_t day = (h + 18) / 24, hh = (h + 18) % 24;
                 char stamp[22] = "2026-10-30T00:00:00Z ";
@@ -348,8 +345,13 @@ int main(int argc, char** argv) {
                 }
                 std::vector<Group>().swap(groups[h]);
             }
-        });
-        munmap(text, bytes[HOURS]);
+        };
+        std::vector<std::thread> threads;
+        for (size_t w = 1; w < workers; ++w) threads.emplace_back(team, w);
+        team(0);
+        for (auto& t : threads) t.join();
+        if (failed) throw std::runtime_error("cannot write summary.txt");
+        if (text) munmap(text, bytes[HOURS]);
         return close(out) ? 1 : 0;
     } catch (const std::exception& e) {
         fprintf(stderr, "%s\n", e.what());

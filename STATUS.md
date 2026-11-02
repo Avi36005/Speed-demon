@@ -47,3 +47,17 @@ At18:30IST assemble strongest verified versions and reserve two final hours for
 unused-seed/current-archive tests, deterministic output, metadata/watch/head checks.
 Python3.13 explicit. Docker .work/docker-public-config and
 unix:///Users/avinashgehi3/.docker/run/docker.sock. No agents/goals/automations.
+
+## Final assembly after18:30IST cutoff
+
+No further broad tuning. Selected A7b/B7b/C139/D7b; runtime hashes pinned
+in benchmarks/final-assembly.json. B compact tokens lost65.980991 versus66.338782;
+restore Bf1. D query-small-pages failed to reduce native M and scored58.935795
+versus58.982220; restore D055. C atomic_ref winner retained74.197469; its release
+binary matches the old winner while slot objects have valid lifetimes. A80.241553
+at139 is source-identical variation. Latest139 overall73.237878, target90 unmet.
+Native C CI41449471565 pending; all other selected source ASan/UBSan pass in
+41439655126. All selected committed images must match saved unused-seed proof.
+Next: push final assembly, confirm exact combined-head board results, finish
+C native CI and source-matched artifact audit. MIT/private status remains; public
+visibility action still requires approval before21:30IST.

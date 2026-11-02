@@ -1,0 +1,40 @@
+{
+  "utc": "2026-11-02T13:02:11.303672+00:00",
+  "commit": "1397636dff28da73c1f1e307f857c90c282af760",
+  "archive_sha256": "caaac2b5c6d9ee21f1529f720d71c0e103d629fbe67d8e1fcb83863c523920e1",
+  "seed": 20261102,
+  "checks": {
+    "b": {
+      "source_sha256": "f64ad04b13cbcafe5ac632d0f08dfd86d275710f892689f61144b67826b5f294",
+      "tag": "kryptonite/track-b:committed-1397636",
+      "logs": [
+        ".work/b-refine-committed-unused.stdout",
+        ".work/b-refine-committed-public.stdout"
+      ],
+      "fresh_runs": 5,
+      "public_runs": 1
+    },
+    "c": {
+      "source_sha256": "7efd1e76363fcf580d114e9843b3e004dafc35b8a30d7036289a913dc303f898",
+      "tag": "kryptonite/track-c:committed-1397636",
+      "logs": [
+        ".work/c-refine-committed-unused.stdout",
+        ".work/c-refine-committed-public.stdout"
+      ],
+      "fresh_runs": 5,
+      "public_runs": 1
+    },
+    "d": {
+      "source_sha256": "24b0944181cd82a2c1d4725bca09fe1722c99bfb2ceaa39bdb5e563e9294f795",
+      "tag": "kryptonite/track-d:committed-1397636",
+      "logs": [
+        ".work/d-refine-committed-unused.stdout",
+        ".work/d-refine-committed-public.stdout"
+      ],
+      "fresh_runs": 5,
+      "public_runs": 1
+    }
+  },
+  "complete": true,
+  "unchanged_a_proof": "benchmarks/committed-release-7b28c32.json"
+}

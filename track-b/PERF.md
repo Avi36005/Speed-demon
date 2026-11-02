@@ -422,3 +422,13 @@ Receipt `benchmarks/board/2026-11-02T132724.472348Z.json`. This run is source-ma
 native sanitizer CI41439655126 and five deterministic unused full-seed
 image runs. Single live run, not final hidden-seed/judged score. Changes in
 source-identical runs are variation, not additional algorithm gains.
+
+## Late bounded build trial — native pending
+
+User requested88 minimum/90 preferred. Add only-flto -mtune=alderlake to
+pinned GCC15 release build; runtime source and required instruction set stay
+unchanged. Exact candidate offline image builds in6.973s, size
+30067361B. Public full5/full7x1/unused full20261102x5 pass with
+exact single output and empty filesystem diffs. Native sanitizer proof remains
+source-matched to unchanged code; no native timing improvement claimed yet.
+Proof artifacts in benchmarks/lto-alderlake-trial.json. Fallback8c5b801.

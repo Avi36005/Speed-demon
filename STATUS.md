@@ -37,3 +37,28 @@ Detailed final report SUBMISSION_REPORT.md; source-matched proof/manifests retai
 Python3.13; Docker isolated .work/docker-public-config and
 unix:///Users/avinashgehi3/.docker/run/docker.sock. Stop duplicate expensive tests
 unless runtime changes or a new correctness issue invalidates existing proof.
+
+## User requested further work after final verification
+
+User revised minimum to88 (90 preferred), not achieved. Public visibility was
+explicitly approved and applied; GitHub API confirms public/MIT/disabled=false.
+A transient Git403 immediately after visibility change cleared; subsequent
+git ls-remote matched8c5b801. Keep repo public.
+One bounded BUILD-ONLY experiment is running, no broad source rewrite:
+.work/build-trials/lto-alderlake contexts add-flto -mtune=alderlake to pinned
+GCC15 flags. Instruction-set requirements unchanged; all source remains verified
+8c5b801. Session49918 tests exact offline images public5/full7/unused20261102x5.
+Manifest benchmarks/lto-alderlake-trial.json. No native gain claimed. Next: if
+all pass, publish one native trial, compare full axes, keep winners per-track
+and restore others. Preserve8c5b801 as fully verified fallback. Limit time for
+final head verification before20:30IST; do not promise88 from a small flag change.
+
+## LTO trial ready for native push
+
+All four isolated images PASS public5/full7x1/unused20261102x5. Copied only
+Dockerfiles from those exact contexts. Source unchanged; native ASan proof reused
+by exact hash. Manifest pins build digests/image IDs/artifacts and fallback8c5b801.
+Next push, wait for EXACT commit native runs, keep/revert per complete T/M/S/D
+score. No empty repeated pushes. Repo now PUBLIC/MIT with explicit approval.
+Target88 minimum/90 preferred remains unmet; do not promise this flag trial will
+close15+points. Freeze20:30IST; no broad rewrites.

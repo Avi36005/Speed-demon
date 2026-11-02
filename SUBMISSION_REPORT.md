@@ -67,3 +67,8 @@ Code freeze: November2,20:30IST. Broad tuning stopped18:30IST. The repository is
 private with MIT licensing. Explicit approval to make it public has been requested;
 the saved public-source deadline is21:30IST. Do not treat private visibility as complete
 submission compliance. No old project ZIP is presented as the current verified entry.
+
+Publication update: the user approved public visibility on November2. GitHub
+confirmed public/MIT and the git transport recovered after a transient visibility
+propagation error. A final reversible build-only LTO/scheduling experiment is
+running at the user's request for88+; it is not a claimed scored improvement.

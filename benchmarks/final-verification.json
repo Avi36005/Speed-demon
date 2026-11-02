@@ -166,7 +166,8 @@
     }
   },
   "all_runtime_gates_passed": true,
-  "repo_visibility": "private",
-  "remaining_action": "Public visibility approval requested; deadline2026-11-02T16:00:00Z",
-  "measurement_scope": "Single public-data live runs. Final hidden-seed five-run and judging unknown."
+  "repo_visibility": "public",
+  "remaining_action": "Confirm final watched branch after any tested build-only trial; preserve original verified source",
+  "measurement_scope": "Single public-data live runs. Final hidden-seed five-run and judging unknown.",
+  "publication_authorized": true
 }

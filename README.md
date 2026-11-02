@@ -17,7 +17,8 @@
 
 ---
 
-> **Verified entry:** all four registered tracks pass native board gates and sanitizer checks.
+> **Verified fallback `8c5b801`:** all four tracks pass native gates and sanitizer checks.
+> A fully checked, build-only LTO/scheduling trial is awaiting native scoring; source is unchanged.
 > Observed assembled-head overall **72.997** · Historical best-three **73.431**.
 > Target **90** remains unmet. Each selected image passes an unused full seed five times.
 > [Verification report](SUBMISSION_REPORT.md) · [Source and evidence manifest](benchmarks/final-assembly.json)

@@ -1,0 +1,115 @@
+{
+  "utc": "2026-11-02T13:32:06.564604+00:00",
+  "parent_commit": "8c5b801bd99344b80c0acb9a154cefc190607d95",
+  "hypothesis": "GCC link-time optimization and Alder Lake scheduling may improve native Intel execution without changing runtime source or required instruction set",
+  "flags_added": [
+    "-flto",
+    "-mtune=alderlake"
+  ],
+  "official_result": null,
+  "tracks": {
+    "a": {
+      "context": ".work/build-trials/lto-alderlake/track-a",
+      "source_sha256": "b2470c2a995f821ac26a295fc992370278d04a1a8de430cedad3e8b713c53e61",
+      "dockerfile_sha256": "1422d29eafe2fdfe8b433f8c5e3b4676e62cb37f067820ebf8f57dc7b8c7dfa0",
+      "tag": "kryptonite/track-a:lto-alderlake",
+      "logs": [
+        ".work/a-lto-public.stdout",
+        ".work/a-lto-full7.stdout",
+        ".work/a-lto-unused.stdout"
+      ],
+      "public_runs": 5,
+      "full7_runs": 1,
+      "unused_runs": 5,
+      "passed": true,
+      "proof_artifacts": [
+        ".work/containers/a-311730b793",
+        ".work/containers/a-d3ccf880b1",
+        ".work/containers/a-0e2a696732"
+      ],
+      "image_id": "sha256:13eb84af9d8b9b0fd2a1c307592458d401e3bb84c62af963658649f99214e699",
+      "fallback_dockerfile_sha256": "fa7a3091e52e548734b736ef5cde7991ffe2746f4d7582b195c56a784525ccf4",
+      "build_s": 13.457775291986763,
+      "image_bytes": 30042859
+    },
+    "b": {
+      "context": ".work/build-trials/lto-alderlake/track-b",
+      "source_sha256": "f1ed726d6e8830bde2b83112919f4ddb67841cdd0cc6eeb2695bc7e5cdc46a9c",
+      "dockerfile_sha256": "0d037c5a014112c56fe364da68e5bbdb94a9a5584b440089c5b1f7fb2e2b5a67",
+      "tag": "kryptonite/track-b:lto-alderlake",
+      "logs": [
+        ".work/b-lto-public.stdout",
+        ".work/b-lto-full7.stdout",
+        ".work/b-lto-unused.stdout"
+      ],
+      "public_runs": 5,
+      "full7_runs": 1,
+      "unused_runs": 5,
+      "passed": true,
+      "proof_artifacts": [
+        ".work/containers/b-8a6ca41f77",
+        ".work/containers/b-a4ad6a6f30",
+        ".work/containers/b-05015dca59"
+      ],
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "fallback_dockerfile_sha256": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
+      "build_s": 6.973175292019732,
+      "image_bytes": 30067361
+    },
+    "c": {
+      "context": ".work/build-trials/lto-alderlake/track-c",
+      "source_sha256": "7efd1e76363fcf580d114e9843b3e004dafc35b8a30d7036289a913dc303f898",
+      "dockerfile_sha256": "0d037c5a014112c56fe364da68e5bbdb94a9a5584b440089c5b1f7fb2e2b5a67",
+      "tag": "kryptonite/track-c:lto-alderlake",
+      "logs": [
+        ".work/c-lto-public.stdout",
+        ".work/c-lto-full7.stdout",
+        ".work/c-lto-unused.stdout"
+      ],
+      "public_runs": 5,
+      "full7_runs": 1,
+      "unused_runs": 5,
+      "passed": true,
+      "proof_artifacts": [
+        ".work/containers/c-a989652664",
+        ".work/containers/c-b57277108f",
+        ".work/containers/c-a217491c6d"
+      ],
+      "image_id": "sha256:bfadf201e19aa072bac997e8facb02326ff6fa5f6b35923d41e2bb13a53daf15",
+      "fallback_dockerfile_sha256": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
+      "build_s": 6.05955249996623,
+      "image_bytes": 30039919
+    },
+    "d": {
+      "context": ".work/build-trials/lto-alderlake/track-d",
+      "source_sha256": "055f90aca740e30b7acf3b28092176e8e4f23b6364018b6d4d9c9cded52fd226",
+      "dockerfile_sha256": "c760d073ae6546f8620604a6f349a75f668dc380cbcafbb50e87d56d12837c1d",
+      "tag": "kryptonite/track-d:lto-alderlake",
+      "logs": [
+        ".work/d-lto-public.stdout",
+        ".work/d-lto-full7.stdout",
+        ".work/d-lto-unused.stdout"
+      ],
+      "public_runs": 5,
+      "full7_runs": 1,
+      "unused_runs": 5,
+      "passed": true,
+      "proof_artifacts": [
+        ".work/containers/d-102fa6692e",
+        ".work/containers/d-e1c166ebd9",
+        ".work/containers/d-c963e27191"
+      ],
+      "image_id": "sha256:30060337d2bb8dde3c06688a517049a29b919b3040b0e29fe0bb654463ac9de5",
+      "fallback_dockerfile_sha256": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      "build_s": 5.779855333035812,
+      "image_bytes": 30041850
+    }
+  },
+  "complete": true,
+  "time_scope": "Exact image correctness; native board decides performance. No QEMU performance claim.",
+  "prepared_utc": "2026-11-02T13:34:37.758457+00:00",
+  "target": 90,
+  "minimum_requested_target": 88,
+  "decision": "one native build-only trial; retain by actual per-track score, otherwise restore8c5b801",
+  "source_changes": false
+}

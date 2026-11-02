@@ -8,6 +8,7 @@
 #include <immintrin.h>
 #include <sched.h>
 #include <stdexcept>
+#include <span>
 #include <string>
 #include <sys/mman.h>
 #include <sys/stat.h>
@@ -118,16 +119,13 @@ struct Vocabulary {
             if ((e & ~MASK) == fp && same(keys[e & MASK], key_of(p, len))) return e & MASK;
         }
     }
-    uint32_t intern(const char* s, uint32_t len) {
-        alignas(32) char pad[96] = {};
-        char* buf = pad + 32;
-        memcpy(buf, s, len);
-        if (uint32_t id = find(buf, len); id != NONE) return id;
+    // s may be raw text: hashing and keys mask every byte past len.
+    uint32_t intern(const char* s, uint32_t len, uint64_t h) {
+        if (uint32_t id = find(s, len, h); id != NONE) return id;
         if (keys.size() >= MASK / 2) throw std::runtime_error("vocabulary too large");
-        uint64_t h = hash(buf, len);
         uint32_t i = static_cast<uint32_t>(h >> (64 - BITS));
         while (slots[i] != NONE) i = (i + 1) & MASK;
-        keys.push_back(key_of(buf, len));
+        keys.push_back(key_of(s, len));
         lens.push_back(len);
         slots[i] = (static_cast<uint32_t>(h >> 18) & ~MASK) | static_cast<uint32_t>(keys.size() - 1);
         return static_cast<uint32_t>(keys.size() - 1);
@@ -174,10 +172,11 @@ static bool phrase_in(const char* t, size_t n, const std::vector<const char*>& k
     return false;
 }
 
+// A query's terms (NONE when no vocabulary holds them) and operators live in
+// flat arrays: term i of query q is all_terms[q.at + i], its operator all_ops[q.at + i].
 struct Query {
-    bool phrase = false;
-    std::vector<uint32_t> terms;  // NONE for terms no query vocabulary holds
-    std::vector<char> ops;
+    bool phrase;
+    uint32_t at, n;
 };
 
 struct Threads {
@@ -211,23 +210,42 @@ int main(int argc, char** argv) {
         vocab.keys.reserve(qsize / 8), vocab.lens.reserve(qsize / 8);
         std::vector<Query> queries;
         queries.reserve(qsize / 16);
+        struct Raw {
+            const char* s;
+            uint32_t len;
+            uint64_t h;
+        };
+        std::vector<Raw> raw;
+        std::vector<uint32_t> all_terms;
+        std::vector<char> all_ops;
+        all_terms.reserve(qsize / 4), all_ops.reserve(qsize / 4);
+        raw.reserve(qsize / 4);
         for (const char *p = qtext, *end = qtext + qsize; p < end;) {
             const char* nl = static_cast<const char*>(memchr(p, '\n', static_cast<size_t>(end - p)));
             if (!nl) nl = end;
-            Query q;
-            q.phrase = p[0] == 'P';
+            Query q{p[0] == 'P', static_cast<uint32_t>(all_terms.size()), 0};
             const char* s = p + (q.phrase ? 8 : 5);
             const char* e = q.phrase ? nl - 1 : nl;
             for (bool term = true; s < e; term = q.phrase || !term) {
                 const char* w = s;
                 while (w < e && *w != ' ') ++w;
-                if (term) q.terms.push_back(static_cast<uint32_t>(w - s) <= 32 ? vocab.intern(s, static_cast<uint32_t>(w - s)) : NONE);
-                else q.ops.push_back(s[0]);
+                if (!term) all_ops.back() = s[0];
+                else if (++q.n, all_ops.push_back(0), w - s > 32) all_terms.push_back(NONE);
+                else {
+                    // Hash now and prefetch; intern after the whole file is read.
+                    uint64_t h = Vocabulary::hash(s, static_cast<uint32_t>(w - s));
+                    __builtin_prefetch(vocab.slot(h));
+                    all_terms.push_back(static_cast<uint32_t>(raw.size()));
+                    raw.push_back({s, static_cast<uint32_t>(w - s), h});
+                }
                 s = w + 1;
             }
-            queries.push_back(std::move(q));
+            queries.push_back(q);
             p = nl + 1;
         }
+        std::vector<uint32_t> ids(raw.size());
+        for (size_t i = 0; i < raw.size(); ++i) ids[i] = vocab.intern(raw[i].s, raw[i].len, raw[i].h);
+        for (uint32_t& t : all_terms) if (t != NONE) t = ids[t];
         const size_t V = vocab.keys.size();
 
         // Document ranges start at multiples of 64 so bitmap words are private.
@@ -417,6 +435,8 @@ int main(int argc, char** argv) {
             for (size_t qi; (qi = next.fetch_add(16)) < queries.size();)
                 for (size_t q = qi; q < std::min(qi + 16, queries.size()); ++q) {
                     const Query& query = queries[q];
+                    const std::span<const uint32_t> terms(all_terms.data() + query.at, query.n);
+                    const char* ops = all_ops.data() + query.at;  // ops[i] joins terms[i] and terms[i + 1]
                     uint64_t count = 0, sum = 0;
                     uint32_t smallest[10], nsmall = 0;
                     auto report = [&](const std::vector<uint32_t>& l) {
@@ -428,16 +448,16 @@ int main(int argc, char** argv) {
                         // The running set is a sorted list or a bitmap (`bits`, which
                         // may still point at a term's own bitmap until first written).
                         const uint64_t* bits = nullptr;
-                        uint32_t t0 = query.terms[0];
+                        uint32_t t0 = terms[0];
                         if (dense(t0)) bits = bits_of(t0);
                         else materialize(t0, list);
                         auto writable = [&] {
                             uint64_t* out = bits == own.data() ? spare.data() : own.data();
                             return out;
                         };
-                        for (size_t i = 0; i < query.ops.size(); ++i) {
-                            uint32_t t = query.terms[i + 1];
-                            char op = query.ops[i];
+                        for (size_t i = 0; i + 1 < terms.size(); ++i) {
+                            uint32_t t = terms[i + 1];
+                            char op = ops[i];
                             if (bits && dense(t)) {
                                 const uint64_t* b = bits_of(t);
                                 uint64_t* out = writable();
@@ -498,7 +518,6 @@ int main(int argc, char** argv) {
                         } else report(list);
                     } else {
                         // Candidates hold every term; the rarest term seeds them.
-                        const auto& terms = query.terms;
                         bool absent = false;
                         uint32_t seed = NONE;
                         size_t at = 0;

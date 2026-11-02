@@ -40,7 +40,7 @@ static uint32_t quotes(const char* p) {
 }
 
 // Parses the decimal digits at p (up to 8 at once); p ends on the first non-digit.
-static uint64_t digits(const char*& p) {
+[[gnu::always_inline]] static inline uint64_t digits(const char*& p) {
     uint64_t v;
     memcpy(&v, p, 8);
     uint64_t x = v ^ 0x3030303030303030ull, stop = ((x + 0x7676767676767676ull) | x) & 0x8080808080808080ull;
@@ -65,7 +65,7 @@ struct Group {
 
 // Field end for a field starting at p: the closing quote's successor for a
 // quoted field (pairs counted in `pairs`), else the next comma or terminator.
-static const char* field(const char* p, const char*& begin, const char*& end, uint32_t& pairs) {
+[[gnu::always_inline]] static inline const char* field(const char* p, const char*& begin, const char*& end, uint32_t& pairs) {
     pairs = 0;
     if (*p != '"') {
         begin = p;
@@ -210,9 +210,17 @@ int main(int argc, char** argv) {
             // Names resolve eight records late: their slots and records are prefetched.
             struct Pending { const char* s; uint32_t len, k; uint64_t h; } ring[8];
             uint32_t pending = 0;
+            // Bits are set a further eight names late, after prefetching their words.
+            size_t bitring[8], nbits = 0;
+            auto set = [&](size_t bit) {
+                if (!(abits[bit / 64].load(std::memory_order_relaxed) >> (bit % 64) & 1)) abits[bit / 64].fetch_or(1ull << (bit % 64), std::memory_order_relaxed);
+            };
             auto resolve = [&](const Pending& q) {
                 size_t bit = size_t{q.k} * IDS + intern(q.s, q.len, q.h, arena, room);
-                if (!(abits[bit / 64].load(std::memory_order_relaxed) >> (bit % 64) & 1)) abits[bit / 64].fetch_or(1ull << (bit % 64), std::memory_order_relaxed);
+                __builtin_prefetch(&abits[bit / 64], 1);
+                size_t& slot = bitring[nbits++ % 8];
+                if (nbits > 8) set(slot);
+                slot = bit;
             };
             const char* p = data + cut[w];
             const char* end = data + cut[w + 1];
@@ -252,6 +260,7 @@ int main(int argc, char** argv) {
                 ++pending;
             }
             for (uint32_t i = pending > 8 ? pending - 8 : 0; i < pending; ++i) resolve(ring[i % 8]);
+            for (size_t i = nbits > 8 ? nbits - 8 : 0; i < nbits; ++i) set(bitring[i % 8]);
         });
         std::vector<uint64_t> distinct(G);
         for (uint32_t k = 0; k < G; ++k)

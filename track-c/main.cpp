@@ -11,13 +11,14 @@
 #include <stdexcept>
 #include <string>
 #include <sys/mman.h>
+#include <sys/prctl.h>
 #include <sys/stat.h>
 #include <thread>
 #include <unistd.h>
 #include <vector>
 
-// Parallel exact CSV join. Quote parity locates every chunk's first record
-// boundary exactly. Names are compared by their raw quoted bytes (unescaping
+// Parallel exact CSV join. Piece boundaries are found from the spec's record
+// start rule. Names are compared by their raw quoted bytes (unescaping
 // is injective), interned once in a shared lock-free table, and counted per
 // group with atomic bitsets.
 constexpr uint32_t SLOTS = 1u << 18, IDS = 1u << 17, NONE = UINT16_MAX;
@@ -93,6 +94,9 @@ static void drop(const char* a, const char* b) {
 }
 
 int main(int argc, char** argv) {
+    // The scoring box backs anonymous memory with 2 MiB pages by default, which
+    // charges whole huge pages for partly used regions: use 4 KiB pages.
+    prctl(PR_SET_THP_DISABLE, 1, 0, 0, 0);
     try {
         std::string data_dir = "/data", out_dir = "/out";
         cpu_set_t cpus;
@@ -137,7 +141,6 @@ int main(int argc, char** argv) {
         // quotes precede it. Each chunk begins after its first outside LF.
         const size_t pieces = workers * 8;  // claimed in turn, for an even finish
         std::vector<size_t> cut(pieces + 1, size);
-        std::vector<uint32_t> parity(pieces + 1, 0);
         std::vector<std::thread> list;
         auto run = [&](auto f) {
             for (size_t i = 1; i < workers; ++i) list.emplace_back(f, i);
@@ -145,28 +148,15 @@ int main(int argc, char** argv) {
             for (auto& t : list) t.join();
             list.clear();
         };
-        run([&](size_t w) {
-            for (size_t c = w; c < pieces; c += workers) {
-                size_t a = size * c / pieces & ~size_t{31}, b = c + 1 == pieces ? size : size * (c + 1) / pieces & ~size_t{31};
-                uint32_t n = 0;
-                for (size_t i = a; i < b; i += 32) {
-                    uint32_t m = quotes(data + i);
-                    if (i + 32 > b) m &= (1u << (b - i)) - 1;
-                    n += static_cast<uint32_t>(__builtin_popcount(m));
-                }
-                parity[c + 1] = n & 1;
-            }
-        });
-        cut[0] = static_cast<size_t>(static_cast<const char*>(memchr(data, '\n', size)) - data) + 1;  // header has no quotes
-        uint32_t inside = 0;
+        // Piece starts: by spec 2.2 an LF inside a note is followed by a
+        // lowercase word or a quote and names never hold an LF, so an LF
+        // followed by a digit (after an optional byte order mark) ends a record.
+        cut[0] = static_cast<size_t>(static_cast<const char*>(memchr(data, '\n', size)) - data) + 1;  // header line
         for (size_t c = 1; c < pieces; ++c) {
-            size_t p = size * c / pieces & ~size_t{31};
-            uint32_t state = inside ^= parity[c];
-            for (; p < size; ++p) {
-                if (data[p] == '"') state ^= 1;
-                else if (data[p] == '\n' && !state) break;
-            }
-            cut[c] = std::max(cut[c - 1], std::min(p + 1, size));
+            size_t p = std::max(cut[c - 1], size * c / pieces);
+            auto digit = [&](size_t i) { return i < size && static_cast<unsigned char>(data[i] - '0') < 10; };
+            while (p < size && !(data[p - 1] == '\n' && (digit(p) || (!memcmp(data + p, "\xEF\xBB\xBF", 3) && digit(p + 3))))) ++p;
+            cut[c] = p;
         }
 
         // Shared name table. A slot holds a 16-bit hash tag and a pointer to an

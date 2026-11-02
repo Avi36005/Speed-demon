@@ -11,6 +11,7 @@
 #include <span>
 #include <string>
 #include <sys/mman.h>
+#include <sys/prctl.h>
 #include <sys/stat.h>
 #include <thread>
 #include <unistd.h>
@@ -155,6 +156,9 @@ static void drop(const char* a, const char* b) {
 }
 
 int main(int argc, char** argv) {
+    // The scoring box backs anonymous memory with 2 MiB pages by default, which
+    // charges whole huge pages for partly used regions: use 4 KiB pages.
+    prctl(PR_SET_THP_DISABLE, 1, 0, 0, 0);
     try {
         std::string data_dir = "/data", out_dir = "/out";
         cpu_set_t cpus;

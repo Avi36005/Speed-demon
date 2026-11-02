@@ -120,3 +120,17 @@ Run `run-848af1be5c83`: T1.229514s, cgroup M210,100,224B, S239, D1, K7.939916, m
 ### Actual board trial5c216d1 — all gates passed
 
 Run `run-ed34233348c5`: T1.116187s, cgroup M210,255,872B, S239, D1, K8.332011, machine points46.037492. Immutable receipt: benchmarks/board/2026-11-01T200313.061179Z.json. A13/B11/C9 registered overall57.177641 (geometric mean). D remains unregistered and its runtime bytes unchanged; its time change is variation, not a new algorithm. All A/B/C scored above the previous recorded best; retain these verified candidates.
+
+## 2026-11-02: parallel build and 32-bit distances
+
+| Version | Local T (4 workers) | Board T | Board M | Board points |
+|---|---:|---:|---:|---:|
+| D3 (`5c216d1`) | 2.5 s | 1.116 s | 210.3 MB | 46.04 |
+| Parallel two-pass CSR build, 12 workers (`71f59b0`) | 1.83 s | 0.504 s | 440.0 MB | 51.71 |
+| 32-bit distances + exact side map (`a8f69d1`) | 1.75 s | 0.471 s | 272.1 MB | 54.31 |
+| Owner-range fill without atomics (`35d1a42`) | 1.46 s | 0.608 s | 271.0 MB | 51.32 |
+
+The owner-range fill was faster locally but slower on the board in two runs
+(0.608 s and 0.580 s against 0.471 s), so `e05f716` restores the atomic fill.
+Plain unidirectional Dijkstra was measured at 2.4× the bidirectional query time
+and was not used. D is still unregistered on the board.

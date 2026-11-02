@@ -227,3 +227,22 @@ C9 twelve-worker high-contention fixture also passed native ARM64
 ThreadSanitizer on the exact current source, with independently derived expected
 bytes. This is race/correctness evidence, never performance evidence. Raw
 compiler/run commands: benchmarks/track-c/concurrency.jsonl.
+
+## 2026-11-02 rewrite: quote-parity chunks, raw-byte name interning
+
+Local numbers: 4-vCPU x86-64 container, GCC 13, `-O3 -mavx2`, peak memory from
+a child memory cgroup.
+
+| Version | Local T (4 workers) | Board T | Board M | Board points |
+|---|---:|---:|---:|---:|
+| C9 (`5c216d1`) | 0.40 s | 0.1705 s | 17.3 MB | 57.29 |
+| Parity chunks + lock-free intern + atomic bitsets (`b1d2ca3`) | 0.23 s | 0.0612 s | 15.9 MB | 69.12 |
+| Smaller tables, SWAR region ids (`a8f69d1`) | 0.23 s | 0.0614 s | 13.6 MB | 69.71 |
+| Bit-word prefetch, inlined parsers (`c624b2e`) | 0.22 s | 0.0544 s | 13.8 MB | 70.85 |
+
+Two bugs were found and fixed before any push: chunk cuts were initially
+clamped to a stale `cut[0]`, which silently serialized the parse; and a
+per-worker name arena was freed while other workers still compared against
+it, which over-counted distinct names. The full-hash checks caught the
+second. Prefetching both the name slot and the bitset word (eight records
+ahead) cut single-thread parse time by about 18%.

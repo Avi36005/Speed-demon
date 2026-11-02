@@ -216,3 +216,26 @@ Source/build-input hashes and exact proof references: benchmarks/round6-manifest
 ### Actual board trial5c216d1 — all gates passed
 
 Run `run-8e4a8338a92d`: T0.079049s, cgroup M63,434,752B, S254, D1, K20.728396, machine points65.828285. Immutable receipt: benchmarks/board/2026-11-01T200313.061179Z.json. A13/B11/C9 registered overall57.177641 (geometric mean). D remains unregistered and its runtime bytes unchanged; its time change is variation, not a new algorithm. All A/B/C scored above the previous recorded best; retain these verified candidates.
+
+## 2026-11-02 rewrite: per-hour exact aggregation
+
+Local numbers are from a 4-vCPU Linux x86-64 container (GCC 13, `-O3 -mavx2`),
+with peak memory taken from a child memory cgroup after a warm page cache.
+They are for comparison between versions only; the board is the measurement.
+
+| Version | Local T (4 workers) | Local peak M | Board T | Board M | Board points |
+|---|---:|---:|---:|---:|---:|
+| A13 (`5c216d1`) | 0.24 s | 58 MB | 0.0790 s | 63.4 MB | 65.83 |
+| A14 two-pass scatter, AVX2 parser (`b6fb4a7`) | 0.12 s | 25 MB* | 0.0716 s | 42.1 MB | 67.26 |
+| A14 trimmed, no O_DIRECT (`b1d2ca3`) | 0.13 s | 39 MB | 0.0603 s | 43.9 MB | 69.41 |
+| A15 per-hour blocks (`71f59b0`) | 0.10 s | 19 MB | 0.0419 s | 33.8 MB | 74.61 |
+| A15 in-place grouping (`35d1a42`) | 0.10 s | 19 MB | 0.0455 s | 29.5 MB | 74.21 |
+
+\* O_DIRECT kept the output out of the local page cache. The board's `/out`
+is tmpfs, so that saving does not exist there, and the code was removed.
+
+What mattered, in order: storing no per-line rows (two-pass, then per-hour
+processing); a branch-light AVX2 parser (about 2.6 mispredicts per line down to
+0.4); a branch-free quickselect instead of `nth_element` (5.5M mispredicts at
+full scale); a two-digit formatter; and writing finished hours without
+blocking other workers. Identical code varied 0.042–0.050 s between board runs.

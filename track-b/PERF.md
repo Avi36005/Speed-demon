@@ -269,3 +269,25 @@ ASan/UBSan; all actual x86 fixtures pass atworker1. Fresh full7 five repeats,
 current native matrix, clean offline amd64 build, five public sandbox runs and
 one full7 sandbox run pass. S574/D1 measured by unchanged official tooling.
 All digests/raw evidence: benchmarks/round7-manifest.json; no official gain yet.
+
+## 2026-11-02 rewrite: single scan, block runs, exact local phrase checks
+
+Local numbers: 4-vCPU x86-64 container, GCC 13, `-O3 -mavx2 -mbmi2`, peak
+memory from a child memory cgroup. Board numbers are single public runs.
+
+| Version | Local T (4 workers) | Board T | Board M | Board points |
+|---|---:|---:|---:|---:|
+| B11 (`5c216d1`) | 2.0 s | 0.977 s | 160.5 MB | 49.57 |
+| One scan, bitmaps + 16-bit runs (`b1d2ca3`) | 0.65 s | 0.281 s | 115.4 MB | 63.93 |
+| Token-slot prefetch, branch-free merges (`a8f69d1`) | 0.62 s | 0.284 s | 112.8 MB | 63.76 |
+| Flat query arrays (`c624b2e`) | 0.62 s | 0.248 s | 113.6 MB | 65.10 |
+| Counting-sort blocks, df from runs (`3f87fd9`) | 0.58 s | 0.246 s | 97.0 MB | 65.95 |
+
+Single-thread CPU split at `3f87fd9`: scan 1.30 s, queries 0.78 s, serial
+parsing and indexing about 30 ms. Things that helped: replacing per-candidate
+re-tokenization (7 µs per candidate, 214k candidates) with raw-text checks
+around the rarest term; one tokenizing pass instead of two; and predicting the
+dense terms from a sample, so their hits never enter the run buffers. Things
+measured and not kept: a branch-free dense/sparse hit path (no change), 4096-
+and 2048-document blocks (more runs, more memory), and a lower N/80 bitmap
+threshold (5% faster but 12% more memory, so about neutral on K).

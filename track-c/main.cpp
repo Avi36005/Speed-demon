@@ -168,16 +168,14 @@ int main(int argc, char** argv) {
         std::vector<std::vector<Group>> part(workers, std::vector<Group>(G));
         // One bit per (group, name); set at most once, so contention stays low.
         auto* abits = static_cast<std::atomic<uint64_t>*>(calloc(size_t{G} * IDS / 64, 8));
+        // Branch-free hash of the first 16 and last 8 bytes and the length;
+        // the full byte comparison in intern() keeps equality exact.
         auto hash = [](const char* s, uint32_t len) {
-            uint64_t h = 0x9E3779B97F4A7C15ull * (len + 1);
-            for (uint32_t i = 0; i < len; i += 8) {
-                uint64_t v;
-                memcpy(&v, s + i, 8);
-                if (len - i < 8) v &= (1ull << (8 * (len - i))) - 1;
-                h = (h ^ v) * 0xC2B2AE3D27D4EB4Full;
-                h ^= h >> 29;
-            }
-            return h;
+            uint64_t a, b, c;
+            memcpy(&a, s, 8), memcpy(&b, s + 8, 8), memcpy(&c, s + len - 8, 8);  // all inside the mapping
+            a = _bzhi_u64(a, 8 * len), b = len > 8 ? _bzhi_u64(b, 8 * (len - 8)) : 0, c = len > 16 ? c : 0;
+            uint64_t h = (a * 0x9E3779B97F4A7C15ull ^ b * 0xC2B2AE3D27D4EB4Full ^ c * 0x165667B19E3779F9ull ^ len) * 0xD6E8FEB86659FD93ull;
+            return h ^ (h >> 32);
         };
         auto intern = [&](const char* s, uint32_t len, uint64_t h, std::vector<std::unique_ptr<char[]>>& arena, size_t& room) -> uint32_t {
             const uint64_t tag = h >> 48 << 48;

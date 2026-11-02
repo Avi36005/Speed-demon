@@ -319,7 +319,7 @@ int main(int argc, char** argv) {
             if (n * 40 > total) bitmap_of[t] = static_cast<uint32_t>(nbitmaps++);
         }
         auto* bitmaps = static_cast<uint64_t*>(calloc(nbitmaps * words + 1, 8));
-        auto* offsets = static_cast<uint64_t*>(calloc(N + 1, 8));
+        auto* offsets = static_cast<uint32_t*>(calloc(N + 1, 4));  // docs.txt is below 4 GiB
         // Sparse hits of each 8192-document block are packed as (term << 13 |
         // local document), radix-sorted by term (stably, so documents stay
         // ascending) and kept as compact 16-bit runs.
@@ -351,7 +351,7 @@ int main(int argc, char** argv) {
             scan(w, SIZE_MAX, [&](uint32_t doc, const char* line, uint32_t id) {
                 if (id == NONE) {
                     if (doc - base == BLOCK) flush(), base = doc;
-                    offsets[doc] = static_cast<uint64_t>(line - docs);
+                    offsets[doc] = static_cast<uint32_t>(line - docs);
                 } else if (bitmap_of[id] != NONE) bitmaps[bitmap_of[id] * words + doc / 64] |= 1ull << (doc % 64);
                 else hits.push_back(id << 13 | (doc - base));
             });
@@ -374,7 +374,7 @@ int main(int argc, char** argv) {
         for (uint32_t k = 0; k < runs_of.size(); ++k)
             for (uint32_t r = 0; r < runs_of[k]->ids.size(); ++r) refs[cursor[runs_of[k]->ids[r]]++] = k << 20 | r;
         std::vector<uint32_t>().swap(cursor);
-        offsets[N] = dsize;
+        offsets[N] = static_cast<uint32_t>(dsize);
 
         // Answers are formatted into private slots and written in query order.
         std::vector<std::string> answers(queries.size());

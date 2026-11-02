@@ -11,6 +11,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <thread>
+#include <unordered_map>
 #include <unistd.h>
 #include <vector>
 
@@ -50,6 +51,23 @@ static uint32_t number(const char*& p) {
 
 struct Edge {
     uint32_t to, weight;
+};
+
+// 32-bit distances per node; the rare values from 2^32 - 2 up are kept
+// exactly in a side map, so every comparison still sees the full value.
+constexpr uint32_t BIG = UINT32_MAX - 1;
+struct Dist {
+    std::vector<uint32_t> small;
+    std::unordered_map<uint32_t, uint64_t> big;
+    explicit Dist(uint32_t n) : small(n, UINT32_MAX) {}
+    uint64_t get(uint32_t v) const {
+        uint32_t x = small[v];
+        return x < BIG ? x : x == UINT32_MAX ? INF : big.at(v);
+    }
+    void set(uint32_t v, uint64_t d) {
+        if (d < BIG) small[v] = static_cast<uint32_t>(d);
+        else small[v] = BIG, big[v] = d;
+    }
 };
 
 int main(int argc, char** argv) {
@@ -120,7 +138,7 @@ int main(int argc, char** argv) {
         std::vector<int64_t> answers(queries.size());
         std::atomic<size_t> next{0};
         run([&](size_t) {
-            std::vector<uint64_t> dist[2] = {std::vector<uint64_t>(n, INF), std::vector<uint64_t>(n, INF)};
+            Dist dist[2] = {Dist(n), Dist(n)};
             std::vector<uint32_t> touched[2];
             using Item = std::pair<uint64_t, uint32_t>;
             std::vector<Item> heap[2];
@@ -133,17 +151,18 @@ int main(int argc, char** argv) {
                     continue;
                 }
                 for (int d = 0; d < 2; ++d) {
-                    for (uint32_t u : touched[d]) dist[d][u] = INF;
+                    for (uint32_t u : touched[d]) dist[d].small[u] = UINT32_MAX;
+                    dist[d].big.clear();
                     touched[d].clear();
                     heap[d].clear();
                 }
-                dist[0][s] = 0, dist[1][t] = 0;
+                dist[0].set(s, 0), dist[1].set(t, 0);
                 touched[0].push_back(s), touched[1].push_back(t);
                 heap[0].push_back({0, s}), heap[1].push_back({0, t});
                 uint64_t best = INF;
                 for (;;) {
                     for (int d = 0; d < 2; ++d)
-                        while (!heap[d].empty() && heap[d].front().first != dist[d][heap[d].front().second])
+                        while (!heap[d].empty() && heap[d].front().first != dist[d].get(heap[d].front().second))
                             std::pop_heap(heap[d].begin(), heap[d].end(), later), heap[d].pop_back();
                     if (heap[0].empty() || heap[1].empty()) break;
                     uint64_t lf = heap[0].front().first, lb = heap[1].front().first;
@@ -153,18 +172,18 @@ int main(int argc, char** argv) {
                     auto [du, u] = heap[d].front();
                     std::pop_heap(heap[d].begin(), heap[d].end(), later), heap[d].pop_back();
                     const auto& other = dist[1 - d];
-                    if (other[u] != INF) best = std::min(best, du + other[u]);
+                    if (uint64_t o = other.get(u); o != INF) best = std::min(best, du + o);
                     const Edge* e = d ? in_edges.data() + in_off[u] : out_edges.data() + out_off[u];
                     const Edge* end = d ? in_edges.data() + in_off[u + 1] : out_edges.data() + out_off[u + 1];
                     for (; e < end; ++e) {
                         uint64_t nd = du + e->weight;  // at most (n - 1) * (2^32 - 1): no overflow
-                        uint64_t& cur = dist[d][e->to];
+                        uint64_t cur = dist[d].get(e->to);
                         if (nd < cur) {
                             if (cur == INF) touched[d].push_back(e->to);
-                            cur = nd;
+                            dist[d].set(e->to, nd);
                             heap[d].push_back({nd, e->to});
                             std::push_heap(heap[d].begin(), heap[d].end(), later);
-                            if (other[e->to] != INF) best = std::min(best, nd + other[e->to]);
+                            if (uint64_t o = other.get(e->to); o != INF) best = std::min(best, nd + o);
                         }
                     }
                 }

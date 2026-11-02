@@ -20,7 +20,7 @@
 // boundary exactly. Names are compared by their raw quoted bytes (unescaping
 // is injective), interned once in a shared lock-free table, and counted per
 // group with atomic bitsets.
-constexpr uint32_t SLOTS = 1u << 19, IDS = 1u << 17, NONE = UINT16_MAX;
+constexpr uint32_t SLOTS = 1u << 18, IDS = 1u << 17, NONE = UINT16_MAX;
 
 static const char* map_file(const std::string& path, size_t& size) {
     int fd = open(path.c_str(), O_RDONLY);
@@ -103,10 +103,14 @@ int main(int argc, char** argv) {
 
         // region_id -> group: country codes in byte order, then _UNMATCHED.
         std::vector<uint16_t> region, group(26 * 26 * 26, NONE);
+        if (rsize > 1) {  // ids ascend, so the last line holds the largest
+            const char* last = regions + rsize - 1;
+            while (last > regions && last[-1] != '\n') --last;
+            if (static_cast<unsigned char>(*last - '0') < 10) region.assign(digits(last) + 1, NONE);
+        }
         std::vector<uint32_t> codes;
         for (const char *p = static_cast<const char*>(memchr(regions, '\n', rsize)) + 1, *end = regions + rsize; p < end;) {
-            uint32_t id = 0;
-            while (*p != ',') id = id * 10 + static_cast<uint32_t>(*p++ - '0');
+            uint64_t id = digits(p);
             if (id >= region.size()) region.resize(std::max<size_t>(id + 1, region.size() * 2), NONE);
             region[id] = static_cast<uint16_t>(((p[1] - 'A') * 26 + p[2] - 'A') * 26 + p[3] - 'A');
             uint16_t& k = group[region[id]];

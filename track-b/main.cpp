@@ -108,9 +108,9 @@ struct Vocabulary {
         uint64_t lo = _bzhi_u64(load8(p), 8 * len), hi = load8(p + len - 8) & (0 - uint64_t{len > 8});
         return ((lo * 0x9E3779B97F4A7C15ull) ^ (hi * 0xC2B2AE3D27D4EB4Full) ^ len) * 0xD6E8FEB86659FD93ull;
     }
-    uint32_t find(const char* p, uint32_t len) const {
-        if (len > 32) return NONE;
-        uint64_t h = hash(p, len);
+    uint32_t find(const char* p, uint32_t len) const { return len > 32 ? NONE : find(p, len, hash(p, len)); }
+    const uint32_t* slot(uint64_t h) const { return &slots[h >> (64 - BITS)]; }
+    uint32_t find(const char* p, uint32_t len, uint64_t h) const {
         uint32_t fp = static_cast<uint32_t>(h >> 18) & ~MASK;
         for (uint32_t i = static_cast<uint32_t>(h >> (64 - BITS));; i = (i + 1) & MASK) {
             uint32_t e = slots[i];
@@ -208,7 +208,9 @@ int main(int argc, char** argv) {
         const char* docs = map_file(data_dir + "/docs.txt", dsize);
 
         Vocabulary vocab;
+        vocab.keys.reserve(qsize / 8), vocab.lens.reserve(qsize / 8);
         std::vector<Query> queries;
+        queries.reserve(qsize / 16);
         for (const char *p = qtext, *end = qtext + qsize; p < end;) {
             const char* nl = static_cast<const char*>(memchr(p, '\n', static_cast<size_t>(end - p)));
             if (!nl) nl = end;
@@ -256,15 +258,29 @@ int main(int argc, char** argv) {
         auto scan = [&](size_t w, size_t limit, auto&& hit) {
             std::vector<uint32_t> last(V, NONE);
             Scratch sc;
+            struct Token {
+                const char* key;
+                uint32_t len;
+                uint64_t h;
+            };
+            std::vector<Token> pending;
             uint32_t doc = first[w] == NONE ? 0 : first[w];
             for (const char* p = cut[w]; p < cut[w + 1] && limit; ++doc, --limit) {
                 const char* t = static_cast<const char*>(memchr(p, '\t', 12)) + 1;
                 const char* nl = static_cast<const char*>(memchr(t, '\n', static_cast<size_t>(cut[w + 1] - t)));
                 hit(doc, p, NONE);
+                // Hash every token first and prefetch its slot, then resolve.
+                pending.clear();
                 tokens(t, nl, sc, [&](const char* key, uint32_t len) {
-                    uint32_t id = vocab.find(key, len);
-                    if (id != NONE && last[id] != doc) last[id] = doc, hit(doc, p, id);
+                    if (len > 32) return;
+                    uint64_t h = Vocabulary::hash(key, len);
+                    __builtin_prefetch(vocab.slot(h));
+                    pending.push_back({key, len, h});
                 });
+                for (const Token& k : pending) {
+                    uint32_t id = vocab.find(k.key, k.len, k.h);
+                    if (id != NONE && last[id] != doc) last[id] = doc, hit(doc, p, id);
+                }
                 p = nl + 1;
             }
         };
@@ -358,13 +374,29 @@ int main(int argc, char** argv) {
         auto bits_of = [&](uint32_t t) { return bitmaps + size_t{bitmap_of[t]} * words; };
         auto test = [](const uint64_t* b, uint32_t d) { return (b[d / 64] >> (d % 64)) & 1; };
         auto materialize = [&](uint32_t t, std::vector<uint32_t>& out) {
-            out.clear();
-            if (t == NONE) return;
-            for (uint32_t k = start[t]; k < start[t + 1]; ++k) {
-                const Block& blk = *runs_of[refs[k] >> 20];
-                uint32_t r = refs[k] & ((1u << 20) - 1);
-                for (uint32_t i = r ? blk.ends[r - 1] : 0; i < blk.ends[r]; ++i) out.push_back(blk.base + blk.docs[i]);
+            out.resize(t == NONE ? 0 : df[t]);
+            uint32_t* o = out.data();
+            if (t != NONE)
+                for (uint32_t k = start[t]; k < start[t + 1]; ++k) {
+                    const Block& blk = *runs_of[refs[k] >> 20];
+                    uint32_t r = refs[k] & ((1u << 20) - 1);
+                    for (uint32_t i = r ? blk.ends[r - 1] : 0; i < blk.ends[r]; ++i) *o++ = blk.base + blk.docs[i];
+                }
+        };
+        // Branch-free merges of sorted lists: AND, OR and NOT in one loop.
+        auto merge = [](const std::vector<uint32_t>& a, const std::vector<uint32_t>& b, char op, std::vector<uint32_t>& out) {
+            out.resize(a.size() + b.size());
+            size_t i = 0, j = 0, k = 0;
+            while (i < a.size() && j < b.size()) {
+                uint32_t x = a[i], y = b[j];
+                out[k] = op == 'O' ? std::min(x, y) : x;
+                k += op == 'A' ? x == y : op == 'O' ? 1 : x < y;
+                i += x <= y;
+                j += y <= x;
             }
+            if (op != 'A') for (; i < a.size(); ++i) out[k++] = a[i];
+            if (op == 'O') for (; j < b.size(); ++j) out[k++] = b[j];
+            out.resize(k);
         };
         // Membership without materializing: find the block run, then the document.
         auto contains = [&](uint32_t t, uint32_t d) -> bool {
@@ -444,10 +476,9 @@ int main(int argc, char** argv) {
                                 list.resize(n);
                             } else {
                                 materialize(t, other);
-                                merged.clear();
-                                if (op == 'A') std::set_intersection(list.begin(), list.end(), other.begin(), other.end(), std::back_inserter(merged));
-                                else if (op == 'O') std::set_union(list.begin(), list.end(), other.begin(), other.end(), std::back_inserter(merged));
-                                else std::set_difference(list.begin(), list.end(), other.begin(), other.end(), std::back_inserter(merged));
+                                if (op == 'A') merge(list, other, 'A', merged);
+                                else if (op == 'O') merge(list, other, 'O', merged);
+                                else merge(list, other, 'N', merged);
                                 list.swap(merged);
                             }
                         }

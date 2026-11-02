@@ -463,3 +463,11 @@ S859/D1/K19.443064/64.438235points. Despite lower memory
 and faster QEMU, native execution regressed versus330 B66.571274. Restore
 previous B source exactly; this inline-query line is exhausted after two
 substantial local variants and the native trial. Do not repeat it.
+
+## Final restored source receipt —4fe9f66
+
+Runrun-55af2256e3e7: all gates pass, T0.322503s/M42356736B/
+S791/D1/K20.898397/points66.005649. Receiptbenchmarks/board/2026-11-02T141505.591838Z.json.
+This is a single source-matched native run; runtime-identical variation is
+not a new optimization. Native sanitizer and clean committed-image evidence
+are mapped in final-assembly.json. Target88/90 remains unmet.

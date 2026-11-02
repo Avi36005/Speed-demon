@@ -357,3 +357,11 @@ Fixtures UBSan/bounds12 and five paired public hashes pass. QEMU means
 0.536096->0.620532s. A is neutral; C regresses.
 No native trial justified before freeze; retain original file mapping. Source
 d3a3a53eb6df9c14117c94c6257ea67a1dd0bc8d1ec054257398bad0e60a24ad; record.work/linux-compare/c-207e03ede3.
+
+## Final restored source receipt —4fe9f66
+
+Runrun-f786a2d33c07: all gates pass, T0.042777s/M12386304B/
+S358/D1/K30.242558/points74.030926. Receiptbenchmarks/board/2026-11-02T141505.591838Z.json.
+This is a single source-matched native run; runtime-identical variation is
+not a new optimization. Native sanitizer and clean committed-image evidence
+are mapped in final-assembly.json. Target88/90 remains unmet.

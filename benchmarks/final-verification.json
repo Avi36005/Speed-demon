@@ -67,5 +67,10 @@
   "target_achieved": false,
   "minimum_requested": 88,
   "target": 90,
-  "remaining_action": "Push restored verified B and observe matching final native board run"
+  "remaining_action": "No runtime work remains; preserve this verified assembly for code freeze. Evidence-only commits may advance watched head without changing runtime/build hashes.",
+  "updated_utc": "2026-11-02T14:17:11.111626+00:00",
+  "observed_commit": "4fe9f66016d3d5d3f0a9fc1871a525e35d0c811a",
+  "observed_overall": 73.09908940762588,
+  "historical_best_overall": 73.46159943024121,
+  "board_receipt": "benchmarks/board/2026-11-02T141505.591838Z.json"
 }

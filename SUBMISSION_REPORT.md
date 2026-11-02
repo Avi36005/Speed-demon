@@ -1,87 +1,83 @@
 # Kryptonite — final verified entry
 
-**90 was not reached.** Observed assembled-head live overall: **72.996661**.
-Historical best-three overall: **73.431380**. Gap to90: **17.003339** points.
-The live overall selects the best three registered machine scores. Final hidden-seed
-measurements and judging remain unknown. No current rank or top-three result is claimed.
+**The88–90 target was not reached.** Observed restored-head live overall:
+**73.099089**. Historical best-three overall: **73.461599**. Gap to88:
+**14.900911** points. Final hidden-seed scoring and judging are unknown.
 
-## Actual assembled-head result
+## Actual source and native result
 
-Runtime commit `cda897a318b6cbe6b7d4751bc70d346fa4608480`. All four tracks registered; all five native board gates pass.
+Runtime/build inputs match `4fe9f66016d3d5d3f0a9fc1871a525e35d0c811a`. All four tracks are registered and
+all five board gates pass. Later evidence-only commits preserve those hashes.
 
-| Track | Points | T seconds | M bytes | S | D | K | Run |
+| Track | T s | M bytes | S | D | K | Points | Run |
 |---|---:|---:|---:|---:|---:|---:|---|
-| A | 80.194319 | 0.026335 | 23,875,584 | 443 | 1 | 40.168570 | `run-d94d9f16b2eb` |
-| B | 66.205260 | 0.316628 | 42,373,120 | 791 | 1 | 21.091390 | `run-36f6fa75dbfb` |
-| C | 73.261008 | 0.047442 | 11,489,280 | 355 | 1 | 29.189064 | `run-e41baccfb1c7` |
-| D | 58.844665 | 0.395828 | 133,132,288 | 273 | 1 | 15.027727 | `run-a38947ec1bda` |
+|A|0.027281|23,199,744|443|1|39.693286|79.935853|run-2e4ae48aea8e|
+|B|0.322503|42,356,736|791|1|20.898397|66.005649|run-55af2256e3e7|
+|C|0.042777|12,386,304|358|1|30.242558|74.030926|run-f786a2d33c07|
+|D|0.550116|132,751,360|273|1|12.754643|55.283415|run-782a80663d84|
 
-[Immutable receipt](benchmarks/board/2026-11-02T132724.472348Z.json) · [Exact source manifest](benchmarks/final-assembly.json)
+[Immutable receipt](benchmarks/board/2026-11-02T141505.591838Z.json) · [Source manifest](benchmarks/final-assembly.json)
+
+The board selects the best three machine scores. Historical per-track bests
+are not substituted for the measured assembled-head score. Single native runs
+show variation; no current rank or top-three result is claimed.
 
 ## Takeover comparison
 
-| Track | Takeover T / M / S / K / points (`463de7b`) | Final T / M / S / K / points (`cda897a`) |
+|Track|Takeover T / M / S / K / points (`463de7b`)|Restored T / M / S / K / points (`4fe9f66`)|
 |---|---|---|
-| A | 0.027029s / 24,428,544B / 436 / 39.562790 / 79.864346 | 0.026335s / 23,875,584B / 443 / 40.168570 / 80.194319 |
-| B | 0.311542s / 46,931,968B / 775 / 21.054650 / 66.167402 | 0.316628s / 42,373,120B / 791 / 21.091390 / 66.205260 |
-| C | 0.045172s / 13,053,952B / 379 / 28.874571 / 73.025777 | 0.047442s / 11,489,280B / 355 / 29.189064 / 73.261008 |
-| D | 0.485033s / 272,519,168B / 245 / 11.956048 / 53.879383 | 0.395828s / 133,132,288B / 273 / 15.027727 / 58.844665 |
+|A|0.027029s / 24,428,544B / 436 / 39.562790 / 79.864346|0.027281s / 23,199,744B / 443 / 39.693286 / 79.935853|
+|B|0.311542s / 46,931,968B / 775 / 21.054650 / 66.167402|0.322503s / 42,356,736B / 791 / 20.898397 / 66.005649|
+|C|0.045172s / 13,053,952B / 379 / 28.874571 / 73.025777|0.042777s / 12,386,304B / 358 / 30.242558 / 74.030926|
+|D|0.485033s / 272,519,168B / 245 / 11.956048 / 53.879383|0.550116s / 132,751,360B / 273 / 12.754643 / 55.283415|
 
-D=1 throughout; no separate Q axis is present in these native receipts. The takeover
-assembled-head overall was72.804418, compared with72.996661 here. Historical bests
-are recorded separately. These are single-run measurements with visible variation.
-
-A reduced allocation slack and avoided repeated small-group sorts. B releases dead
-query buffers and parks idle workers, preserving strict LTR query semantics. C uses
-name-local atomic membership and exact keys. D's sparse exact-distance tables cut
-private memory substantially. D remains fourth in the live portfolio. B's native
-single-worker diagnostic spent most time scanning/looking up corpus tokens; C's
-main phase remains parsing/interning/aggregation. A90 overall needs much larger
-speed gains across the selected tracks than the tested candidates delivered.
+Dependency axisD=1 throughout; these receipts expose no separateQ axis.
+Takeover assembled-head overall72.804418; restored head73.099089. D's sparse
+exact-distance tables cut memory from272MB to133MB; it reached59.454812 in a
+source-identical run but remains the fourth track. A's compact allocation and
+small-group selection and C's name-local membership were retained. B's idle-worker
+handling and dead-buffer release were retained; its later redesign was rejected.
 
 ## Verification
 
-The audit in [final-verification.json](benchmarks/final-verification.json) matches
-runtime/build hashes to the scored source and native CI artifacts. Selected A/B/D
-passed CI41439655126; selected C passed CI41449471565. This includes exact-source
-ASan/UBSan fixtures and fresh sample42 at12workers. Relevant local UBSan/bounds
-checks at1/12workers, public full and full-seed7 outputs are preserved in track logs.
+[final-verification.json](benchmarks/final-verification.json) audits current runtime,
+Dockerfile and metadata hashes against the scored source, native CI and clean images.
+Selected A/B/D native ASan/UBSan and fresh sample42: CI41439655126. Selected C:
+CI41456311760. Exact-source local UBSan/bounds and relevant1/12-worker checks,
+public full and full seed7 results are retained in per-track records.
 
-Each selected image built offline from a clean committed archive with pinned allowed
-bases, checked libraries and exact entrypoint. Five deterministic runs per image
-passed unused full seed20261102, plus public-full checks. Runs use nonroot, read-only
-root/data, no network,8GB/no swap, bounded tmp/processes, exact single output and
-empty filesystem diffs. See committed-release-7b28c32.json and committed-release-1397636.json.
+Selected clean committed images passed five deterministic runs each on unused
+full seed20261102, plus public-data checks. Proof: committed-release-7b28c32.json
+for A/B/D, committed-release-aeeee4e.json for C. The C proof is source-specific;
+its archive's rejected B is not selected. Original B also passes the added
+independent inline/phase fixture. Images build offline from pinned allowed bases
+and pass library/entrypoint checks, nonroot/read-only/no-network/8GB constraints,
+exact single outputs and empty filesystem diffs.
 
-QEMU elapsed/cgroup values include emulation and do not replace native Intel metrics.
-Native CI uses GCC13/Xeon; official entry builds use pinned GCC15. Rejected experiments,
-failures, raw samples and exact source hashes remain in PERF.md and benchmarks.
+Local QEMU time/memory includes emulation and is not official Intel evidence.
+Native CI uses GCC13/Xeon; the entry builds with pinned GCC15. Failed/rejected
+experiments and raw samples remain saved. No official specs, generators,
+references, timer or scoring accounting were changed.
+
+## Final attempts and selection
+
+The user requested continued work after the routine optimization cutoff. The
+LTO/scheduling build trial passed all checks but lost native score and was reverted.
+C's monotone bit check passed native CI and scoring and was retained. D's fused
+lookup and A/C page-table-population tests did not improve local screening.
+B's inline rare-query redesign was13% faster locally and passed native sanitizer
+CI41458042088, yet scored64.438235 versus66.571274 for the prior source. It was
+reverted. Correctness success never substitutes for a complete score improvement.
+
+Measured B CPU time remains dominated by corpus scanning/dictionary lookup, with
+Boolean work next. C remains dominated by parsing/interning/aggregation. The tested
+changes did not deliver the large gains across three tracks needed for88 overall.
 
 ## Submission state
 
-The entry is pushed to `speed-demon`; the Board App watches it, and A/B/C/D are
-registered. No ZIP upload or form resubmission is needed for code updates. Final
-evidence-only commits preserve every verified runtime/build input above.
-
-Code freeze: November2,20:30IST. Broad tuning stopped18:30IST. The repository is
-private with MIT licensing. Explicit approval to make it public has been requested;
-the saved public-source deadline is21:30IST. Do not treat private visibility as complete
-submission compliance. No old project ZIP is presented as the current verified entry.
-
-Publication update: the user approved public visibility on November2. GitHub
-confirmed public/MIT and the git transport recovered after a transient visibility
-propagation error. A final reversible build-only LTO/scheduling experiment is
-running at the user's request for88+; it is not a claimed scored improvement.
-
-Latest follow-up: the LTO2671675 trial regressed overall to72.396150 and all
-added flags were rejected. A checked monotone C-membership candidate is now
-awaiting native scoring, with original A/B/D and builds restored. Its local
-proof is benchmarks/late-hotpath-trial.json. Native ASan and score remain
-pending; the previous final verification describes the preserved fallback.
-
-Final restoration: B inline redesign passed native CI41458042088 but lost
-64.438235 points, so B330 source is restored. A/C MAP_POPULATE did not help
-and was not submitted. All runtime/build inputs exactly match330340c, with
-source-matched native sanitizers and clean committed-image unused full-seed
-proof. Publication is PUBLIC/MIT. Final restoration push/receipt is next;
-88 and90 remain unmet. Manifest final-assembly.json is authoritative.
+[Avi36005/Speed-demon](https://github.com/Avi36005/Speed-demon) is PUBLIC under MIT,
+explicitly approved by the user and verified through GitHub. The Board App watches
+`speed-demon`; A/B/C/D are registered. Code updates need pushes, not ZIP uploads or
+another team-form response. Code freeze is November2,20:30IST; public-source
+publication was completed before the saved21:30IST deadline. No historical project
+ZIP is represented as a current verified submission. No runtime checks remain pending.

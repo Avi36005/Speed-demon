@@ -204,3 +204,11 @@ probe. UBSan/bounds fixtures1/12, full7, offline image public5 and unused full
 ->2.336830s. Decision:
 rejected locally: 11.7% slower despite fewer logical probes. Native gain unclaimed. S278/D1.
 Proof benchmarks/late-hotpath-trial.json; original source preserved8c5b801.
+
+## Final restored source receipt —4fe9f66
+
+Runrun-782a80663d84: all gates pass, T0.550116s/M132751360B/
+S273/D1/K12.754643/points55.283415. Receiptbenchmarks/board/2026-11-02T141505.591838Z.json.
+This is a single source-matched native run; runtime-identical variation is
+not a new optimization. Native sanitizer and clean committed-image evidence
+are mapped in final-assembly.json. Target88/90 remains unmet.

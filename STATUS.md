@@ -1,38 +1,39 @@
-# Kryptonite — final verified source restoration
+# Kryptonite — verified release checkpoint
 
-Updated 2026-11-02T14:11:32.239997+00:00.88 minimum/90 preferred NOT achieved.
-Freeze15:00UTC/20:30IST. No further structural experiments. Repo PUBLIC/MIT,
-authorized and verified. Official speed-demon branch; A/B/C/D all registered.
+Updated 2026-11-02T14:17:11.111626+00:00. Target88 minimum/90 preferred NOT achieved.
+Observed source4fe9f66 overall73.099089; historical best-three73.461599.
+Freeze15:00UTC/20:30IST. All four registered, watcher matches4fe and no queue
+in benchmarks/board/2026-11-02T141505.591838Z.json. Every native gate passes. Repo PUBLIC/MIT, explicitly authorized.
 
-## Current source / next push
+| Track | T s | M bytes | S | D | K | Points | Run |
+|---|---:|---:|---:|---:|---:|---:|---|
+|A|0.027281|23,199,744|443|1|39.693286|79.935853|run-2e4ae48aea8e|
+|B|0.322503|42,356,736|791|1|20.898397|66.005649|run-55af2256e3e7|
+|C|0.042777|12,386,304|358|1|30.242558|74.030926|run-f786a2d33c07|
+|D|0.550116|132,751,360|273|1|12.754643|55.283415|run-782a80663d84|
 
-All runtime/build inputs now EXACTLY match correct330340c. Restore B from330
-because inline trialaeeee4e scored64.438235 vs66.571274. A/D source7b unchanged;
-C330 monotone membership retained. final-assembly.json pins exact source/build
-hashes and per-track proof. Next commit/push restoration, then wait for exact
-watched-head native run, record actual final scores and leave tree clean.
+## Final selected runtime
 
-## All selected verification complete
+All runtime/build inputs exactly match correct330340c and scored4fe9f66.
+A/B/D source7b; C330 monotone membership. Original Docker flags restored.
+Manifest final-assembly.json and final-verification.json audit exact hashes.
+Native A/B/D ASan/UBSan CI41439655126; C CI41456311760 all PASS.
+Selected clean committed images pass unused full20261102x5/public1, with
+source-matched proof paths per track. No runtime/build check remains pending.
+Documentation/evidence-only commits may advance branch; source hashes unchanged.
 
-Native A/B/D CI41439655126; selected C CI41456311760 PASSED, exact hashes.
-All selected clean committed images pass unused full20261102 FIVE times and
-public checks. B restored image additionally passes new inline-phase fixture.
-C clean committed proof fromaeeee4e archive; A/B/D from7b archive. Metadata,
-Dockerfiles, libs, nonroot/read-only/no-network/8GB limits and exact outputs pass.
-No hidden-seed/judge score or current rank claimed. Actual source-equivalent330
-native overall73.283363; restored final-head run pending. Historical best-three
-must be recalculated from final receipt; it is not a final-head measurement.
+## Final evidence push / continuity
 
-## Rejected experiments retained
+Next commit contains final report/evidence; confirm push and watcher before
+freeze. No more structural experiments. If resumed, inspect HEAD/watch first;
+do not repeat passed matrices unless source/build changed. User's88/90 target
+unmet; never claim otherwise. Final hidden-seed/judging unknown. No current rank.
+All regressing experiments restored; raw evidence remains in PERF/benchmarks.
 
-LTO267 native lost ->all original build flags restored.
-B inline query redesign passed native ASan CI41458042088 but lost native score;
-restored old B. D fused probe passed but slower locally; unselected. A/C
-MAP_POPULATE fixture/full checks passed, Aneutral/Cslower ->unselected.
-Earlier cache, rare-AND, lookahead, six-worker, keyline tests also recorded.
-No fake scores/backdates/force pushes. All source is inside its scored track.
-
-Publication is complete. No new ZIP handed off under user's score-first request;
-old project ZIP remains historical. Board reads GitHub branch; no upload needed
-for code updates. Use Python3.13, Docker .work/docker-public-config and
-unix:///Users/avinashgehi3/.docker/run/docker.sock. No agents/goals/automations.
+LTO267 lost natively; B inlineaeeee4e passed native CI41458042088 but lost score;
+A/C MAP_POPULATE and D fused lookup failed screening. B is restoredf1ed726...
+not inline8e8d9a... . C monotone retained. Public visibility action complete.
+No new ZIP handed off under score-first request; board uses GitHub branch.
+No force/backdates/fake metrics, paid resources, agents/goals/automations.
+Python3.13; isolated Docker config .work/docker-public-config,
+DOCKER_HOST unix:///Users/avinashgehi3/.docker/run/docker.sock.

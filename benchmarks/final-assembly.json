@@ -64,7 +64,14 @@
       "public_runs": 1
     }
   },
-  "visibility": "public; user approved and GitHub verified MIT",
+  "visibility": "public / MIT; user approved and GitHub verified",
   "all_runtime_gates_passed": true,
-  "fresh_final_head_run": "pending restoration push"
+  "fresh_final_head_run": "all four scored; every gate passed",
+  "updated_utc": "2026-11-02T14:17:11.111626+00:00",
+  "observed_commit": "4fe9f66016d3d5d3f0a9fc1871a525e35d0c811a",
+  "observed_overall": 73.09908940762588,
+  "historical_best_overall": 73.46159943024121,
+  "board_receipt": "benchmarks/board/2026-11-02T141505.591838Z.json",
+  "gap_to_88": 14.900910592374117,
+  "gap_to_90": 16.900910592374117
 }

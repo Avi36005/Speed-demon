@@ -330,31 +330,21 @@ int main(int argc, char** argv) {
             std::vector<uint16_t> docs;
         };
         std::vector<std::vector<Block>> blocks(workers);
+        counts.clear();
         threads.run(workers, [&](size_t w) {
-            auto& c = counts[w];
-            std::vector<uint32_t> hits, tmp;
+            std::vector<uint32_t> hits, at(V);
             uint32_t base = first[w] == NONE ? 0 : first[w];
             auto flush = [&] {
-                tmp.resize(hits.size());
-                for (int shift = 13; shift < 31; shift += 9) {
-                    uint32_t bucket[513] = {};
-                    for (uint32_t h : hits) ++bucket[((h >> shift) & 511) + 1];
-                    for (int i = 0; i < 512; ++i) bucket[i + 1] += bucket[i];
-                    for (uint32_t h : hits) tmp[bucket[(h >> shift) & 511]++] = h;
-                    hits.swap(tmp);
-                }
+                // Counting sort by term: stable, so documents stay ascending.
+                for (uint32_t h : hits) ++at[h >> 13];
                 Block& blk = blocks[w].emplace_back();
                 blk.base = base;
-                blk.docs.resize(hits.size());
-                for (size_t i = 0; i < hits.size(); ++i) {
-                    uint32_t id = hits[i] >> 13;
-                    if (blk.ids.empty() || blk.ids.back() != id) {
-                        if (!blk.ids.empty()) blk.ends.push_back(static_cast<uint32_t>(i));
-                        blk.ids.push_back(id);
-                    }
-                    blk.docs[i] = static_cast<uint16_t>(hits[i] & (BLOCK - 1));
-                }
-                blk.ends.push_back(static_cast<uint32_t>(hits.size()));
+                uint32_t total = 0;
+                for (uint32_t id = 0; id < V; ++id)
+                    if (uint32_t k = at[id]) blk.ids.push_back(id), at[id] = total, blk.ends.push_back(total += k);
+                blk.docs.resize(total);
+                for (uint32_t h : hits) blk.docs[at[h >> 13]++] = static_cast<uint16_t>(h & (BLOCK - 1));
+                for (uint32_t id : blk.ids) at[id] = 0;
                 blk.ids.shrink_to_fit(), blk.ends.shrink_to_fit();
                 hits.clear();
             };
@@ -362,17 +352,18 @@ int main(int argc, char** argv) {
                 if (id == NONE) {
                     if (doc - base == BLOCK) flush(), base = doc;
                     offsets[doc] = static_cast<uint64_t>(line - docs);
-                    return;
-                }
-                ++c[id];
-                if (bitmap_of[id] != NONE) bitmaps[bitmap_of[id] * words + doc / 64] |= 1ull << (doc % 64);
+                } else if (bitmap_of[id] != NONE) bitmaps[bitmap_of[id] * words + doc / 64] |= 1ull << (doc % 64);
                 else hits.push_back(id << 13 | (doc - base));
             });
             if (!hits.empty()) flush();
         });
+        // Document frequencies: run lengths for lists, popcounts for bitmaps.
+        for (auto& list : blocks)
+            for (auto& blk : list)
+                for (size_t r = 0; r < blk.ids.size(); ++r) df[blk.ids[r]] += blk.ends[r] - (r ? blk.ends[r - 1] : 0);
         for (size_t t = 0; t < V; ++t)
-            for (size_t w = 0; w < workers; ++w) df[t] += counts[w][t];
-        counts.clear();
+            if (bitmap_of[t] != NONE)
+                for (size_t k = 0; k < words; ++k) df[t] += static_cast<uint32_t>(__builtin_popcountll(bitmaps[bitmap_of[t] * words + k]));
         // Per term, its runs in document order: (block << 20 | run).
         std::vector<const Block*> runs_of;
         for (auto& list : blocks) for (auto& blk : list) runs_of.push_back(&blk);

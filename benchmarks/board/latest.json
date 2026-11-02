@@ -1,8 +1,8 @@
 {
-  "checked_at_utc": "2026-11-01T20:03:13.061179+00:00",
+  "checked_at_utc": "2026-11-02T04:25:03.386701+00:00",
   "source_url": "https://s3.amazonaws.com/raptors.dev/speeddemon.dev/2026/board/board.json",
-  "retrieved_url": "https://s3.amazonaws.com/raptors.dev/speeddemon.dev/2026/board/board.json?checked=20261101200309",
-  "feed_generated_at": "2026-11-01T20:02:49Z",
+  "retrieved_url": "https://s3.amazonaws.com/raptors.dev/speeddemon.dev/2026/board/board.json?checked=20261102042502",
+  "feed_generated_at": "2026-11-02T04:24:54Z",
   "teams": [
     {
       "team": "Kryptonite",
@@ -10,24 +10,31 @@
       "watch": {
         "ok": true,
         "error": null,
-        "head": "5c216d18b8063310c47295fce70d8408865b4b4a",
-        "checked_at": "2026-11-01T20:01:55Z"
+        "head": "35d1a42026bec0c44a9acf11bf8854d0ef670974",
+        "checked_at": "2026-11-02T04:24:17Z"
       },
       "queue": {
-        "in_flight": null,
+        "in_flight": {
+          "state": "building",
+          "commit": "35d1a42026bec0c44a9acf11bf8854d0ef670974",
+          "pushed_at": "2026-11-02T04:24:17Z",
+          "dispatched_at": "2026-11-02T04:24:52Z",
+          "waiting_s": 36.7,
+          "builder": "local"
+        },
         "queued": null
       },
       "tracks": {
         "a": {
           "registered": true,
           "best": {
-            "run_id": "run-8e4a8338a92d",
-            "commit": "5c216d18b8063310c47295fce70d8408865b4b4a",
-            "pushed_at": "2026-11-01T19:58:28Z",
-            "dispatched_at": "2026-11-01T19:58:52Z",
-            "started_at": "2026-11-01T20:01:32Z",
-            "ended_at": "2026-11-01T20:01:35Z",
-            "queue_latency_s": 184.5,
+            "run_id": "run-b423aa4ca13f",
+            "commit": "71f59b0e01c8b61b580d393af122f7fe3012bb46",
+            "pushed_at": "2026-11-02T03:56:27Z",
+            "dispatched_at": "2026-11-02T04:03:19Z",
+            "started_at": "2026-11-02T04:03:55Z",
+            "ended_at": "2026-11-02T04:03:57Z",
+            "queue_latency_s": 447.6,
             "ok": true,
             "stage": "scored",
             "gates": {
@@ -37,29 +44,29 @@
               "timeout": true,
               "sandbox": true
             },
-            "T_s": 0.079049,
-            "M_bytes": 63434752,
-            "S": 254,
+            "T_s": 0.041891,
+            "M_bytes": 33779712,
+            "S": 330,
             "D": 1,
-            "K": 20.728396,
-            "points": 65.828285,
+            "K": 31.055302,
+            "points": 74.606788,
             "static_axes": "measured",
             "timeout_s": 96.142,
-            "build_s": 12.118,
-            "image_bytes": 119621949,
+            "build_s": 6.549,
+            "image_bytes": 118171240,
             "failure": null,
             "lang": [
               "C++"
             ]
           },
           "latest": {
-            "run_id": "run-8e4a8338a92d",
-            "commit": "5c216d18b8063310c47295fce70d8408865b4b4a",
-            "pushed_at": "2026-11-01T19:58:28Z",
-            "dispatched_at": "2026-11-01T19:58:52Z",
-            "started_at": "2026-11-01T20:01:32Z",
-            "ended_at": "2026-11-01T20:01:35Z",
-            "queue_latency_s": 184.5,
+            "run_id": "run-911eb5808067",
+            "commit": "c624b2e2563061bd4f3a51be196ce02eb95f53ce",
+            "pushed_at": "2026-11-02T04:17:20Z",
+            "dispatched_at": "2026-11-02T04:18:59Z",
+            "started_at": "2026-11-02T04:19:55Z",
+            "ended_at": "2026-11-02T04:19:57Z",
+            "queue_latency_s": 155.2,
             "ok": true,
             "stage": "scored",
             "gates": {
@@ -69,34 +76,34 @@
               "timeout": true,
               "sandbox": true
             },
-            "T_s": 0.079049,
-            "M_bytes": 63434752,
-            "S": 254,
+            "T_s": 0.049077,
+            "M_bytes": 34234368,
+            "S": 330,
             "D": 1,
-            "K": 20.728396,
-            "points": 65.828285,
+            "K": 28.615137,
+            "points": 72.829792,
             "static_axes": "measured",
             "timeout_s": 96.142,
-            "build_s": 12.118,
-            "image_bytes": 119621949,
+            "build_s": 1.274,
+            "image_bytes": 118171240,
             "failure": null,
             "lang": [
               "C++"
             ]
           },
           "queue_position": null,
-          "queue_latency_s": null
+          "queue_latency_s": 36.7
         },
         "b": {
           "registered": true,
           "best": {
-            "run_id": "run-3717e5314522",
-            "commit": "5c216d18b8063310c47295fce70d8408865b4b4a",
-            "pushed_at": "2026-11-01T19:58:28Z",
-            "dispatched_at": "2026-11-01T19:58:52Z",
-            "started_at": "2026-11-01T20:01:36Z",
-            "ended_at": "2026-11-01T20:01:39Z",
-            "queue_latency_s": 188.4,
+            "run_id": "run-c1009a7fa649",
+            "commit": "c624b2e2563061bd4f3a51be196ce02eb95f53ce",
+            "pushed_at": "2026-11-02T04:17:20Z",
+            "dispatched_at": "2026-11-02T04:18:59Z",
+            "started_at": "2026-11-02T04:20:01Z",
+            "ended_at": "2026-11-02T04:20:04Z",
+            "queue_latency_s": 161.1,
             "ok": true,
             "stage": "scored",
             "gates": {
@@ -106,29 +113,29 @@
               "timeout": true,
               "sandbox": true
             },
-            "T_s": 0.976826,
-            "M_bytes": 160452608,
-            "S": 545,
+            "T_s": 0.248453,
+            "M_bytes": 113590272,
+            "S": 703,
             "D": 1,
-            "K": 9.802975,
-            "points": 49.567895,
+            "K": 20.047568,
+            "points": 65.103085,
             "static_axes": "measured",
             "timeout_s": 169.057,
-            "build_s": 8.177,
-            "image_bytes": 119632872,
+            "build_s": 9.91,
+            "image_bytes": 118238333,
             "failure": null,
             "lang": [
               "C++"
             ]
           },
           "latest": {
-            "run_id": "run-3717e5314522",
-            "commit": "5c216d18b8063310c47295fce70d8408865b4b4a",
-            "pushed_at": "2026-11-01T19:58:28Z",
-            "dispatched_at": "2026-11-01T19:58:52Z",
-            "started_at": "2026-11-01T20:01:36Z",
-            "ended_at": "2026-11-01T20:01:39Z",
-            "queue_latency_s": 188.4,
+            "run_id": "run-c1009a7fa649",
+            "commit": "c624b2e2563061bd4f3a51be196ce02eb95f53ce",
+            "pushed_at": "2026-11-02T04:17:20Z",
+            "dispatched_at": "2026-11-02T04:18:59Z",
+            "started_at": "2026-11-02T04:20:01Z",
+            "ended_at": "2026-11-02T04:20:04Z",
+            "queue_latency_s": 161.1,
             "ok": true,
             "stage": "scored",
             "gates": {
@@ -138,34 +145,34 @@
               "timeout": true,
               "sandbox": true
             },
-            "T_s": 0.976826,
-            "M_bytes": 160452608,
-            "S": 545,
+            "T_s": 0.248453,
+            "M_bytes": 113590272,
+            "S": 703,
             "D": 1,
-            "K": 9.802975,
-            "points": 49.567895,
+            "K": 20.047568,
+            "points": 65.103085,
             "static_axes": "measured",
             "timeout_s": 169.057,
-            "build_s": 8.177,
-            "image_bytes": 119632872,
+            "build_s": 9.91,
+            "image_bytes": 118238333,
             "failure": null,
             "lang": [
               "C++"
             ]
           },
           "queue_position": null,
-          "queue_latency_s": null
+          "queue_latency_s": 36.7
         },
         "c": {
           "registered": true,
           "best": {
-            "run_id": "run-751108049e14",
-            "commit": "5c216d18b8063310c47295fce70d8408865b4b4a",
-            "pushed_at": "2026-11-01T19:58:28Z",
-            "dispatched_at": "2026-11-01T19:58:52Z",
-            "started_at": "2026-11-01T20:01:41Z",
-            "ended_at": "2026-11-01T20:01:42Z",
-            "queue_latency_s": 192.7,
+            "run_id": "run-93495be0ced3",
+            "commit": "c624b2e2563061bd4f3a51be196ce02eb95f53ce",
+            "pushed_at": "2026-11-02T04:17:20Z",
+            "dispatched_at": "2026-11-02T04:18:59Z",
+            "started_at": "2026-11-02T04:20:06Z",
+            "ended_at": "2026-11-02T04:20:08Z",
+            "queue_latency_s": 166.0,
             "ok": true,
             "stage": "scored",
             "gates": {
@@ -175,29 +182,29 @@
               "timeout": true,
               "sandbox": true
             },
-            "T_s": 0.170541,
-            "M_bytes": 17289216,
-            "S": 390,
+            "T_s": 0.054406,
+            "M_bytes": 13819904,
+            "S": 368,
             "D": 1,
-            "K": 13.988312,
-            "points": 57.288266,
+            "K": 26.127202,
+            "points": 70.854645,
             "static_axes": "measured",
             "timeout_s": 43.332,
-            "build_s": 6.331,
-            "image_bytes": 119665259,
+            "build_s": 6.201,
+            "image_bytes": 118176362,
             "failure": null,
             "lang": [
               "C++"
             ]
           },
           "latest": {
-            "run_id": "run-751108049e14",
-            "commit": "5c216d18b8063310c47295fce70d8408865b4b4a",
-            "pushed_at": "2026-11-01T19:58:28Z",
-            "dispatched_at": "2026-11-01T19:58:52Z",
-            "started_at": "2026-11-01T20:01:41Z",
-            "ended_at": "2026-11-01T20:01:42Z",
-            "queue_latency_s": 192.7,
+            "run_id": "run-93495be0ced3",
+            "commit": "c624b2e2563061bd4f3a51be196ce02eb95f53ce",
+            "pushed_at": "2026-11-02T04:17:20Z",
+            "dispatched_at": "2026-11-02T04:18:59Z",
+            "started_at": "2026-11-02T04:20:06Z",
+            "ended_at": "2026-11-02T04:20:08Z",
+            "queue_latency_s": 166.0,
             "ok": true,
             "stage": "scored",
             "gates": {
@@ -207,34 +214,34 @@
               "timeout": true,
               "sandbox": true
             },
-            "T_s": 0.170541,
-            "M_bytes": 17289216,
-            "S": 390,
+            "T_s": 0.054406,
+            "M_bytes": 13819904,
+            "S": 368,
             "D": 1,
-            "K": 13.988312,
-            "points": 57.288266,
+            "K": 26.127202,
+            "points": 70.854645,
             "static_axes": "measured",
             "timeout_s": 43.332,
-            "build_s": 6.331,
-            "image_bytes": 119665259,
+            "build_s": 6.201,
+            "image_bytes": 118176362,
             "failure": null,
             "lang": [
               "C++"
             ]
           },
           "queue_position": null,
-          "queue_latency_s": null
+          "queue_latency_s": 36.7
         },
         "d": {
           "registered": false,
           "best": {
-            "run_id": "run-ed34233348c5",
-            "commit": "5c216d18b8063310c47295fce70d8408865b4b4a",
-            "pushed_at": "2026-11-01T19:58:28Z",
-            "dispatched_at": "2026-11-01T19:58:52Z",
-            "started_at": "2026-11-01T20:01:44Z",
-            "ended_at": "2026-11-01T20:01:47Z",
-            "queue_latency_s": 196.1,
+            "run_id": "run-6a8e410b3685",
+            "commit": "a8f69d1e6bc459f22466fdea772b177710be0e48",
+            "pushed_at": "2026-11-02T04:09:12Z",
+            "dispatched_at": "2026-11-02T04:09:28Z",
+            "started_at": "2026-11-02T04:10:37Z",
+            "ended_at": "2026-11-02T04:10:39Z",
+            "queue_latency_s": 84.4,
             "ok": true,
             "stage": "scored",
             "gates": {
@@ -244,29 +251,29 @@
               "timeout": true,
               "sandbox": true
             },
-            "T_s": 1.116187,
-            "M_bytes": 210255872,
-            "S": 239,
+            "T_s": 0.47067,
+            "M_bytes": 272056320,
+            "S": 238,
             "D": 1,
-            "K": 8.332011,
-            "points": 46.037492,
+            "K": 12.194137,
+            "points": 54.307553,
             "static_axes": "measured",
             "timeout_s": 218.078,
-            "build_s": 0.567,
-            "image_bytes": 119589755,
+            "build_s": 4.776,
+            "image_bytes": 118176087,
             "failure": null,
             "lang": [
               "C++"
             ]
           },
           "latest": {
-            "run_id": "run-ed34233348c5",
-            "commit": "5c216d18b8063310c47295fce70d8408865b4b4a",
-            "pushed_at": "2026-11-01T19:58:28Z",
-            "dispatched_at": "2026-11-01T19:58:52Z",
-            "started_at": "2026-11-01T20:01:44Z",
-            "ended_at": "2026-11-01T20:01:47Z",
-            "queue_latency_s": 196.1,
+            "run_id": "run-085ce2a0503e",
+            "commit": "c624b2e2563061bd4f3a51be196ce02eb95f53ce",
+            "pushed_at": "2026-11-02T04:17:20Z",
+            "dispatched_at": "2026-11-02T04:18:59Z",
+            "started_at": "2026-11-02T04:20:09Z",
+            "ended_at": "2026-11-02T04:20:12Z",
+            "queue_latency_s": 169.7,
             "ok": true,
             "stage": "scored",
             "gates": {
@@ -276,41 +283,52 @@
               "timeout": true,
               "sandbox": true
             },
-            "T_s": 1.116187,
-            "M_bytes": 210255872,
-            "S": 239,
+            "T_s": 0.471298,
+            "M_bytes": 272068608,
+            "S": 238,
             "D": 1,
-            "K": 8.332011,
-            "points": 46.037492,
+            "K": 12.1859,
+            "points": 54.29288,
             "static_axes": "measured",
             "timeout_s": 218.078,
-            "build_s": 0.567,
-            "image_bytes": 119589755,
+            "build_s": 0.798,
+            "image_bytes": 118176087,
             "failure": null,
             "lang": [
               "C++"
             ]
           },
           "queue_position": null,
-          "queue_latency_s": null
+          "queue_latency_s": 36.7
         }
       }
     }
   ],
   "measurement_scope": "single live public-data run; final holdout/judging separate",
   "runtime_inputs_by_commit": {
-    "5c216d18b8063310c47295fce70d8408865b4b4a": {
-      "track-a/main.cpp": "187b755fc5f357f0f4bea2c1d088628afd07eb4d3d1161318a877240c0f99ade",
-      "track-a/Dockerfile": "11435202a739b9f7a57a7c82b21cef8e95a70f1e99059337912f6f6c21845a1f",
+    "71f59b0e01c8b61b580d393af122f7fe3012bb46": {
+      "track-a/main.cpp": "1a345284a265623227198c2f7f01a4efb9f4ac99121911e82afbc60e99ac8676",
+      "track-a/Dockerfile": "fa7a3091e52e548734b736ef5cde7991ffe2746f4d7582b195c56a784525ccf4",
+      "track-a/.speed-demon.toml": "b2b684e6fff97846ada04662eb0f8850b7786039925e30cdb1a8c010ea501564",
+      "track-a/a_ingest.py": "d82b43b8f617016808f85cbe9be86af1fee8466296a0848ab8e6908ee3c4b0b4"
+    },
+    "c624b2e2563061bd4f3a51be196ce02eb95f53ce": {
+      "track-a/main.cpp": "1a345284a265623227198c2f7f01a4efb9f4ac99121911e82afbc60e99ac8676",
+      "track-a/Dockerfile": "fa7a3091e52e548734b736ef5cde7991ffe2746f4d7582b195c56a784525ccf4",
       "track-a/.speed-demon.toml": "b2b684e6fff97846ada04662eb0f8850b7786039925e30cdb1a8c010ea501564",
       "track-a/a_ingest.py": "d82b43b8f617016808f85cbe9be86af1fee8466296a0848ab8e6908ee3c4b0b4",
-      "track-b/main.cpp": "75c672d83881197badeb0b42942e6e768e620b25b78d0a7fefcde47de9e3aada",
-      "track-b/Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      "track-b/main.cpp": "12151943ba1626fa2e2fa05d4f2f9de60244db55f72ef21613b9c56f548f8efe",
+      "track-b/Dockerfile": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
       "track-b/.speed-demon.toml": "625871dfe8f3cc66517f22cfc910583968e36f3a958e562dda4d831366dbddea",
-      "track-c/main.cpp": "1a73ea5c2e86dbb209cd8a6bb51caa2614ea5eaa54163cfb5bbcc5a2fe100b3f",
-      "track-c/Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      "track-c/main.cpp": "688d5fe54d0588640f18d48e63b16c7c9501c03690c3d41cd9e02d5103380e74",
+      "track-c/Dockerfile": "30c02d05fb670a34973409b50021ac1e458b328ebbc91c1070a8d8aabcfeeb4b",
       "track-c/.speed-demon.toml": "82561d3cf9545bb00643eeefd7b29b1fb3e4c636831858ac1eac013927e94ad8",
-      "track-d/main.cpp": "10d03e6f17ee6df7f44e11816f767b8daf8f37e73873c2e9c267e4eb41d1332a",
+      "track-d/main.cpp": "58dc919039f78d5ddde29fa160482bb9121aee19c3374a69ea747e3cd583a1ce",
+      "track-d/Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      "track-d/.speed-demon.toml": "4d9ffc87eddf41682b837f8bc3ef497ef008685ff322662a4f67ccd5442e624f"
+    },
+    "a8f69d1e6bc459f22466fdea772b177710be0e48": {
+      "track-d/main.cpp": "58dc919039f78d5ddde29fa160482bb9121aee19c3374a69ea747e3cd583a1ce",
       "track-d/Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
       "track-d/.speed-demon.toml": "4d9ffc87eddf41682b837f8bc3ef497ef008685ff322662a4f67ccd5442e624f"
     }

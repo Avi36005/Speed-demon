@@ -1,6 +1,6 @@
 {
   "utc": "2026-11-02T13:03:04.138236+00:00",
-  "purpose": "Final verified source assembly; official combined-head run pending",
+  "purpose": "Final verified source assembly; all runtime gates complete",
   "target": 90,
   "target_achieved": false,
   "tracks": {
@@ -45,5 +45,13 @@
       "proof": "benchmarks/committed-release-7b28c32.json",
       "native_ci": 41439655126
     }
-  }
+  },
+  "runtime_verified": true,
+  "native_sanitizers_verified": true,
+  "observed_commit": "cda897a318b6cbe6b7d4751bc70d346fa4608480",
+  "observed_overall": 72.99666120129679,
+  "historical_best_overall": 73.43138044615472,
+  "board_receipt": "benchmarks/board/2026-11-02T132724.472348Z.json",
+  "updated_utc": "2026-11-02T13:29:00.136629+00:00",
+  "visibility": "private; explicit approval requested and pending"
 }

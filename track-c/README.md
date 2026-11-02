@@ -25,7 +25,7 @@ dependencies. Reads `/data/records.csv` and `/data/regions.csv`, writes
    raw bytes in one shared lock-free table: a slot holds a 16-bit tag and a
    pointer to an arena record `{length, country bits, bytes}`, published with
    a release/acquire CAS. Full bytes decide equality even when hashes collide.
-   Lookups are pipelined with prefetches for both record headers and key bytes. Each name's country words are aligned
+   Lookups are pipelined with prefetches for immutable record headers. Each name's country words are aligned
    atomics, constructed before publication and retained until workers finish.
    Atomic first-set detection credits exactly one worker-local distinct count
    for each `(country, exact name)` pair, regardless of concurrent encounters.

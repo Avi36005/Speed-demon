@@ -1,0 +1,34 @@
+{
+  "utc": "2026-11-02T13:06:58.808086+00:00",
+  "diagnostic": true,
+  "official": false,
+  "method": "Coarse source-matched diagnostics; QEMU by default, --native on x86 hosts.",
+  "native": true,
+  "source_sha256": "7efd1e76363fcf580d114e9843b3e004dafc35b8a30d7036289a913dc303f898",
+  "instrumented_sha256": "8b39e5bcfb986ff89358e525f14ce3a356dcaa7df99f422996dd4c6c17e099c3",
+  "artifact_dir": ".work/phase-profile/c-55cf61700a",
+  "argv": [
+    "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python",
+    "/home/runner/work/Speed-demon/Speed-demon/submission/tools/dev.py",
+    "c",
+    "--source",
+    "/home/runner/work/Speed-demon/Speed-demon/submission/.work/phase-profile/c-55cf61700a/main.cpp",
+    "--data",
+    "/home/runner/work/Speed-demon/Speed-demon/data/track-c/full-seed1",
+    "--label",
+    "diagnostic-full-public",
+    "--workers",
+    "1",
+    "--compiler",
+    "g++"
+  ],
+  "exit": 0,
+  "stdout": "{\n  \"utc\": \"2026-11-02T13:06:48.158592+00:00\",\n  \"track\": \"c\",\n  \"dataset\": \"diagnostic-full-public\",\n  \"data\": \"/home/runner/work/Speed-demon/Speed-demon/data/track-c/full-seed1\",\n  \"architecture\": \"x86_64\",\n  \"platform\": \"Linux-7.0.0-1017-azure-x86_64-with-glibc2.39\",\n  \"source_sha256\": \"8b39e5bcfb986ff89358e525f14ce3a356dcaa7df99f422996dd4c6c17e099c3\",\n  \"compiled_source\": \"/home/runner/work/Speed-demon/Speed-demon/submission/.work/phase-profile/c-55cf61700a/main.cpp\",\n  \"working_source_sha256\": \"7efd1e76363fcf580d114e9843b3e004dafc35b8a30d7036289a913dc303f898\",\n  \"workers\": 1,\n  \"requested_workers\": 1,\n  \"board_run_id\": null,\n  \"official\": false,\n  \"artifact_dir\": \".work/track-c/2026-11-02T13_06_48.158592_00_00-diagnostic-full-public\",\n  \"time_samples_s\": [],\n  \"memory_method\": null,\n  \"peak_rss_bytes\": null,\n  \"compiler\": \"g++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\\nCopyright (C) 2023 Free Software Foundation, Inc.\\nThis is free software; see the source for copying conditions.  There is NO\\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\",\n  \"flags\": [\n    \"-std=c++20\",\n    \"-pthread\",\n    \"-Wall\",\n    \"-Wextra\",\n    \"-Wpedantic\",\n    \"-mavx2\",\n    \"-mbmi2\",\n    \"-O3\",\n    \"-DNDEBUG\"\n  ],\n  \"binary_sha256\": \"699d3dd779e905b9ca39bd32221eaaec23bd1e7a2eac7182236292b3ca67e057\",\n  \"reference_provenance\": {\n    \"mode\": \"fresh untouched-reference execution\"\n  },\n  \"output_sha256\": \"d8088b1cd42ba1338b1345b107b55db7b96ef1f5066f3ff64fd26a8912a0f536\",\n  \"expected_sha256\": \"d8088b1cd42ba1338b1345b107b55db7b96ef1f5066f3ff64fd26a8912a0f536\",\n  \"correctness_passed\": true,\n  \"passed\": true\n}\n",
+  "stderr": "",
+  "cached_runtime_proof": ".work/track-c/2026-11-02T13_06_48.158592_00_00-diagnostic-full-public",
+  "correctness_passed": true,
+  "phase_stderr": [
+    "PHASE map_and_regions 0.001286334\nPHASE cuts_and_allocations 0.000070896\nPHASE parse_intern_aggregate 0.145551647\nPHASE parallel_input_drop 0.001127596\nPHASE merge_popcount_serialize 0.000118147\n"
+  ],
+  "environment": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39"
+}

@@ -38,11 +38,9 @@ preserved in final output. Every index and sample is built from current inputs
 inside the timed process; no seed recognition or precomputed answers.
 
 The digest-pinned GCC15/Debian13 image builds offline, statically links C++/GCC
-support, and uses only the documented Intel instruction set. Current candidate
+support, and uses only the documented Intel instruction set. Selected-source
 fixture, fresh full7, repeated full1 and exact-image sandbox evidence appears
 in PERF.md. Local QEMU checks establish compatibility; the board establishes
-native Intel performance. Empty-prefix simplification awaits its official trial;
-the earlier rare-AND branch was rejected after a native score regression.
-
-Next: profile token dictionary dependencies and phase/query overhead on the
-scoring CPU. Preserve the current passing source before any redesign.
+native Intel performance. The selected source passes the board and native
+ASan/UBSan checks. Earlier rare-AND, inline-key and six-worker trials were
+rejected after measured regressions; the final source preserves the verified path.

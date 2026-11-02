@@ -17,11 +17,10 @@
 
 ---
 
-> **Verified four-track checkpoint `7b28c32`:** all native board gates and sanitizer CI pass.
-> A **80.232** · B **66.339** · C **73.792** · D **58.982**. Historical best-three **73.429**.
-> Target **90** remains unmet. All four clean committed images pass an unused full seed five times.
-> C's regressing tweak is being restored; further measured refinements are recorded separately.
-> See [STATUS.md](STATUS.md) for actual source, pending trials and exact run IDs.
+> **Verified entry:** all four registered tracks pass native board gates and sanitizer checks.
+> Observed assembled-head overall **72.997** · Historical best-three **73.431**.
+> Target **90** remains unmet. Each selected image passes an unused full seed five times.
+> [Verification report](SUBMISSION_REPORT.md) · [Source and evidence manifest](benchmarks/final-assembly.json)
 
 ## The entry
 
@@ -63,46 +62,35 @@ map, and only a valid frontier bound terminates a search.
 
 ## Official live-board measurements
 
-| Track | Machine points | Time | cgroup peak | Real run at `036225c` |
-| :--- | ---: | ---: | ---: | :--- |
-| A | 79.808946 | 0.026911 s | 25,014,272 B | `run-5f9bb2ac6c4e` |
-| B | 65.806136 | 0.321271 s | 46,911,488 B | `run-81df8b60b921` |
-| C | 73.983336 | 0.043319 s | 12,263,424 B | `run-5390ab67f3f3` |
-| D | 53.924001 | 0.483486 s | 271,896,576 B | `run-7b43f4f31e6e` |
+Observed runtime source `cda897a`: **72.997 overall**. Historical best-three:
+**73.431**. The90-point target remains unmet.
 
-All four tracks are registered. Overall selects the best three. These are
-single public-data runs; final holdout and judging remain separate. The C name-local
-membership layout improved its actual score and is retained. Small time differences
-remain noisy. New A/B experiments are recorded separately until scored.
-[Immutable receipt](benchmarks/board/2026-11-02T083443.958935Z.json) ·
-[Kryptonite on the board](https://speeddemon.dev/board/#kryptonite-96429f)
+| Track | Points | T seconds | M bytes | S | D | K | Run |
+|---|---:|---:|---:|---:|---:|---:|---|
+| A | 80.194319 | 0.026335 | 23,875,584 | 443 | 1 | 40.168570 | `run-d94d9f16b2eb` |
+| B | 66.205260 | 0.316628 | 42,373,120 | 791 | 1 | 21.091390 | `run-36f6fa75dbfb` |
+| C | 73.261008 | 0.047442 | 11,489,280 | 355 | 1 | 29.189064 | `run-e41baccfb1c7` |
+| D | 58.844665 | 0.395828 | 133,132,288 | 273 | 1 | 15.027727 | `run-a38947ec1bda` |
+
+All four tracks are registered. Overall selects the best three. These are single
+public-data runs, separate from final hidden-seed scoring and judging. Source-identical
+runs show timing variation. [Immutable receipt](benchmarks/board/2026-11-02T132724.472348Z.json)
 
 ## Verification
 
-Evidence is keyed by actual source/build/input hashes and worker options.
-Historical manifests certify their recorded source, rather than every later
-rewrite. The new refinement trial is pinned in
-[its manifest](benchmarks/portfolio-refine-trial.json). Native scoring will determine selection.
-
-| Check | Current evidence |
+| Check | Verified scope |
 | :--- | :--- |
-| **Native board** | All four tracks passed build, public-full correctness, timeout and sandbox gates at036225c. |
-| **Native development checks** | Exact036225c B/C fixtures, ASan/UBSan and fresh sample42 passed in [native CI](https://github.com/Avi36005/Speed-demon/actions/runs/41413513572); unchanged A/D parent proofs remain in their logs. |
-| **Independent full input** | Current A/C/D and proposed B match the untouched full-seed7 oracle; B also passes workers1/12. |
-| **Changed B/C paths** | All fixtures pass UBSan with halt-on-error and C++ bounds assertions, including independent OR revival and concurrent country-word boundary cases. |
-| **Deterministic B/C output** | Five paired public-full executions and five exact-image sandbox runs retain the published output hash. |
-| **Clean B/C packaging** | Offline/no-cache amd64 build, runtime-library inspection, uid65534, read-only root/data, no network, exact output and empty filesystem diffs; fresh full7 also passes. |
+| Native checks | Exact-source ASan/UBSan, fixtures and fresh sample42 pass for every selected track. |
+| Clean builds | Committed-archive offline images use pinned allowed bases and checked runtime libraries. |
+| Fresh full input | Five deterministic exact runs per selected image pass unused full seed20261102, plus public-full checks. |
+| Container limits | Nonroot, read-only root/data, no network,8GB/no swap, bounded tmp/processes, exact output and empty filesystem diffs pass. |
 
-Current local compatibility checks use native ARM QEMU emulating x86 Haswell.
-They establish semantics and image compatibility. Their elapsed times and
-cgroup peaks include emulator costs and cannot replace native Intel T/M.
-ASan's local shadow allocator cannot initialize in this QEMU setup; the new
-branch uses UBSan/bounds checks, and existing native ASan evidence is retained
-for unchanged parent code. Final assembled-head release checks remain scheduled
-before freeze.
+[Final audit](benchmarks/final-verification.json) · [Verification report](SUBMISSION_REPORT.md) ·
+[Experiment evidence](benchmarks)
 
-[Verification report](SUBMISSION_REPORT.md) · [Test coverage](tests/README.md) ·
-[Experiment records](benchmarks)
+Native CI uses GCC13/Xeon; official entry builds use pinned GCC15 for the scoring
+CPU. Local QEMU checks establish compatibility; their time/memory never replace
+native measurements. Rejected experiments and limitations remain in PERF.md.
 
 ## Local measurements
 

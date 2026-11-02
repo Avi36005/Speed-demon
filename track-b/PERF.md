@@ -413,3 +413,12 @@ and committed-archive unused full seed20261102 five runs also pass this source.
 Pack exactly the existing18-bit slot and14-bit fingerprint into32bits. Pending
 tokens shrink24->16bytes; exact dictionary comparisons are unchanged. S798/D1.
 QEMU1.275765->1.251320s, screen only. Full proof portfolio-refine-trial.json.
+
+## Final assembled source — actual native receipt
+
+cda897a/run-36f6fa75dbfb: all gates pass. T0.316628s, official cgroup
+M42373120B, S791, D1, K21.09139, points66.20526.
+Receipt `benchmarks/board/2026-11-02T132724.472348Z.json`. This run is source-matched in final-assembly.json, with
+native sanitizer CI41439655126 and five deterministic unused full-seed
+image runs. Single live run, not final hidden-seed/judged score. Changes in
+source-identical runs are variation, not additional algorithm gains.

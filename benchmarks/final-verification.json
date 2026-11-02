@@ -1,0 +1,172 @@
+{
+  "utc": "2026-11-02T13:29:00.136629+00:00",
+  "runtime_commit": "cda897a318b6cbe6b7d4751bc70d346fa4608480",
+  "overall": 72.99666120129679,
+  "historical_best_overall": 73.43138044615472,
+  "target": 90,
+  "gap_to_target": 17.00333879870321,
+  "target_achieved": false,
+  "board_receipt": "benchmarks/board/2026-11-02T132724.472348Z.json",
+  "checks": {
+    "a": {
+      "native_checks": 7,
+      "native_ASan_UBSan_checks": 6,
+      "native_ci": 41439655126,
+      "fresh_image_runs": 5,
+      "public_image_runs": 1,
+      "native_run": {
+        "run_id": "run-d94d9f16b2eb",
+        "commit": "cda897a318b6cbe6b7d4751bc70d346fa4608480",
+        "pushed_at": "2026-11-02T13:04:30Z",
+        "dispatched_at": "2026-11-02T13:04:55Z",
+        "started_at": "2026-11-02T13:05:33Z",
+        "ended_at": "2026-11-02T13:05:36Z",
+        "queue_latency_s": 63.5,
+        "ok": true,
+        "stage": "scored",
+        "gates": {
+          "check": true,
+          "build": true,
+          "correctness": true,
+          "timeout": true,
+          "sandbox": true
+        },
+        "T_s": 0.026335,
+        "M_bytes": 23875584,
+        "S": 443,
+        "D": 1,
+        "K": 40.16857,
+        "points": 80.194319,
+        "static_axes": "measured",
+        "timeout_s": 96.142,
+        "build_s": 0.801,
+        "image_bytes": 118182873,
+        "failure": null,
+        "lang": [
+          "C++"
+        ]
+      }
+    },
+    "b": {
+      "native_checks": 17,
+      "native_ASan_UBSan_checks": 15,
+      "native_ci": 41439655126,
+      "fresh_image_runs": 5,
+      "public_image_runs": 1,
+      "native_run": {
+        "run_id": "run-36f6fa75dbfb",
+        "commit": "cda897a318b6cbe6b7d4751bc70d346fa4608480",
+        "pushed_at": "2026-11-02T13:04:30Z",
+        "dispatched_at": "2026-11-02T13:04:55Z",
+        "started_at": "2026-11-02T13:05:39Z",
+        "ended_at": "2026-11-02T13:05:42Z",
+        "queue_latency_s": 68.8,
+        "ok": true,
+        "stage": "scored",
+        "gates": {
+          "check": true,
+          "build": true,
+          "correctness": true,
+          "timeout": true,
+          "sandbox": true
+        },
+        "T_s": 0.316628,
+        "M_bytes": 42373120,
+        "S": 791,
+        "D": 1,
+        "K": 21.09139,
+        "points": 66.20526,
+        "static_axes": "measured",
+        "timeout_s": 169.057,
+        "build_s": 0.579,
+        "image_bytes": 118254661,
+        "failure": null,
+        "lang": [
+          "C++"
+        ]
+      }
+    },
+    "c": {
+      "native_checks": 9,
+      "native_ASan_UBSan_checks": 8,
+      "native_ci": 41449471565,
+      "fresh_image_runs": 5,
+      "public_image_runs": 1,
+      "native_run": {
+        "run_id": "run-e41baccfb1c7",
+        "commit": "cda897a318b6cbe6b7d4751bc70d346fa4608480",
+        "pushed_at": "2026-11-02T13:04:30Z",
+        "dispatched_at": "2026-11-02T13:04:55Z",
+        "started_at": "2026-11-02T13:05:45Z",
+        "ended_at": "2026-11-02T13:05:47Z",
+        "queue_latency_s": 75.2,
+        "ok": true,
+        "stage": "scored",
+        "gates": {
+          "check": true,
+          "build": true,
+          "correctness": true,
+          "timeout": true,
+          "sandbox": true
+        },
+        "T_s": 0.047442,
+        "M_bytes": 11489280,
+        "S": 355,
+        "D": 1,
+        "K": 29.189064,
+        "points": 73.261008,
+        "static_axes": "measured",
+        "timeout_s": 43.332,
+        "build_s": 0.787,
+        "image_bytes": 118171647,
+        "failure": null,
+        "lang": [
+          "C++"
+        ]
+      }
+    },
+    "d": {
+      "native_checks": 11,
+      "native_ASan_UBSan_checks": 10,
+      "native_ci": 41439655126,
+      "fresh_image_runs": 5,
+      "public_image_runs": 1,
+      "native_run": {
+        "run_id": "run-a38947ec1bda",
+        "commit": "cda897a318b6cbe6b7d4751bc70d346fa4608480",
+        "pushed_at": "2026-11-02T13:04:30Z",
+        "dispatched_at": "2026-11-02T13:04:55Z",
+        "started_at": "2026-11-02T13:05:49Z",
+        "ended_at": "2026-11-02T13:05:52Z",
+        "queue_latency_s": 79.4,
+        "ok": true,
+        "stage": "scored",
+        "gates": {
+          "check": true,
+          "build": true,
+          "correctness": true,
+          "timeout": true,
+          "sandbox": true
+        },
+        "T_s": 0.395828,
+        "M_bytes": 133132288,
+        "S": 273,
+        "D": 1,
+        "K": 15.027727,
+        "points": 58.844665,
+        "static_axes": "measured",
+        "timeout_s": 218.078,
+        "build_s": 0.616,
+        "image_bytes": 118182313,
+        "failure": null,
+        "lang": [
+          "C++"
+        ]
+      }
+    }
+  },
+  "all_runtime_gates_passed": true,
+  "repo_visibility": "private",
+  "remaining_action": "Public visibility approval requested; deadline2026-11-02T16:00:00Z",
+  "measurement_scope": "Single public-data live runs. Final hidden-seed five-run and judging unknown."
+}

@@ -277,3 +277,12 @@ benchmarks/board/2026-11-02T115249.223434Z.json. A and sparse D improve;
 C key-line experiment regresses and is being restored. B66.338782 remains
 close to its historical best66.489154, with capped memory. Native CI41439655126
 and committed-archive unused full seed20261102 five runs also pass this source.
+
+## Final assembled source — actual native receipt
+
+cda897a/run-d94d9f16b2eb: all gates pass. T0.026335s, official cgroup
+M23875584B, S443, D1, K40.16857, points80.194319.
+Receipt `benchmarks/board/2026-11-02T132724.472348Z.json`. This run is source-matched in final-assembly.json, with
+native sanitizer CI41439655126 and five deterministic unused full-seed
+image runs. Single live run, not final hidden-seed/judged score. Changes in
+source-identical runs are variation, not additional algorithm gains.

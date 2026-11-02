@@ -168,3 +168,12 @@ S275/D1. QEMU1.190711->1.200737s is inconclusive; native memory/time tradeoff
 pending. Exact proof portfolio-refine-trial.json. A separate smaller-distance
 frontier strategy regressed1.255573->3.125763s and is rejected; smaller heap
 remains the expansion rule. Do not repeat that strategy line.
+
+## Final assembled source — actual native receipt
+
+cda897a/run-a38947ec1bda: all gates pass. T0.395828s, official cgroup
+M133132288B, S273, D1, K15.027727, points58.844665.
+Receipt `benchmarks/board/2026-11-02T132724.472348Z.json`. This run is source-matched in final-assembly.json, with
+native sanitizer CI41439655126 and five deterministic unused full-seed
+image runs. Single live run, not final hidden-seed/judged score. Changes in
+source-identical runs are variation, not additional algorithm gains.

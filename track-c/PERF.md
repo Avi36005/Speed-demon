@@ -314,3 +314,12 @@ its measured winner path. Slots are zero-initialized uint64 objects accessed
 through atomic_ref, avoiding raw unconstructed atomic objects. GCC15 release
 binary matches winner exactly:5e4c4f4f677ab4ccc3c65d4b6dda56d281b18b9df43654fe97aba7533be9c66c.
 S355 vs353; source-specific native ASan pending. Proof portfolio-refine-trial.json.
+
+## Final assembled source — actual native receipt
+
+cda897a/run-e41baccfb1c7: all gates pass. T0.047442s, official cgroup
+M11489280B, S355, D1, K29.189064, points73.261008.
+Receipt `benchmarks/board/2026-11-02T132724.472348Z.json`. This run is source-matched in final-assembly.json, with
+native sanitizer CI41449471565 and five deterministic unused full-seed
+image runs. Single live run, not final hidden-seed/judged score. Changes in
+source-identical runs are variation, not additional algorithm gains.

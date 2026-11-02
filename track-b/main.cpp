@@ -15,6 +15,7 @@
 #include <sys/stat.h>
 #include <thread>
 #include <unistd.h>
+#include <utility>
 #include <vector>
 
 // Exact query-vocabulary index. Workers tokenize disjoint 64-aligned document
@@ -220,7 +221,7 @@ int main(int argc, char** argv) {
         // The corpus is indexed and queried in phases, so the whole index never
         // exists at once. Each phase is split into one range per worker; ranges
         // start at multiples of 64 documents so bitmap words are private.
-        const size_t phases = 8, R = phases * workers;
+        const size_t phases = 8, PR = workers * 4, R = phases * PR;  // ranges claimed in turn within a phase
         std::vector<const char*> cut(R + 1, docs + dsize);
         std::vector<uint32_t> first(R + 1, 0);
         cut[0] = docs;
@@ -247,18 +248,26 @@ int main(int argc, char** argv) {
         first[R] = N;
         size_t words = 0, most = 0;  // bitmap words of the current phase, and of the largest
         uint32_t pbase = 0;
-        for (size_t ph = 0; ph < phases; ++ph) most = std::max<size_t>(most, (first[(ph + 1) * workers] - first[ph * workers] + 63) / 64);
+        for (size_t ph = 0; ph < phases; ++ph) most = std::max<size_t>(most, (first[(ph + 1) * PR] - first[ph * PR] + 63) / 64);
         Threads threads;
-        auto scan = [&](size_t w, size_t limit, auto&& hit, auto&& whole) {
-            std::vector<uint32_t> last(V, NONE);
-            Scratch sc;
-            struct Token {
-                const char* key;
-                uint32_t len;
-                uint64_t h;
-            };
+        struct Token {
+            const char* key;
+            uint32_t len;
+            uint64_t h;
+        };
+        struct State {  // one per worker, kept across ranges and phases
+            std::vector<uint32_t> last, seq, hits, at, seen;  // seq: a document's token ids, NONE for others
+            std::vector<uint64_t> touched;
             std::vector<Token> pending;
-            std::vector<uint32_t> seq;  // the document's token ids in order; NONE for any other token
+            Scratch sc;
+        };
+        std::vector<State> states(workers);
+        auto scan = [&](size_t w, State& st, size_t limit, auto&& hit, auto&& whole) {
+            auto& last = st.last;
+            auto& sc = st.sc;
+            auto& pending = st.pending;
+            auto& seq = st.seq;
+            if (last.empty()) last.assign(V, NONE);
             uint32_t doc = first[w] == NONE ? 0 : first[w];
             for (const char* p = cut[w]; p < cut[w + 1] && limit; ++doc, --limit) {
                 const char* t = static_cast<const char*>(memchr(p, '\t', 12)) + 1;
@@ -288,7 +297,8 @@ int main(int argc, char** argv) {
         std::vector<uint32_t> sampled(workers);
         const size_t per = std::max<size_t>(64, 8192 / workers);
         threads.run(workers, [&](size_t w) {
-            scan(w * phases, per, [&](uint32_t, const char*, uint32_t id) { id == NONE ? ++sampled[w] : ++counts[w][id]; },
+            State own;  // the sample's "last document" marks must not leak into the scan
+            scan(w * phases * 4, own, per, [&](uint32_t, const char*, uint32_t id) { id == NONE ? ++sampled[w] : ++counts[w][id]; },
                  [](uint32_t, const std::vector<uint32_t>&) {});
         });
         std::vector<uint32_t> bitmap_of(V, NONE), df(V);
@@ -332,7 +342,8 @@ int main(int argc, char** argv) {
             std::vector<uint32_t> ids, ends;
             std::vector<uint16_t> docs;
         };
-        std::vector<std::vector<Block>> blocks(workers);
+        std::vector<std::vector<Block>> blocks(R);  // per range, so ranges in order give document order
+        std::atomic<size_t> claim{0};
         counts.clear();
         struct Tally {
             uint64_t count = 0, sum = 0;
@@ -340,33 +351,41 @@ int main(int argc, char** argv) {
         };
         std::vector<Tally> tally(queries.size());
         for (size_t ph = 0; ph < phases; ++ph) {
-        pbase = first[ph * workers];
-        words = (first[(ph + 1) * workers] - pbase + 63) / 64;
+        pbase = first[ph * PR];
+        words = (first[(ph + 1) * PR] - pbase + 63) / 64;
         if (!words) continue;  // a phase without documents adds nothing
         memset(bitmaps, 0, nbitmaps * words * 8);
         std::fill(df.begin(), df.end(), 0);
         for (auto& list : blocks) list.clear();
+        claim = ph * PR;
         threads.run(workers, [&](size_t w) {
-            const size_t r = ph * workers + w;
-            std::vector<uint32_t> hits, at(V);
+          State& st = states[w];
+          auto& hits = st.hits;
+          auto& at = st.at;
+          if (at.empty()) at.assign(V, 0), st.seen.assign(phrases.size(), NONE), st.touched.assign(V / 64 + 1, 0);
+          auto& touched = st.touched;
+          for (size_t r; (r = claim.fetch_add(1)) < (ph + 1) * PR;) {
             uint32_t base = first[r];
             auto flush = [&] {
                 // Counting sort by term: stable, so documents stay ascending.
-                for (uint32_t h : hits) ++at[h >> 13];
-                Block& blk = blocks[w].emplace_back();
+                for (uint32_t h : hits) ++at[h >> 13], touched[h >> 19] |= 1ull << (h >> 13 & 63);
+                Block& blk = blocks[r].emplace_back();
                 blk.base = base;
                 uint32_t total = 0;
-                for (uint32_t id = 0; id < V; ++id)
-                    if (uint32_t k = at[id]) blk.ids.push_back(id), at[id] = total, blk.ends.push_back(total += k);
+                for (size_t i = 0; i < touched.size(); ++i)  // terms in ascending order, via a bit per term
+                    for (uint64_t m = std::exchange(touched[i], 0); m; m &= m - 1) {
+                        uint32_t id = static_cast<uint32_t>(i * 64 + __builtin_ctzll(m)), k = at[id];
+                        blk.ids.push_back(id), at[id] = total, blk.ends.push_back(total += k);
+                    }
                 blk.docs.resize(total);
                 for (uint32_t h : hits) blk.docs[at[h >> 13]++] = static_cast<uint16_t>(h & (BLOCK - 1));
                 for (uint32_t id : blk.ids) at[id] = 0;
                 blk.ids.shrink_to_fit(), blk.ends.shrink_to_fit();
                 hits.clear();
             };
-            std::vector<uint32_t> seen(phrases.size(), NONE);
+            auto& seen = st.seen;
             auto& mine = matched[r];
-            scan(r, SIZE_MAX, [&](uint32_t doc, const char*, uint32_t id) {
+            scan(r, st, SIZE_MAX, [&](uint32_t doc, const char*, uint32_t id) {
                 if (id == NONE) {
                     if (doc - base == BLOCK) flush(), base = doc;
                 } else if (bitmap_of[id] != NONE) bitmaps[bitmap_of[id] * words + (doc - pbase) / 64] |= 1ull << (doc % 64);
@@ -385,6 +404,7 @@ int main(int argc, char** argv) {
             });
             if (!hits.empty()) flush();
             drop(cut[r], cut[r + 1]);  // this range is never read again
+          }
         });
         // Document frequencies: run lengths for lists, popcounts for bitmaps.
         for (auto& list : blocks)

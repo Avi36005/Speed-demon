@@ -37,7 +37,7 @@ static uint64_t eq64(const __m256i* v, __m256i a, __m256i b) {
 struct Worker {
     const char *begin, *end;
     std::vector<uint16_t> table = std::vector<uint16_t>(SLOTS);  // id + 1, 0 is empty
-    std::vector<char> keys = std::vector<char>(size_t{CAP} * KEY);
+    char* keys = static_cast<char*>(calloc(size_t{CAP}, KEY));  // only used pages are backed
     std::vector<uint32_t> lens = std::vector<uint32_t>(CAP), rank;
     std::vector<std::string_view> names;
     bool seen[HOURS] = {};
@@ -170,53 +170,6 @@ static char* put(char* o, uint64_t v) {
     return o + (tmp + 24 - t);
 }
 
-// Writes whole 4 KiB blocks with O_DIRECT where the filesystem allows it, so
-// the output never sits in this run's page cache; falls back to plain writes.
-struct Output {
-    int fd = -1;
-    bool direct = false;
-    char* buf = nullptr;
-    size_t used = 0, offset = 0, cap = 1 << 21;
-    explicit Output(const std::string& path) {
-        fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_DIRECT, 0644);
-        direct = fd >= 0;
-        if (!direct) fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        if (fd < 0 || posix_memalign(reinterpret_cast<void**>(&buf), 4096, cap)) throw std::runtime_error("cannot create output");
-    }
-    void emit(size_t n) {
-        for (size_t done = 0; done < n;) {
-            ssize_t k = pwrite(fd, buf + done, n - done, static_cast<off_t>(offset + done));
-            if (k < 0 && direct && done == 0) {  // O_DIRECT refused: switch to buffered
-                fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_DIRECT);
-                direct = false;
-                continue;
-            }
-            if (k <= 0) throw std::runtime_error("write failed");
-            done += static_cast<size_t>(k);
-        }
-        offset += n;
-    }
-    void append(const char* p, size_t n) {
-        while (n) {
-            size_t k = std::min(n, cap - used);
-            memcpy(buf + used, p, k);
-            used += k, p += k, n -= k;
-            size_t whole = used & ~size_t{4095};
-            if (used == cap || (whole && used - whole < 4096 && whole >= (1 << 20))) {
-                emit(whole);
-                memmove(buf, buf + whole, used - whole);
-                used -= whole;
-            }
-        }
-    }
-    void finish() {
-        size_t size = offset + used, padded = (used + 4095) & ~size_t{4095};
-        memset(buf + used, 0, padded - used);
-        emit(direct ? padded : used);
-        if (ftruncate(fd, static_cast<off_t>(size)) || close(fd)) throw std::runtime_error("close failed");
-    }
-};
-
 int main(int argc, char** argv) {
     try {
         std::string data_dir = "/data", out_dir = "/out";
@@ -233,8 +186,9 @@ int main(int argc, char** argv) {
         struct stat st{};
         if (fd < 0 || fstat(fd, &st) != 0) throw std::runtime_error("cannot open requests.log");
         size_t size = static_cast<size_t>(st.st_size);
-        Output out(out_dir + "/summary.txt");
-        if (!size) return out.finish(), 0;
+        int out = open((out_dir + "/summary.txt").c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (out < 0) throw std::runtime_error("cannot create summary.txt");
+        if (!size) return close(out);
         // Vector loads may read past the last line: back the mapping with
         // extra anonymous zero pages.
         void* base = mmap(nullptr, size + 8192, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -332,13 +286,16 @@ int main(int argc, char** argv) {
                     used = static_cast<size_t>(o - buf.data());
                 }
                 for (uint32_t w; (w = written.load()) != h;) written.wait(w);
-                out.append(buf.data(), used);
+                for (size_t off = 0; off < used;) {
+                    ssize_t k = write(out, buf.data() + off, used - off);
+                    if (k <= 0) throw std::runtime_error("write failed");
+                    off += static_cast<size_t>(k);
+                }
                 written.store(h + 1);
                 written.notify_all();
             }
         });
-        out.finish();
-        return 0;
+        return close(out) ? 1 : 0;
     } catch (const std::exception& e) {
         fprintf(stderr, "%s\n", e.what());
         return 1;

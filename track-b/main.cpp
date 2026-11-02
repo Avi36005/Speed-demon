@@ -1,506 +1,520 @@
 #include <algorithm>
-#include <array>
 #include <atomic>
-#include <bit>
 #include <cstdint>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
-#include <fstream>
-#include <functional>
-#include <iostream>
-#include <iterator>
-#include <numeric>
+#include <immintrin.h>
+#include <sched.h>
 #include <stdexcept>
 #include <string>
-#include <string_view>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <thread>
 #include <unistd.h>
 #include <vector>
 
-#if defined(__x86_64__)
-#include <immintrin.h>
-#endif
+// Exact query-vocabulary index. Workers tokenize disjoint 64-aligned document
+// ranges once. Terms a sample predicts to be common get bitmaps; every other
+// term keeps compact sorted 16-bit runs per 8192-document block.
+constexpr uint32_t NONE = UINT32_MAX;
 
-struct Input {
-    const char* data = "";
-    size_t size = 0;
-    explicit Input(const std::string& path) {
-        int fd = open(path.c_str(), O_RDONLY);
-        if (fd < 0) throw std::runtime_error("cannot open " + path);
-        struct stat st{};
-        if (fstat(fd, &st) != 0) { close(fd); throw std::runtime_error("fstat failed"); }
-        size = static_cast<size_t>(st.st_size);
-        if (size) {
-            void* mapping = mmap(nullptr, size, PROT_READ, MAP_PRIVATE, fd, 0);
-            close(fd);
-            if (mapping == MAP_FAILED) throw std::runtime_error("mmap failed");
-            data = static_cast<const char*>(mapping);
-        } else close(fd);
+static const char* map_file(const std::string& path, size_t& size) {
+    int fd = open(path.c_str(), O_RDONLY);
+    struct stat st{};
+    if (fd < 0 || fstat(fd, &st) != 0) throw std::runtime_error("cannot open " + path);
+    size = static_cast<size_t>(st.st_size);
+    // Vector loads may read past the end: back the mapping with zero pages.
+    void* base = mmap(nullptr, size + 8192, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (base == MAP_FAILED || (size && mmap(base, size, PROT_READ, MAP_PRIVATE | MAP_FIXED, fd, 0) == MAP_FAILED))
+        throw std::runtime_error("mmap failed");
+    close(fd);
+    return static_cast<const char*>(base);
+}
+
+static __m256i in_range(__m256i v, char lo, char hi) {
+    return _mm256_and_si256(_mm256_cmpgt_epi8(v, _mm256_set1_epi8(static_cast<char>(lo - 1))),
+                            _mm256_cmpgt_epi8(_mm256_set1_epi8(static_cast<char>(hi + 1)), v));
+}
+// Token bytes of 32 input bytes, and the same bytes ASCII-lowercased.
+static uint32_t classify(const char* p, __m256i& lower) {
+    __m256i v = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(p));
+    lower = _mm256_or_si256(v, _mm256_and_si256(in_range(v, 'A', 'Z'), _mm256_set1_epi8(32)));
+    return static_cast<uint32_t>(_mm256_movemask_epi8(_mm256_or_si256(in_range(lower, 'a', 'z'), in_range(lower, '0', '9'))));
+}
+alignas(32) static const char ONES[64] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+                                          -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
+static __m256i load32(const char* p) { return _mm256_loadu_si256(reinterpret_cast<const __m256i*>(p)); }
+static uint64_t load8(const char* p) {
+    uint64_t v;
+    memcpy(&v, p, 8);
+    return v;
+}
+// A key: lowered token bytes, zero-padded to 32. Longer tokens are never terms.
+static __m256i key_of(const char* p, uint32_t len) { return _mm256_and_si256(load32(p), load32(ONES + 32 - len)); }
+static bool same(__m256i a, __m256i b) { return _mm256_movemask_epi8(_mm256_cmpeq_epi8(a, b)) == -1; }
+static bool alnum(char c) { return static_cast<unsigned char>((c | 32) - 'a') < 26 || static_cast<unsigned char>(c - '0') < 10; }
+static char lower(char c) { return static_cast<unsigned char>(c - 'A') < 26 ? static_cast<char>(c + 32) : c; }
+
+// Lowers a document into a scratch buffer with one token-byte bit per byte,
+// then calls f(lowered bytes, length) for every maximal token.
+struct Scratch {
+    std::vector<char> buf;
+    std::vector<uint64_t> masks;
+};
+template <class F>
+static void tokens(const char* t, const char* end, Scratch& sc, F f) {
+    size_t n = static_cast<size_t>(end - t), blocks = (n + 63) / 64;
+    if (sc.buf.size() < blocks * 64 + 128) sc.buf.resize(blocks * 128 + 128), sc.masks.resize(blocks * 2 + 1);
+    char* buf = sc.buf.data() + 64;  // front padding for branch-free hashing
+    for (size_t b = 0; b < blocks; ++b) {
+        __m256i lo, hi;
+        uint64_t m = classify(t + 64 * b, lo) | uint64_t{classify(t + 64 * b + 32, hi)} << 32;
+        _mm256_storeu_si256(reinterpret_cast<__m256i*>(buf + 64 * b), lo);
+        _mm256_storeu_si256(reinterpret_cast<__m256i*>(buf + 64 * b + 32), hi);
+        sc.masks[b] = m;
     }
-    ~Input() { if (size) munmap(const_cast<char*>(data), size); }
-    Input(const Input&) = delete;
-    Input& operator=(const Input&) = delete;
+    if (n % 64) sc.masks[blocks - 1] &= (1ull << (n % 64)) - 1;
+    sc.masks[blocks] = 0;
+    uint64_t carry = 0;
+    for (size_t b = 0; b < blocks; ++b) {
+        uint64_t m = sc.masks[b];
+        for (uint64_t s = m & ~(m << 1 | carry); s; s &= s - 1) {
+            uint32_t i = static_cast<uint32_t>(__builtin_ctzll(s));
+            uint32_t len = static_cast<uint32_t>(__builtin_ctzll(~(m >> i)));
+            if (i + len == 64)
+                for (size_t c = b + 1;; ++c) {
+                    uint64_t x = ~sc.masks[c];
+                    uint32_t k = x ? static_cast<uint32_t>(__builtin_ctzll(x)) : 64;
+                    len += k;
+                    if (k < 64) break;
+                }
+            f(buf + 64 * b + i, len);
+        }
+        carry = m >> 63;
+    }
+}
+
+// Open addressing over 2^18 slots: a 14-bit fingerprint and an 18-bit id.
+// Fingerprints only filter probes; a full 32-byte comparison decides.
+struct Vocabulary {
+    static constexpr uint32_t BITS = 18, MASK = (1u << BITS) - 1;
+    std::vector<uint32_t> slots = std::vector<uint32_t>(1u << BITS, NONE);
+    std::vector<__m256i> keys;
+    std::vector<uint32_t> lens;
+    static uint64_t hash(const char* p, uint32_t len) {
+        // Branch-free: callers keep 8 readable bytes before p.
+        uint64_t lo = _bzhi_u64(load8(p), 8 * len), hi = load8(p + len - 8) & (0 - uint64_t{len > 8});
+        return ((lo * 0x9E3779B97F4A7C15ull) ^ (hi * 0xC2B2AE3D27D4EB4Full) ^ len) * 0xD6E8FEB86659FD93ull;
+    }
+    uint32_t find(const char* p, uint32_t len) const {
+        if (len > 32) return NONE;
+        uint64_t h = hash(p, len);
+        uint32_t fp = static_cast<uint32_t>(h >> 18) & ~MASK;
+        for (uint32_t i = static_cast<uint32_t>(h >> (64 - BITS));; i = (i + 1) & MASK) {
+            uint32_t e = slots[i];
+            if (e == NONE) return NONE;
+            if ((e & ~MASK) == fp && same(keys[e & MASK], key_of(p, len))) return e & MASK;
+        }
+    }
+    uint32_t intern(const char* s, uint32_t len) {
+        alignas(32) char pad[96] = {};
+        char* buf = pad + 32;
+        memcpy(buf, s, len);
+        if (uint32_t id = find(buf, len); id != NONE) return id;
+        if (keys.size() >= MASK / 2) throw std::runtime_error("vocabulary too large");
+        uint64_t h = hash(buf, len);
+        uint32_t i = static_cast<uint32_t>(h >> (64 - BITS));
+        while (slots[i] != NONE) i = (i + 1) & MASK;
+        keys.push_back(key_of(buf, len));
+        lens.push_back(len);
+        slots[i] = (static_cast<uint32_t>(h >> 18) & ~MASK) | static_cast<uint32_t>(keys.size() - 1);
+        return static_cast<uint32_t>(keys.size() - 1);
+    }
 };
 
-template<class Callback>
-#if defined(__x86_64__)
-__attribute__((target("sse2")))
-#endif
-void tokenize(std::string_view text, Callback callback) {
-    char token[32];  // frozen maximum token length, in bytes
-    size_t length = 0;
-    size_t offset = 0;
-#if defined(__x86_64__)
-    // Fold ASCII capitals and classify 16 bounded bytes at once. Bytes with
-    // the high bit set fail the signed range tests and stay separators.
-    for (; offset + 16 <= text.size(); offset += 16) {
-        __m128i bytes = _mm_loadu_si128(reinterpret_cast<const __m128i*>(text.data() + offset));
-        __m128i capitals = _mm_and_si128(_mm_cmpgt_epi8(bytes, _mm_set1_epi8('A' - 1)),
-                                          _mm_cmpgt_epi8(_mm_set1_epi8('Z' + 1), bytes));
-        bytes = _mm_or_si128(bytes, _mm_and_si128(capitals, _mm_set1_epi8(32)));
-        __m128i letters = _mm_and_si128(_mm_cmpgt_epi8(bytes, _mm_set1_epi8('a' - 1)),
-                                         _mm_cmpgt_epi8(_mm_set1_epi8('z' + 1), bytes));
-        __m128i digits = _mm_and_si128(_mm_cmpgt_epi8(bytes, _mm_set1_epi8('0' - 1)),
-                                        _mm_cmpgt_epi8(_mm_set1_epi8('9' + 1), bytes));
-        uint32_t mask = static_cast<uint32_t>(_mm_movemask_epi8(_mm_or_si128(letters, digits)));
-        alignas(16) char lowered[16];
-        _mm_store_si128(reinterpret_cast<__m128i*>(lowered), bytes);
-        if (length && !(mask & 1)) {
-            callback(std::string_view(token, length));
-            length = 0;
-        }
-        while (mask) {
-            unsigned first = std::countr_zero(mask);
-            unsigned run = std::countr_one(mask >> first);
-            std::memcpy(token + length, lowered + first, run);
-            length += run;
-            unsigned end = first + run;
-            if (end < 16) {
-                callback(std::string_view(token, length));
-                length = 0;
-                mask &= ~((uint32_t{1} << end) - 1);
-            } else break;
+// Exact phrase test around each occurrence of the phrase's rarest term:
+// neighbouring tokens are read directly from the raw text in both directions.
+static bool phrase_in(const char* t, size_t n, const std::vector<const char*>& key, const std::vector<uint32_t>& len, size_t a) {
+    auto equal = [&](size_t s, size_t e, size_t j) {
+        if (e - s != len[j]) return false;
+        for (size_t i = 0; i < len[j]; ++i) if (lower(t[s + i]) != key[j][i]) return false;
+        return true;
+    };
+    const char* k = key[a];
+    const __m256i c0 = _mm256_set1_epi8(k[0]), c1 = _mm256_set1_epi8(len[a] > 1 ? k[1] : 0), up = _mm256_set1_epi8(32);
+    for (size_t base = 0; base < n; base += 32) {
+        uint32_t m = static_cast<uint32_t>(_mm256_movemask_epi8(_mm256_cmpeq_epi8(_mm256_or_si256(load32(t + base), up), c0)));
+        if (len[a] > 1) m &= static_cast<uint32_t>(_mm256_movemask_epi8(_mm256_cmpeq_epi8(_mm256_or_si256(load32(t + base + 1), up), c1)));
+        for (; m; m &= m - 1) {
+            size_t i = base + static_cast<size_t>(__builtin_ctz(m));
+            if (i + len[a] > n || (i && alnum(t[i - 1])) || (i + len[a] < n && alnum(t[i + len[a]])) || !equal(i, i + len[a], a))
+                continue;
+            bool ok = true;
+            for (size_t j = a, pos = i; ok && j-- > 0;) {
+                size_t e = pos;
+                while (e && !alnum(t[e - 1])) --e;
+                size_t s = e;
+                while (s && alnum(t[s - 1])) --s;
+                ok = s < e && equal(s, e, j);
+                pos = s;
+            }
+            for (size_t j = a + 1, pos = i + len[a]; ok && j < key.size(); ++j) {
+                size_t s = pos;
+                while (s < n && !alnum(t[s])) ++s;
+                size_t e = s;
+                while (e < n && alnum(t[e])) ++e;
+                ok = s < e && equal(s, e, j);
+                pos = e;
+            }
+            if (ok) return true;
         }
     }
-#endif
-    for (; offset < text.size(); ++offset) {
-        unsigned char byte = text[offset];
-        if (byte >= 'A' && byte <= 'Z') byte += 'a' - 'A';
-        if ((byte >= 'a' && byte <= 'z') || (byte >= '0' && byte <= '9')) {
-            token[length++] = static_cast<char>(byte);
-        } else if (length) {
-            callback(std::string_view(token, length));
-            length = 0;
-        }
-    }
-    if (length) callback(std::string_view(token, length));
+    return false;
 }
 
 struct Query {
-    bool phrase;
-    std::vector<uint32_t> terms;
+    bool phrase = false;
+    std::vector<uint32_t> terms;  // NONE for terms no query vocabulary holds
     std::vector<char> ops;
-    std::vector<size_t> prefix;
 };
 
-// Query-backed keys remain mapped throughout the run. A compact probing table
-// avoids a separately allocated hash node for every corpus-token lookup.
-// Fingerprints only filter probes: complete byte equality resolves collisions.
-class Vocabulary {
-    struct Slot { uint32_t fingerprint = 0, id = 0; };
-    std::vector<Slot> slots = std::vector<Slot>(1024);
-    std::vector<std::string_view> keys;
-    size_t locate(std::string_view key, size_t hash) const {
-        size_t pos = hash & (slots.size() - 1);
-        uint32_t fingerprint = static_cast<uint32_t>(hash >> 32);
-        while (slots[pos].id &&
-               (slots[pos].fingerprint != fingerprint || keys[slots[pos].id - 1] != key))
-            pos = (pos + 1) & (slots.size() - 1);
-        return pos;
-    }
-public:
-    size_t size() const { return keys.size(); }
-    std::string_view word(uint32_t id) const { return keys[id]; }
-    uint32_t find(std::string_view key) const {
-        auto id = slots[locate(key, std::hash<std::string_view>{}(key))].id;
-        return id ? id - 1 : UINT32_MAX;
-    }
-    uint32_t intern(std::string_view key) {
-        if ((keys.size() + 1) * 2 > slots.size()) {
-            slots.assign(slots.size() * 2, Slot{});
-            for (uint32_t id = 0; id < keys.size(); ++id) {
-                size_t hash = std::hash<std::string_view>{}(keys[id]);
-                slots[locate(keys[id], hash)] = {static_cast<uint32_t>(hash >> 32), id + 1};
-            }
-        }
-        size_t hash = std::hash<std::string_view>{}(key);
-        auto& slot = slots[locate(key, hash)];
-        if (!slot.id) {
-            keys.push_back(key);
-            slot = {static_cast<uint32_t>(hash >> 32), static_cast<uint32_t>(keys.size())};
-        }
-        return slot.id - 1;
+struct Threads {
+    std::vector<std::thread> list;
+    template <class F>
+    void run(size_t n, F f) {
+        for (size_t i = 1; i < n; ++i) list.emplace_back(f, i);
+        f(0);
+        for (auto& t : list) t.join();
+        list.clear();
     }
 };
-using Posting = std::vector<uint32_t>;
-
-// Local document ids increase monotonically. A 16-bit gap stores the
-// ordinary case; the escape carries the full uint32 gap without truncation.
-template<class Callback>
-void local_postings(const std::vector<uint16_t>& gaps, uint32_t first, Callback callback) {
-    uint32_t doc = first;
-    for (size_t i = 0; i < gaps.size(); ++i) {
-        uint32_t gap = gaps[i];
-        if (gap == UINT16_MAX) {
-            gap = uint32_t(gaps[i + 1]) | (uint32_t(gaps[i + 2]) << 16);
-            i += 2;
-        }
-        doc += gap;
-        callback(doc);
-    }
-}
-
-struct ThreadGroup {
-    std::vector<std::thread> values;
-    void join() { for (auto& thread : values) if (thread.joinable()) thread.join(); }
-    ~ThreadGroup() { join(); }
-};
-
-bool phrase_matches(std::string_view text, const Query& query, const Vocabulary& vocabulary) {
-    size_t matched = 0;
-    bool found = false;
-    tokenize(text, [&](std::string_view token) {
-        if (found) return;
-        // Exact streaming KMP preserves every token position, including tokens
-        // absent from the query vocabulary. No document sequence is allocated.
-        while (matched && token != vocabulary.word(query.terms[matched]))
-            matched = query.prefix[matched - 1];
-        if (token == vocabulary.word(query.terms[matched])) ++matched;
-        if (matched == query.terms.size()) found = true;
-    });
-    return found;
-}
-
-struct Summary {
-    uint64_t count = 0, sum = 0;
-    std::array<uint32_t, 10> first{};
-    void add(uint32_t id) {
-        if (count < first.size()) first[count] = id;
-        ++count;
-        sum += id;
-    }
-};
-
-#if defined(__x86_64__)
-__attribute__((target("popcnt")))
-#endif
-Summary summarize_bits(const std::vector<uint64_t>& bitmap) {
-    Summary result;
-    for (size_t word = 0; word < bitmap.size(); ++word) {
-        uint64_t bits = bitmap[word];
-        uint64_t count = std::popcount(bits);
-        // The six masks sum the six binary digits of every set-bit position.
-        // This computes exact id sums without materializing a dense posting.
-        result.sum += word * 64 * count;
-        result.sum += std::popcount(bits & 0xaaaaaaaaaaaaaaaaULL);
-        result.sum += 2ULL * std::popcount(bits & 0xccccccccccccccccULL);
-        result.sum += 4ULL * std::popcount(bits & 0xf0f0f0f0f0f0f0f0ULL);
-        result.sum += 8ULL * std::popcount(bits & 0xff00ff00ff00ff00ULL);
-        result.sum += 16ULL * std::popcount(bits & 0xffff0000ffff0000ULL);
-        result.sum += 32ULL * std::popcount(bits & 0xffffffff00000000ULL);
-        uint64_t ids = bits;
-        size_t first = std::min(result.count, uint64_t{10});
-        while (ids && first < result.first.size()) {
-            result.first[first++] = static_cast<uint32_t>(word * 64 + std::countr_zero(ids));
-            ids &= ids - 1;
-        }
-        result.count += count;
-    }
-    return result;
-}
-
-Summary evaluate(const Query& query, const std::vector<Posting>& index,
-                 const std::vector<std::string_view>& documents, const Vocabulary& vocabulary,
-                 const std::vector<std::vector<uint64_t>>& bitmaps,
-                 const std::vector<uint32_t>& frequencies) {
-    if (query.phrase) {
-        auto anchor = *std::min_element(query.terms.begin(), query.terms.end(), [&](auto a, auto b) {
-            return frequencies[a] < frequencies[b];
-        });
-        Summary result;
-        auto consider = [&](uint32_t doc) {
-            for (auto term : query.terms) {
-                const auto& bits = bitmaps[term];
-                bool present = bits.empty()
-                    ? std::binary_search(index[term].begin(), index[term].end(), doc)
-                    : ((bits[doc / 64] >> (doc % 64)) & 1) != 0;
-                if (!present) return;
-            }
-            if (phrase_matches(documents[doc], query, vocabulary)) result.add(doc);
-        };
-        if (bitmaps[anchor].empty()) {
-            for (auto doc : index[anchor]) consider(doc);
-        } else {
-            for (size_t word = 0; word < bitmaps[anchor].size(); ++word) {
-                uint64_t bits = bitmaps[anchor][word];
-                while (bits) {
-                    consider(static_cast<uint32_t>(word * 64 + std::countr_zero(bits)));
-                    bits &= bits - 1;
-                }
-            }
-        }
-        return result;
-    }
-    size_t words = (documents.size() + 63) / 64;
-    size_t threshold = std::max(size_t{64}, documents.size() / 64);
-    bool dense = !bitmaps[query.terms[0]].empty();
-    std::vector<uint64_t> bits = bitmaps[query.terms[0]];
-    Posting result = dense ? Posting{} : index[query.terms[0]], next;
-    auto contains = [](const auto& bitmap, uint32_t id) {
-        return (bitmap[id / 64] >> (id % 64)) & 1;
-    };
-    auto make_dense = [&] {
-        bits.assign(words, 0);
-        for (auto id : result) bits[id / 64] |= uint64_t{1} << (id % 64);
-        dense = true;
-        result.clear();
-    };
-    for (size_t i = 0; i < query.ops.size(); ++i) {
-        const auto& rhs = index[query.terms[i + 1]];
-        const auto& rhs_bits = bitmaps[query.terms[i + 1]];
-        char op = query.ops[i];
-        next.clear();
-        if (!dense && op == 'O' && !rhs_bits.empty()) make_dense();
-        if (dense && !rhs_bits.empty()) {
-            for (size_t w = 0; w < words; ++w) {
-                if (op == 'A') bits[w] &= rhs_bits[w];
-                else if (op == 'O') bits[w] |= rhs_bits[w];
-                else bits[w] &= ~rhs_bits[w];
-            }
-            continue;
-        }
-        if (dense) {
-            if (op == 'A') {
-                for (auto id : rhs) if (contains(bits, id)) next.push_back(id);
-                dense = false;
-                result.swap(next);
-            } else {
-                for (auto id : rhs) {
-                    uint64_t mask = uint64_t{1} << (id % 64);
-                    if (op == 'O') bits[id / 64] |= mask;
-                    else bits[id / 64] &= ~mask;
-                }
-            }
-            continue;
-        }
-        if (!rhs_bits.empty()) {
-            for (auto id : result)
-                if (contains(rhs_bits, id) == (op == 'A')) next.push_back(id);
-        } else if (op == 'A') {
-            const Posting* small = &result;
-            const Posting* large = &rhs;
-            if (small->size() > large->size()) std::swap(small, large);
-            if (small->size() * 16 < large->size()) {
-                for (auto id : *small)
-                    if (std::binary_search(large->begin(), large->end(), id)) next.push_back(id);
-            } else
-                std::set_intersection(result.begin(), result.end(), rhs.begin(), rhs.end(), std::back_inserter(next));
-        } else if (op == 'O')
-            std::set_union(result.begin(), result.end(), rhs.begin(), rhs.end(), std::back_inserter(next));
-        else
-            std::set_difference(result.begin(), result.end(), rhs.begin(), rhs.end(), std::back_inserter(next));
-        result.swap(next);
-        if (result.size() > threshold) make_dense();
-    }
-    if (dense) return summarize_bits(bits);
-    Summary summary;
-    for (uint32_t id : result) summary.add(id);
-    return summary;
-}
 
 int main(int argc, char** argv) {
     try {
         std::string data_dir = "/data", out_dir = "/out";
-        size_t worker_count = 6;
-        for (int i = 1; i < argc; ++i) {
+        cpu_set_t cpus;
+        size_t workers = sched_getaffinity(0, sizeof cpus, &cpus) == 0 ? CPU_COUNT(&cpus) : 12;
+        for (int i = 1; i + 1 < argc; i += 2) {
             std::string arg = argv[i];
-            if (i + 1 < argc && arg == "--data") data_dir = argv[++i];
-            else if (i + 1 < argc && arg == "--out") out_dir = argv[++i];
-            else if (i + 1 < argc && arg == "--workers") worker_count = std::stoul(argv[++i]);
-            else throw std::runtime_error("usage: solution [--data DIR] [--out DIR] [--workers 1..12]");
+            if (arg == "--data") data_dir = argv[i + 1];
+            else if (arg == "--out") out_dir = argv[i + 1];
+            else if (arg == "--workers") workers = std::stoul(argv[i + 1]);
         }
-        if (worker_count < 1 || worker_count > 12) throw std::runtime_error("workers must be 1..12");
-        Input query_file(data_dir + "/queries.txt");
-        Vocabulary vocabulary;
+        workers = std::clamp<size_t>(workers, 1, 64);
+        size_t qsize, dsize;
+        const char* qtext = map_file(data_dir + "/queries.txt", qsize);
+        const char* docs = map_file(data_dir + "/docs.txt", dsize);
+
+        Vocabulary vocab;
         std::vector<Query> queries;
-        const char* p = query_file.data;
-        const char* end = p + query_file.size;
-        while (p < end) {
-            const char* start = p;
-            p = static_cast<const char*>(std::memchr(p, '\n', end - p));
-            std::string_view line(start, p++ - start);
-            Query query{line.starts_with("PHRASE"), {}, {}, {}};
-            auto words = query.phrase ? line.substr(8, line.size() - 9) : line.substr(5);
-            bool term = true;
-            while (!words.empty()) {
-                size_t split = words.find(' ');
-                auto word = words.substr(0, split);
-                if (term) {
-                    query.terms.push_back(vocabulary.intern(word));
-                } else query.ops.push_back(word[0]);
-                if (!query.phrase) term = !term;
-                if (split == std::string_view::npos) break;
-                words.remove_prefix(split + 1);
+        for (const char *p = qtext, *end = qtext + qsize; p < end;) {
+            const char* nl = static_cast<const char*>(memchr(p, '\n', static_cast<size_t>(end - p)));
+            if (!nl) nl = end;
+            Query q;
+            q.phrase = p[0] == 'P';
+            const char* s = p + (q.phrase ? 8 : 5);
+            const char* e = q.phrase ? nl - 1 : nl;
+            for (bool term = true; s < e; term = q.phrase || !term) {
+                const char* w = s;
+                while (w < e && *w != ' ') ++w;
+                if (term) q.terms.push_back(static_cast<uint32_t>(w - s) <= 32 ? vocab.intern(s, static_cast<uint32_t>(w - s)) : NONE);
+                else q.ops.push_back(s[0]);
+                s = w + 1;
             }
-            if (query.phrase) {
-                query.prefix.resize(query.terms.size(), 0);
-                for (size_t i = 1, j = 0; i < query.terms.size(); ++i) {
-                    while (j && query.terms[i] != query.terms[j]) j = query.prefix[j - 1];
-                    if (query.terms[i] == query.terms[j]) ++j;
-                    query.prefix[i] = j;
-                }
+            queries.push_back(std::move(q));
+            p = nl + 1;
+        }
+        const size_t V = vocab.keys.size();
+
+        // Document ranges start at multiples of 64 so bitmap words are private.
+        std::vector<const char*> cut(workers + 1, docs + dsize);
+        std::vector<uint32_t> first(workers + 1, 0);
+        cut[0] = docs;
+        for (size_t i = 1; i < workers; ++i) {
+            const char* p = std::max(cut[i - 1], docs + dsize * i / workers);
+            while (p > docs && p < docs + dsize && p[-1] != '\n') ++p;
+            for (; p < docs + dsize; p = static_cast<const char*>(memchr(p, '\n', docs + dsize - p)) + 1) {
+                uint32_t id = 0;
+                for (const char* d = p; *d != '\t'; ++d) id = id * 10 + static_cast<uint32_t>(*d - '0');
+                if (id % 64 == 0) { first[i] = id; break; }
             }
-            queries.push_back(std::move(query));
+            cut[i] = p;
+            if (p == docs + dsize) first[i] = NONE;
         }
-        std::vector<Posting> index(vocabulary.size());
-        Input corpus(data_dir + "/docs.txt");
-        std::vector<std::string_view> documents;
-        p = corpus.data;
-        end = p + corpus.size;
-        while (p < end) {
-            while (*p++ != '\t') {}  // ids are dense and ascending
-            const char* start = p;
-            p = static_cast<const char*>(std::memchr(p, '\n', end - p));
-            std::string_view text(start, p++ - start);
-            documents.push_back(text);
+        // N is the id of the final line plus one.
+        uint32_t N = 0;
+        if (dsize) {
+            const char* p = docs + dsize - 1;
+            while (p > docs && p[-1] != '\n') --p;
+            for (; *p != '\t'; ++p) N = N * 10 + static_cast<uint32_t>(*p - '0');
+            ++N;
         }
-        // Each document range starts on a bitmap word boundary. A private
-        // term promotes once its bitmap is smaller than its postings; common
-        // terms never retain a second full posting representation.
-        struct LocalTerm {
-            std::vector<uint16_t> sparse;
-            std::vector<uint64_t> dense;
-            uint32_t frequency = 0, last = UINT32_MAX;
-        };
-        size_t words = (documents.size() + 63) / 64;
-        size_t threshold = std::max(size_t{64}, documents.size() / 64);
-        std::vector<std::vector<LocalTerm>> partial(worker_count, std::vector<LocalTerm>(index.size()));
-        const Vocabulary& needed = vocabulary;
-        auto build_index = [&](size_t worker) {
-            auto& local = partial[worker];
-            size_t first_word = words * worker / worker_count;
-            size_t last_word = words * (worker + 1) / worker_count;
-            size_t first = first_word * 64;
-            size_t last = std::min(documents.size(), last_word * 64);
-            size_t local_threshold = std::max(size_t{16}, (last - first) / 64);
-            for (size_t doc = first; doc < last; ++doc) {
-                tokenize(documents[doc], [&](std::string_view token) {
-                    uint32_t term = needed.find(token);
-                    if (term == UINT32_MAX) return;
-                    auto& value = local[term];
-                    if (value.last == doc) return;
-                    uint32_t previous = value.last == UINT32_MAX ? static_cast<uint32_t>(first) : value.last;
-                    value.last = static_cast<uint32_t>(doc);
-                    ++value.frequency;
-                    if (value.dense.empty()) {
-                        uint32_t gap = static_cast<uint32_t>(doc) - previous;
-                        if (gap < UINT16_MAX) value.sparse.push_back(static_cast<uint16_t>(gap));
-                        else {
-                            value.sparse.push_back(UINT16_MAX);
-                            value.sparse.push_back(static_cast<uint16_t>(gap));
-                            value.sparse.push_back(static_cast<uint16_t>(gap >> 16));
-                        }
-                        if (value.frequency > local_threshold) {
-                            value.dense.resize(last_word - first_word, 0);
-                            local_postings(value.sparse, static_cast<uint32_t>(first), [&](uint32_t id) {
-                                value.dense[id / 64 - first_word] |= uint64_t{1} << (id % 64);
-                            });
-                            std::vector<uint16_t>{}.swap(value.sparse);
-                        }
-                    } else value.dense[doc / 64 - first_word] |= uint64_t{1} << (doc % 64);
+        const size_t words = (N + 63) / 64;
+        Threads threads;
+        auto scan = [&](size_t w, size_t limit, auto&& hit) {
+            std::vector<uint32_t> last(V, NONE);
+            Scratch sc;
+            uint32_t doc = first[w] == NONE ? 0 : first[w];
+            for (const char* p = cut[w]; p < cut[w + 1] && limit; ++doc, --limit) {
+                const char* t = static_cast<const char*>(memchr(p, '\t', 12)) + 1;
+                const char* nl = static_cast<const char*>(memchr(t, '\n', static_cast<size_t>(cut[w + 1] - t)));
+                hit(doc, p, NONE);
+                tokens(t, nl, sc, [&](const char* key, uint32_t len) {
+                    uint32_t id = vocab.find(key, len);
+                    if (id != NONE && last[id] != doc) last[id] = doc, hit(doc, p, id);
                 });
+                p = nl + 1;
             }
         };
-        ThreadGroup threads;
-        for (size_t worker = 1; worker < worker_count; ++worker)
-            threads.values.emplace_back(build_index, worker);
-        build_index(0);
-        threads.join();
-        std::vector<std::vector<uint64_t>> bitmaps(index.size());
-        std::vector<uint32_t> frequencies(index.size(), 0);
-        std::atomic<size_t> next_term{0};
-        auto merge_terms = [&] {
-            for (;;) {
-                size_t term = next_term.fetch_add(1, std::memory_order_relaxed);
-                if (term >= index.size()) break;
-                uint32_t total = 0;
-                for (const auto& local : partial) total += local[term].frequency;
-                frequencies[term] = total;
-                bool dense = total > threshold;
-                if (dense) bitmaps[term].resize(words, 0);
-                else index[term].reserve(total);
-                for (size_t worker = 0; worker < worker_count; ++worker) {
-                    auto& value = partial[worker][term];
-                    size_t first_word = words * worker / worker_count;
-                    if (value.dense.empty()) {
-                        local_postings(value.sparse, static_cast<uint32_t>(first_word * 64), [&](uint32_t id) {
-                            if (dense) bitmaps[term][id / 64] |= uint64_t{1} << (id % 64);
-                            else index[term].push_back(id);
-                        });
-                    } else if (dense) {
-                        std::copy(value.dense.begin(), value.dense.end(), bitmaps[term].begin() + first_word);
-                    } else {
-                        for (size_t word = 0; word < value.dense.size(); ++word) {
-                            uint64_t bits = value.dense[word];
-                            while (bits) {
-                                index[term].push_back(static_cast<uint32_t>((first_word + word) * 64 + std::countr_zero(bits)));
-                                bits &= bits - 1;
+        // A small sample predicts the dense terms; their hits go straight into
+        // bitmaps. The prediction only picks a representation, never an answer.
+        std::vector<std::vector<uint32_t>> counts(workers, std::vector<uint32_t>(V));
+        std::vector<uint32_t> sampled(workers);
+        const size_t per = std::max<size_t>(64, 8192 / workers);
+        threads.run(workers, [&](size_t w) {
+            scan(w, per, [&](uint32_t, const char*, uint32_t id) { id == NONE ? ++sampled[w] : ++counts[w][id]; });
+        });
+        std::vector<uint32_t> bitmap_of(V, NONE), df(V);
+        size_t nbitmaps = 0, total = 0;
+        for (size_t w = 0; w < workers; ++w) total += sampled[w];
+        for (size_t t = 0; t < V; ++t) {
+            size_t n = 0;
+            for (size_t w = 0; w < workers; ++w) n += counts[w][t], counts[w][t] = 0;
+            if (n * 40 > total) bitmap_of[t] = static_cast<uint32_t>(nbitmaps++);
+        }
+        auto* bitmaps = static_cast<uint64_t*>(calloc(nbitmaps * words + 1, 8));
+        auto* offsets = static_cast<uint64_t*>(calloc(N + 1, 8));
+        // Sparse hits of each 8192-document block are packed as (term << 13 |
+        // local document), radix-sorted by term (stably, so documents stay
+        // ascending) and kept as compact 16-bit runs.
+        constexpr uint32_t BLOCK = 8192;
+        struct Block {
+            uint32_t base;
+            std::vector<uint32_t> ids, ends;
+            std::vector<uint16_t> docs;
+        };
+        std::vector<std::vector<Block>> blocks(workers);
+        threads.run(workers, [&](size_t w) {
+            auto& c = counts[w];
+            std::vector<uint32_t> hits, tmp;
+            uint32_t base = first[w] == NONE ? 0 : first[w];
+            auto flush = [&] {
+                tmp.resize(hits.size());
+                for (int shift = 13; shift < 31; shift += 9) {
+                    uint32_t bucket[513] = {};
+                    for (uint32_t h : hits) ++bucket[((h >> shift) & 511) + 1];
+                    for (int i = 0; i < 512; ++i) bucket[i + 1] += bucket[i];
+                    for (uint32_t h : hits) tmp[bucket[(h >> shift) & 511]++] = h;
+                    hits.swap(tmp);
+                }
+                Block& blk = blocks[w].emplace_back();
+                blk.base = base;
+                blk.docs.resize(hits.size());
+                for (size_t i = 0; i < hits.size(); ++i) {
+                    uint32_t id = hits[i] >> 13;
+                    if (blk.ids.empty() || blk.ids.back() != id) {
+                        if (!blk.ids.empty()) blk.ends.push_back(static_cast<uint32_t>(i));
+                        blk.ids.push_back(id);
+                    }
+                    blk.docs[i] = static_cast<uint16_t>(hits[i] & (BLOCK - 1));
+                }
+                blk.ends.push_back(static_cast<uint32_t>(hits.size()));
+                blk.ids.shrink_to_fit(), blk.ends.shrink_to_fit();
+                hits.clear();
+            };
+            scan(w, SIZE_MAX, [&](uint32_t doc, const char* line, uint32_t id) {
+                if (id == NONE) {
+                    if (doc - base == BLOCK) flush(), base = doc;
+                    offsets[doc] = static_cast<uint64_t>(line - docs);
+                    return;
+                }
+                ++c[id];
+                if (bitmap_of[id] != NONE) bitmaps[bitmap_of[id] * words + doc / 64] |= 1ull << (doc % 64);
+                else hits.push_back(id << 13 | (doc - base));
+            });
+            if (!hits.empty()) flush();
+        });
+        for (size_t t = 0; t < V; ++t)
+            for (size_t w = 0; w < workers; ++w) df[t] += counts[w][t];
+        counts.clear();
+        // Per term, its runs in document order: (block << 20 | run).
+        std::vector<const Block*> runs_of;
+        for (auto& list : blocks) for (auto& blk : list) runs_of.push_back(&blk);
+        std::vector<uint32_t> start(V + 1);
+        for (const Block* blk : runs_of) for (uint32_t id : blk->ids) ++start[id + 1];
+        for (size_t t = 0; t < V; ++t) start[t + 1] += start[t];
+        std::vector<uint32_t> refs(start[V] + 1), cursor(start.begin(), start.end() - 1);
+        for (uint32_t k = 0; k < runs_of.size(); ++k)
+            for (uint32_t r = 0; r < runs_of[k]->ids.size(); ++r) refs[cursor[runs_of[k]->ids[r]]++] = k << 20 | r;
+        std::vector<uint32_t>().swap(cursor);
+        offsets[N] = dsize;
+
+        // Answers are formatted into private slots and written in query order.
+        std::vector<std::string> answers(queries.size());
+        std::atomic<size_t> next{0};
+        auto dense = [&](uint32_t t) { return t != NONE && bitmap_of[t] != NONE; };
+        auto bits_of = [&](uint32_t t) { return bitmaps + size_t{bitmap_of[t]} * words; };
+        auto test = [](const uint64_t* b, uint32_t d) { return (b[d / 64] >> (d % 64)) & 1; };
+        auto materialize = [&](uint32_t t, std::vector<uint32_t>& out) {
+            out.clear();
+            if (t == NONE) return;
+            for (uint32_t k = start[t]; k < start[t + 1]; ++k) {
+                const Block& blk = *runs_of[refs[k] >> 20];
+                uint32_t r = refs[k] & ((1u << 20) - 1);
+                for (uint32_t i = r ? blk.ends[r - 1] : 0; i < blk.ends[r]; ++i) out.push_back(blk.base + blk.docs[i]);
+            }
+        };
+        // Membership without materializing: find the block run, then the document.
+        auto contains = [&](uint32_t t, uint32_t d) -> bool {
+            if (t == NONE) return false;
+            if (bitmap_of[t] != NONE) return test(bits_of(t), d);
+            const uint32_t *b = refs.data() + start[t], *e = refs.data() + start[t + 1];
+            auto it = std::upper_bound(b, e, d, [&](uint32_t x, uint32_t ref) { return x < runs_of[ref >> 20]->base; });
+            if (it == b) return false;
+            const Block& blk = *runs_of[*--it >> 20];
+            uint32_t r = *it & ((1u << 20) - 1);
+            if (d - blk.base >= BLOCK) return false;
+            const uint16_t *lo = blk.docs.data() + (r ? blk.ends[r - 1] : 0), *hi = blk.docs.data() + blk.ends[r];
+            return std::binary_search(lo, hi, static_cast<uint16_t>(d - blk.base));
+        };
+        threads.run(workers, [&](size_t) {
+            std::vector<uint32_t> list, other, merged, found;
+            std::vector<uint64_t> own(words), spare(words);
+            for (size_t qi; (qi = next.fetch_add(16)) < queries.size();)
+                for (size_t q = qi; q < std::min(qi + 16, queries.size()); ++q) {
+                    const Query& query = queries[q];
+                    uint64_t count = 0, sum = 0;
+                    uint32_t smallest[10], nsmall = 0;
+                    auto report = [&](const std::vector<uint32_t>& l) {
+                        count = l.size();
+                        for (uint32_t d : l) sum += d;
+                        for (; nsmall < 10 && nsmall < l.size(); ++nsmall) smallest[nsmall] = l[nsmall];
+                    };
+                    if (!query.phrase) {
+                        // The running set is a sorted list or a bitmap (`bits`, which
+                        // may still point at a term's own bitmap until first written).
+                        const uint64_t* bits = nullptr;
+                        uint32_t t0 = query.terms[0];
+                        if (dense(t0)) bits = bits_of(t0);
+                        else materialize(t0, list);
+                        auto writable = [&] {
+                            uint64_t* out = bits == own.data() ? spare.data() : own.data();
+                            return out;
+                        };
+                        for (size_t i = 0; i < query.ops.size(); ++i) {
+                            uint32_t t = query.terms[i + 1];
+                            char op = query.ops[i];
+                            if (bits && dense(t)) {
+                                const uint64_t* b = bits_of(t);
+                                uint64_t* out = writable();
+                                if (op == 'A') for (size_t k = 0; k < words; ++k) out[k] = bits[k] & b[k];
+                                else if (op == 'O') for (size_t k = 0; k < words; ++k) out[k] = bits[k] | b[k];
+                                else for (size_t k = 0; k < words; ++k) out[k] = bits[k] & ~b[k];
+                                bits = out;
+                            } else if (bits) {
+                                materialize(t, other);
+                                if (op == 'A') {
+                                    list.clear();
+                                    for (uint32_t x : other) if (test(bits, x)) list.push_back(x);
+                                    bits = nullptr;
+                                } else {
+                                    if (bits != own.data()) std::copy(bits, bits + words, own.data()), bits = own.data();
+                                    for (uint32_t x : other)
+                                        if (op == 'O') own[x / 64] |= 1ull << (x % 64);
+                                        else own[x / 64] &= ~(1ull << (x % 64));
+                                }
+                            } else if (dense(t)) {
+                                const uint64_t* b = bits_of(t);
+                                if (op == 'O') {
+                                    std::copy(b, b + words, own.data());
+                                    for (uint32_t x : list) own[x / 64] |= 1ull << (x % 64);
+                                    bits = own.data();
+                                } else {
+                                    uint64_t keep = op == 'A';
+                                    size_t n = 0;
+                                    for (uint32_t x : list) if (test(b, x) == keep) list[n++] = x;
+                                    list.resize(n);
+                                }
+                            } else if (op != 'O' && t != NONE && list.size() * 32 < df[t]) {
+                                bool keep = op == 'A';
+                                size_t n = 0;
+                                for (uint32_t x : list) if (contains(t, x) == keep) list[n++] = x;
+                                list.resize(n);
+                            } else {
+                                materialize(t, other);
+                                merged.clear();
+                                if (op == 'A') std::set_intersection(list.begin(), list.end(), other.begin(), other.end(), std::back_inserter(merged));
+                                else if (op == 'O') std::set_union(list.begin(), list.end(), other.begin(), other.end(), std::back_inserter(merged));
+                                else std::set_difference(list.begin(), list.end(), other.begin(), other.end(), std::back_inserter(merged));
+                                list.swap(merged);
                             }
                         }
+                        if (bits) {
+                            // Exact id sums from six bit-position popcounts per word.
+                            static constexpr uint64_t M[6] = {0xAAAAAAAAAAAAAAAAull, 0xCCCCCCCCCCCCCCCCull, 0xF0F0F0F0F0F0F0F0ull,
+                                                              0xFF00FF00FF00FF00ull, 0xFFFF0000FFFF0000ull, 0xFFFFFFFF00000000ull};
+                            for (size_t k = 0; k < words; ++k) {
+                                uint64_t x = bits[k];
+                                if (!x) continue;
+                                uint64_t c = static_cast<uint64_t>(__builtin_popcountll(x));
+                                count += c;
+                                sum += c * 64 * k;
+                                for (int j = 0; j < 6; ++j) sum += static_cast<uint64_t>(__builtin_popcountll(x & M[j])) << j;
+                                for (; x && nsmall < 10; x &= x - 1) smallest[nsmall++] = static_cast<uint32_t>(k * 64 + __builtin_ctzll(x));
+                            }
+                        } else report(list);
+                    } else {
+                        // Candidates hold every term; the rarest term seeds them.
+                        const auto& terms = query.terms;
+                        bool absent = false;
+                        uint32_t seed = NONE;
+                        size_t at = 0;
+                        for (size_t j = 0; j < terms.size(); ++j) {
+                            uint32_t t = terms[j];
+                            if (t == NONE || df[t] == 0) absent = true;
+                            else if (seed == NONE || df[t] < df[seed]) seed = t, at = j;
+                        }
+                        found.clear();
+                        if (!absent) {
+                            if (dense(seed)) {
+                                list.clear();
+                                for (size_t k = 0; k < words; ++k)
+                                    for (uint64_t x = bits_of(seed)[k]; x; x &= x - 1)
+                                        list.push_back(static_cast<uint32_t>(k * 64 + __builtin_ctzll(x)));
+                            } else materialize(seed, list);
+                            std::vector<const char*> keys;
+                            std::vector<uint32_t> lens;
+                            for (uint32_t t : terms) keys.push_back(reinterpret_cast<const char*>(&vocab.keys[t])), lens.push_back(vocab.lens[t]);
+                            for (uint32_t d : list) {
+                                bool all = true;
+                                for (uint32_t t : terms) if (t != seed && !(all = contains(t, d))) break;
+                                if (!all) continue;
+                                const char* t = static_cast<const char*>(memchr(docs + offsets[d], '\t', 12)) + 1;
+                                if (phrase_in(t, static_cast<size_t>(docs + offsets[d + 1] - 1 - t), keys, lens, at)) found.push_back(d);
+                            }
+                        }
+                        report(found);
                     }
-                    // The term is complete globally; release its private
-                    // storage before allocating the next merged term.
-                    std::vector<uint16_t>{}.swap(value.sparse);
-                    std::vector<uint64_t>{}.swap(value.dense);
+                    std::string& out = answers[q];
+                    out = std::to_string(count) + ' ' + std::to_string(sum);
+                    for (uint32_t i = 0; i < nsmall; ++i) out += ' ' + std::to_string(smallest[i]);
+                    out += '\n';
                 }
-            }
-        };
-        threads.values.clear();
-        for (size_t worker = 1; worker < worker_count; ++worker)
-            threads.values.emplace_back(merge_terms);
-        merge_terms();
-        threads.join();
-        partial.clear();
-        // Queries read immutable indexes and own their temporary sets. Output
-        // slots are disjoint; the final write preserves original query order.
-        std::vector<std::string> answers(queries.size());
-        std::atomic<size_t> next_query{0};
-        auto answer_queries = [&] {
-            while (true) {
-                size_t first = next_query.fetch_add(16, std::memory_order_relaxed);
-                if (first >= queries.size()) break;
-                for (size_t q = first; q < std::min(first + 16, queries.size()); ++q) {
-                    Summary result = evaluate(queries[q], index, documents, vocabulary, bitmaps, frequencies);
-                    auto& answer = answers[q];
-                    answer = std::to_string(result.count) + ' ' + std::to_string(result.sum);
-                    for (size_t i = 0; i < std::min(uint64_t{10}, result.count); ++i)
-                        answer += ' ' + std::to_string(result.first[i]);
-                    answer += '\n';
-                }
-            }
-        };
-        threads.values.clear();
-        for (size_t worker = 1; worker < worker_count; ++worker)
-            threads.values.emplace_back(answer_queries);
-        answer_queries();
-        threads.join();
-        std::ofstream out(out_dir + "/results.txt", std::ios::binary);
-        for (const auto& answer : answers) out.write(answer.data(), answer.size());
-        if (!out) throw std::runtime_error("output write failed");
+        });
+        std::string all;
+        for (auto& a : answers) all += a;
+        int fd = open((out_dir + "/results.txt").c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if (fd < 0) throw std::runtime_error("cannot create results.txt");
+        for (size_t off = 0; off < all.size();) {
+            ssize_t k = write(fd, all.data() + off, all.size() - off);
+            if (k <= 0) throw std::runtime_error("write failed");
+            off += static_cast<size_t>(k);
+        }
+        return close(fd) == 0 ? 0 : 1;
     } catch (const std::exception& e) {
-        std::cerr << e.what() << '\n';
+        fprintf(stderr, "%s\n", e.what());
         return 1;
     }
 }

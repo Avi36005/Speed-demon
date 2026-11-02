@@ -189,7 +189,8 @@ int main(int argc, char** argv) {
     try {
         std::string data_dir = "/data", out_dir = "/out";
         cpu_set_t cpus;
-        size_t workers = sched_getaffinity(0, sizeof cpus, &cpus) == 0 ? CPU_COUNT(&cpus) : 12;
+        // Six P-cores on the published scoring CPU; CLI overrides remain explicit.
+        size_t workers = std::min<size_t>(6, sched_getaffinity(0, sizeof cpus, &cpus) == 0 ? CPU_COUNT(&cpus) : 6);
         for (int i = 1; i + 1 < argc; i += 2) {
             std::string arg = argv[i];
             if (arg == "--data") data_dir = argv[i + 1];

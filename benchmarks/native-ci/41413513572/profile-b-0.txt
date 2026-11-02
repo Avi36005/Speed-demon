@@ -1,0 +1,1 @@
+docs=250000 docs_bytes=253827587 queries=50000 queries_bytes=1763534 distinct_tokens=609833 seconds=68.7

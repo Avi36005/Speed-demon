@@ -13,7 +13,9 @@ SUB = Path(__file__).resolve().parents[1]
 OUT = SUB / '.work/ci-evidence'
 OUT.mkdir(parents=True, exist_ok=True)
 tracks = os.environ.get('TRACKS', 'bc')
-assert tracks in ('bc', 'abcd')
+assert tracks in ('bc', 'ab', 'a', 'abcd')
+b_workers = int(os.environ.get('B_WORKERS', '12'))
+assert b_workers in (6, 12)
 assert platform.machine() in ('x86_64', 'AMD64')
 
 
@@ -32,6 +34,7 @@ initial = {str(p.relative_to(SUB)): len(p.read_text().splitlines())
            for p in (SUB / 'benchmarks').rglob('*.jsonl')}
 record = {'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
           'official': False, 'method': __doc__, 'tracks': tracks,
+          'workers': {t: b_workers if t == 'b' else 12 for t in tracks},
           'commit': capture(['git', 'rev-parse', 'HEAD']).strip(),
           'official_commit': capture(['git', '-C', str(SUB.parent / 'official/speed-demon-2026'), 'rev-parse', 'HEAD']).strip(),
           'runtime_hashes_before': runtime_hashes(), 'python': sys.version,
@@ -42,7 +45,7 @@ try:
     assert 'avx2' in record['cpu'] and 'bmi2' in record['cpu'], 'required CPU features unavailable'
     for track in tracks:
         argv = [sys.executable, str(SUB / 'tools/suite.py'), track, '--fixtures',
-                '--seeds', '42', '--scale', 'sample', '--workers', '12']
+                '--seeds', '42', '--scale', 'sample', '--workers', str(record['workers'][track])]
         console = OUT / f'console-{track}.txt'
         with console.open('w') as stream:
             p = subprocess.run(argv, stdout=stream, stderr=subprocess.STDOUT)
@@ -55,10 +58,10 @@ try:
     # standard runner's oversubscribed waiting threads. These are development
     # phases; the official twelve-worker scoring CPU remains authoritative.
     for track in tracks:
-        if track not in 'bc':
+        if track not in 'abc':
             continue
         data = SUB.parent / f'data/track-{track}/full-seed1'
-        module = {'b': 'b_index', 'c': 'c_join'}[track]
+        module = {'a': 'a_ingest', 'b': 'b_index', 'c': 'c_join'}[track]
         jobs = [[sys.executable, str(SUB.parent / f'official/speed-demon-2026/generators/{module}.py'),
                  '--seed', '1', '--scale', 'full', '--out', str(data)],
                 [sys.executable, str(SUB / 'tools/phase_profile_linux.py'), track, '1', '--native']]
@@ -70,6 +73,15 @@ try:
             if p.returncode:
                 print(console.read_text()[-8000:])
                 raise RuntimeError(f'track {track} native diagnostic failed')
+    if os.environ.get('PAIR_B_KEYS') == 'true' and 'b' in tracks:
+        argv = [sys.executable, str(SUB / 'tools/native_pair.py')]
+        console = OUT / 'native-pair-console.txt'
+        with console.open('w') as stream:
+            p = subprocess.run(argv, stdout=stream, stderr=subprocess.STDOUT)
+        record['commands'].append({'argv': argv, 'exit': p.returncode, 'console': console.name})
+        if p.returncode:
+            print(console.read_text()[-8000:])
+            raise RuntimeError('native paired screening failed correctness')
     record['runtime_hashes_after'] = runtime_hashes()
     assert record['runtime_hashes_before'] == record['runtime_hashes_after']
     assert not capture(['git', '-C', str(SUB.parent / 'official/speed-demon-2026'), 'status', '--porcelain'])

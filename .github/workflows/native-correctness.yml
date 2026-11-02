@@ -6,8 +6,17 @@ on:
       tracks:
         description: Tracks to verify
         type: choice
-        options: [bc, abcd]
+        options: [bc, ab, a, abcd]
         default: bc
+      b_workers:
+        description: Explicit B verification workers
+        type: choice
+        options: ['12', '6']
+        default: '12'
+      pair_b_keys:
+        description: Also screen dependent key prefetch on one native core
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -26,6 +35,8 @@ jobs:
       UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
       PYTHONDONTWRITEBYTECODE: '1'
       TRACKS: ${{ inputs.tracks }}
+      B_WORKERS: ${{ inputs.b_workers }}
+      PAIR_B_KEYS: ${{ inputs.pair_b_keys }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:

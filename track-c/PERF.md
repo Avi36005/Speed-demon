@@ -279,3 +279,11 @@ oracle. UBSan/bounds fixtures1/12, forced one-hash collisions33workers, full7
 Header-comment update retained an identical verified release binary. S353/D1
 versus379; native improvement unclaimed pending actual board. Full ledger:
 benchmarks/prefix-and-inline-bits-trial.json. Native ASan pending manual CI.
+
+### Native name-local membership result — kept
+
+036225c/run-5390ab67f3f3: all five gates pass, T0.043319s/M12263424B/
+S353/D1/K30.17635/73.983336points. This exceeds prior historical C
+best73.246578 at6179d73/run-e8a44288f8f2. Against same parent baseline C at
+2d48af0: .044476s/M13,066,240B/S379/73.190280. Memory/source gains are
+measured; a single small time difference is noisy. Receipt2026-11-02T083443.958935Z.

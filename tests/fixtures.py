@@ -35,6 +35,21 @@ def make_a():
     answer("a", "worked", mod.WORKED_OUTPUT)
     answer("a", "edges", mod.EDGE_OUTPUT)
     answer("a", "empty", "")
+    # Exact packed-latency escapes across append-chunk boundaries, plus a
+    # large all-equal group exercising degenerate percentile partitions.
+    rows, expected = [], []
+    for n in (255, 256, 257, 1023, 1024, 1025, 4097):
+        path = f"/packed/{n}"
+        values = ([7] * n if n == 4097 else
+                  [(0, 524286, 524287, 4294967295, 7, 7, 7)[i % 7] for i in range(n)])
+        errors = sum(i % 4 in (1, 2) for i in range(n))
+        for i, value in enumerate(values):
+            rows.append(f"2026-10-30T18:00:00.000000Z GET {path} {(499,500,599,200)[i % 4]} {value}\n")
+        ordered = sorted(values)
+        ranks = [ordered[(p * n + 99) // 100 - 1] for p in (50, 95, 99)]
+        expected.append((path, f"2026-10-30T18:00:00Z {path} {n} {' '.join(map(str, ranks))} {errors} {errors * 1000000 // n}\n"))
+    cases["packed-chunk-boundaries"] = "".join(reversed(rows))
+    answer("a", "packed-chunk-boundaries", "".join(text for _, text in sorted(expected)))
     for label, text in cases.items():
         data = SUB / ".work/fixtures/a" / label
         data.mkdir(parents=True, exist_ok=True)

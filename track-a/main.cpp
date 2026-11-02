@@ -23,7 +23,7 @@
 // latency) under its hour. Hours are then grouped and selected in cache,
 // leaving compact results and exact text sizes; the records are freed before
 // the output is formatted in parallel straight into the mapped output file.
-constexpr uint32_t HOURS = 72, SLOTS = 8192, CAP = 4096, KEY = 64, CHUNK = 1024, ESC = (1u << 19) - 1;
+constexpr uint32_t HOURS = 72, SLOTS = 8192, CAP = 4096, KEY = 64, CHUNK = 256, ESC = (1u << 19) - 1;
 alignas(16) static const char ONES[32] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 static uint64_t load8(const char* p) {
@@ -83,7 +83,7 @@ static uint32_t hour_of(const char* p) {
     return day * 24 + (p[11] - '0') * 10 + p[12] - '0' - 18;
 }
 
-// Each thread's records for one hour: 4 KiB chunks from a private pool.
+// Each thread's records for one hour: 1 KiB chunks from a private pool.
 struct Bucket {
     std::vector<uint32_t*> chunks;
     uint32_t *cur = nullptr, *end = nullptr;
@@ -133,6 +133,9 @@ static void select(uint32_t* first, uint32_t* last, uint32_t* k) {
             j += x < pivot;
         }
         std::swap(*j, *back);
+        // Avoid quadratic progress when every remaining value equals the
+        // minimum pivot. Ordinary partitions pay only this constant check.
+        if (j == first && std::all_of(first, last, [=](uint32_t x) { return x == pivot; })) return;
         if (k == j) return;
         if (k < j) last = j;
         else first = j + 1;
@@ -279,7 +282,7 @@ int main(int argc, char** argv) {
             }
             sync.arrive_and_wait();
             drop(data + size * w / workers, data + size * (w + 1) / workers);
-            std::vector<uint32_t> count(CAP), errors(CAP), fill(CAP);
+            std::vector<uint32_t> count(order.size()), errors(order.size()), fill(order.size());
             std::unique_ptr<uint32_t[]> values(new uint32_t[most + 1]);  // pages backed only as used
             for (uint32_t h; (h = next_hour.fetch_add(1)) < HOURS;) {
                 for (auto& p : part) {
@@ -302,6 +305,7 @@ int main(int argc, char** argv) {
                 }
                 size_t chars = 0;
                 auto& out_groups = groups[h];
+                out_groups.reserve(order.size());
                 for (uint32_t id : order) {
                     uint64_t n = count[id];
                     if (!n) continue;

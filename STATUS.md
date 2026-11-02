@@ -1,77 +1,57 @@
 # Kryptonite — active checkpoint
 
-Updated 2026-11-02 08:29 UTC. Target90 live overall machine points and top three remain unmet.
-Freeze today15:00UTC/20:30IST. Stop broad rewrites13:00UTC; reserve final two hours.
-Entrant https://github.com/Avi36005/Speed-demon, branch speed-demon. Claude stopped;
-single writer. Tested ordinary pushes authorized; no force/backdated commits.
+Updated 2026-11-02 08:49 UTC.
+Target90/top three unmet. Freeze15:00UTC/20:30IST; stop broad rewrites13:00UTC.
+Current pushed036225c7dd50f0eb1107ffee842feb15e0cafa3b; all four registered, all
+board gates pass. Latest assembled-head72.971055; historical best-three73.256138.
+Receipt benchmarks/board/2026-11-02T083443.958935Z.json. C73.983336 winner retained.
 
-## Native board evidence
-
-Pushed head ccc259f26ed733dedaa25ddaa57a35ee07ad4cf8. Latest receipt
-benchmarks/board/2026-11-02T080605.562657Z.json; watcher matches, queue empty,
-all four tracks registered, all five gates pass. Latest trial overall72.088040;
-historical best-three73.012154. Select BEST THREE, never all four. Final head
-must contain selected code; historical bests alone do not certify it.
-
-| Track | Machine points | Time | cgroup peak | Real run at `ccc259f` |
+| Track | Machine points | Time | cgroup peak | Real run at `036225c` |
 | :--- | ---: | ---: | ---: | :--- |
-| A | 79.856533 | 0.026894 s | 24,780,800 B | `run-af057be8bbd9` |
-| B | 65.461918 | 0.333285 s | 46,641,152 B | `run-aba2bc28e2a3` |
-| C | 71.662257 | 0.049922 s | 12,931,072 B | `run-b603168892dc` |
-| D | 52.201648 | 0.566995 s | 271,425,536 B | `run-aa2034569555` |
+| A | 79.808946 | 0.026911 s | 25,014,272 B | `run-5f9bb2ac6c4e` |
+| B | 65.806136 | 0.321271 s | 46,911,488 B | `run-81df8b60b921` |
+| C | 73.983336 | 0.043319 s | 12,263,424 B | `run-5390ab67f3f3` |
+| D | 53.924001 | 0.483486 s | 271,896,576 B | `run-7b43f4f31e6e` |
 
-Rejected B rare-AND2d48af0/run-650505a4fc9b:65.641637 versus parent66.167402;
-restored42317bd before the next experiment. Rejected C batch16 lookahead
-ccc259f/run-b603168892dc:71.662257 versus unchanged parent73.190280. Extra scan
-and source penalty lose; stop this line. C baseline retained in463de7b.
-Rejected sample hot256 B cache locally:2.193313 ->2.394439s QEMU, no native claim.
+## Selected new A/B native trial — ready to push
 
-## Selected new B/C trial, ready to push
+Exact source/build/check/image hashes: benchmarks/compact-a-six-b-trial.json.
+A compact256-entry chunks, right-sized scratch, group reserve and equal-value
+quickselect guard. S441; fixture UBSan/bounds1/12, new independent oracle,
+five public pairs, full7 at1/12, exact offline image five full1/one full7 pass.
+B default six workers, CLI override intact. Source logic otherwise036 prefix.
+UBSan/bounds6, full7 at6, exact offline image five full1/one full7 pass. QEMU6
+slower20%; one native6P-core memory/time tradeoff trial only. Restore036 default
+if complete axes regress. Do not claim gain before exact commit/run.
+C/D unchanged. Next: push A/B trial, observe actual native metrics, dispatch
+manual native CI tracksab,b_workers6,pair_b_keystrue. Prepared optional single-core
+native B dependent-key prefetch experiment changes only a development copy;
+its candidate is unselected. Preserve current runtime while remote tests run.
 
-Proof ledger benchmarks/prefix-and-inline-bits-trial.json pins exact source hashes,
-all checks and images. A/D are unchanged from463de7b.
-B a8bde297...: sound per-phase empty-prefix propagation through LTR AND/OR/NOT;
-discard only prefixes proven empty before OR revival. S782/D1, QEMU five-pair
-1.914635 ->1.836980s. UBSan+bounds all fixtures1/12, expanded independent fixture
-agrees with frozen oracle, full7 at1/12, exact offline image five full1/one full7 pass.
-C b3d9888e...: country membership colocated with immutable arena names; atomic
-first-set detection credits one local distinct count, removing name IDs and separate
-country bitmaps. S353/D1. QEMU1.131957 ->.910426s;236,695,552 ->234,336,256B
-include emulator/page cache, NOT official T/M. Header-comment-only change retained
-identical compiled release binary. UBSan+bounds fixtures1/12, forced collisions at33,
-country-word boundaries independently derived and oracle-checked, full7 at1/12,
-exact offline image five full1/one full7 pass. Native effect UNKNOWN until observed.
+## Verification and native diagnostics
 
-## Native sanitizer and diagnostics path
+Native x86 CI41413513572 PASSED exact036225c B/C, artifacts
+benchmarks/native-ci/41413513572. B16 exact-source checks14ASan, C9 with8ASan,
+fresh sample42 at12 and full-public diagnostic oracles pass. Compiler GCC13.3,
+Intel Xeon6975P-C; not scoring13500 timings. B single-worker scan.756387s,
+BOOL.221617s, metadata.008877s; C parse/intern/aggregate.186653s. Main remaining
+B cost is scan/lookup. Local QEMU cannot initialize ASan, so new A/B source
+native ASan is pending. Local compatibility uses native ARM QEMU10.2.3 Haswell,
+pinned metadata .work/qemu-runtime/metadata.json; never substitute its T/M.
 
-Manual-only .github/workflows/native-correctness.yml prepares a standard bounded
-Ubuntu x86 CI job, read-only repo permission, pinned official actions, frozen oracle
-158894dcefde61f459c0adfae841900458dbeb7f. Default B/C fixtures with native ASan/UBSan,
-sample42 at12, plus one-worker native full-public phase diagnostics. No auto push
-trigger. Artifact new logs/source hashes retained; local QEMU ASan cannot initialize.
-Next: commit/push verified B/C, dispatch this one job, observe exact board and CI IDs.
-Do not claim native sanitizer passed until its artifact is retrieved and checked.
+## Rejected experiments and safeguards
 
-Default Docker amd64 translator stalls before main on this AVX2 source. Native ARM
-QEMU10.2.3 Haswell works; metadata .work/qemu-runtime/metadata.json pins emulator
-and libraries. No host/binfmt changes. ASan allocator fails before main under QEMU;
-UBSan halt-on-error+bounds fresh checks pass. Reuse Claude native ASan proof only
-for unchanged A/D or exact parent hashes, not new B/C.
+B rare-AND2d48af0 scored65.641637: reverted. B sample-hot256 locally regressed:
+unselected. C batch16 lookaheadccc259f scored71.662257: reverted. C current
+name-local bits036225c improved73.983336: keep. Preserve all raw evidence.
+Single writer; Claude stopped. Ordinary tested pushes authorized, no force,
+backdating, manufactured commits/metrics or public visibility action. Repo
+private last checked; MIT retained. Public-source deadline16:00UTC/21:30IST
+still needs applicable authorization. No current rank/90/top-three claim.
 
-## Release requirements and continuity
-
-Read score-push master/plan/analysis and linked A/B/C/D/measurement briefs (done).
-Do not modify frozen specs/oracles/generators/harness. Keep experiments append-only;
-match claimed improvement to commit/run. Pending board and CI IDs must be saved.
-No new ZIP/files handoff until target/actual outcome agreed; existing root ZIP old.
-MIT retained; repo private at latest check. Public by16:00UTC/21:30IST requires
-applicable visibility authorization. Final assembled committed-archive offline images,
-multiple fresh seeds and branch/watch verification remain due before freeze.
-
-Archive branches codex/pre-claude-evidence-20261102 at3577d79 and
-codex/pre-final-claude-handoff-20261102 at263c0ec preserve older unpushed evidence.
-Only speed-demon is the official watched branch. Source-identical T changes are
-variation; no fake rank/top-three/90 claim. Docker environment uses isolated
-.work/docker-public-config and unix:///Users/avinashgehi3/.docker/run/docker.sock.
-Python required /opt/homebrew/bin/python3.13; system python3 is3.9 and lacks file_digest.
-No subagents, goals or automations were created.
+Reserve final two hours for assembled committed-archive offline builds,
+additional unused fresh seed, deterministic output and watcher/head validation.
+No new ZIP handed off; project root ZIP is historical. Use Python3.13 explicitly;
+systempython3 is3.9. Docker uses isolated .work/docker-public-config and
+unix:///Users/avinashgehi3/.docker/run/docker.sock. No agents/goals/automations.
+Prior detailed checkpoint archived in benchmarks/status-history/.

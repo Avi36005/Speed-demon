@@ -353,3 +353,22 @@ Expanded independent OR-revival fixture agrees with frozen oracle; UBSan/bounds
 fixtures1/12, full7 at1/12, five paired full1 hashes and exact offline image
 five full1/one full7 pass. QEMU means1.914635 ->1.836980s are screening only.
 S782/D1; native result pending. Ledger benchmarks/prefix-and-inline-bits-trial.json.
+
+### Native empty-prefix result — provisionally kept
+
+036225c/run-81df8b60b921: all gates pass, .321271s/M46,911,488B/S782/
+D1/K20.707264/65.806136points. Parent B atccc259f was.333285s/65.461918;
+older same-parent source at463de7b was.311542s/66.167402. Small time changes
+are noisy; this does not beat B historical66.489154. Source-small sound
+simplification remains provisional pending native phase diagnostics.
+
+## Six-worker default native tradeoff trial
+
+Only default worker selection changes: at most six affinity CPUs, with explicit
+CLI overrides preserved. The published runner has six P-cores/twelve SMT CPUs.
+UBSan/bounds fixtures6, full7 at6, offline image five default full1 and one full7
+pass. QEMU12-v6 mean2.350044 ->2.834975s regresses; cgroup316,997,632 ->
+311,226,368B falls (includes emulator). One native physical-core tradeoff trial
+will decide; no improvement claimed. Restore036 B if complete native axes lose.
+Ledger benchmarks/compact-a-six-b-trial.json; exact worker settings recorded
+per comparison version. Existing036 B native ASan12 proof remains distinct.

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.13/bin/python3.13",
+    "../official/speed-demon-2026/reference/a_ingest.py",
+    "--data",
+    ".work/fixtures/a/packed-chunk-boundaries",
+    "--out",
+    ".work/a-packed-reference"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "expected_sha256": "009afa2aa405a0660a24a925f63e60f51e554ad948a4864c942b4673d78726e9",
+  "reference_sha256": "6c3cff053f5d620aa873038e30bb32a31319bcbcd79b3b662a2ae152bb2664f1"
+}

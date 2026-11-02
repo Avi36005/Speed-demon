@@ -239,3 +239,15 @@ processing); a branch-light AVX2 parser (about 2.6 mispredicts per line down to
 0.4); a branch-free quickselect instead of `nth_element` (5.5M mispredicts at
 full scale); a two-digit formatter; and writing finished hours without
 blocking other workers. Identical code varied 0.042–0.050 s between board runs.
+
+## Compact append allocation and equal-value selection trial
+
+A7094ac6a... changes1024-entry chunks to256, sizes scratch by actual discovered
+IDs, reserves per-hour result capacity and short-circuits an all-equal minimum
+pivot partition. All percentiles remain exact. New packed-escape boundaries and
+4097 equal latencies agree with frozen oracle. UBSan/bounds fixtures1/12, five
+public-full pairs, full7 at1/12, offline image five full1/one full7 pass.
+QEMU means.355806 ->.349413s inconclusive; process cgroup292,950,016 ->
+294,174,720B includes pagecache/emulator and cannot estimate board M. S441/D1.
+Native memory/time trial pending, prior source preserved036225c. Ledger
+benchmarks/compact-a-six-b-trial.json. Next native ASan12 on actual committed source.

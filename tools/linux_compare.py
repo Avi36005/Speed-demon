@@ -28,6 +28,7 @@ def main():
     ap.add_argument('--baseline', type=Path)
     ap.add_argument('--hypothesis', required=True)
     ap.add_argument('--workers', type=int, default=12)
+    ap.add_argument('--candidate-workers', type=int, help='explicit worker-count experiment; baseline keeps --workers')
     ap.add_argument('--runs', type=int, default=5)
     ap.add_argument('--qemu', action='store_true', help='use prepared native ARM QEMU compatibility backend')
     args = ap.parse_args()
@@ -78,7 +79,8 @@ def main():
             folder.mkdir()
             (folder / 'main.cpp').write_bytes(source.read_bytes())
             record['versions'][name] = {'source': str(source.resolve()),
-                                        'source_sha256': sha(folder / 'main.cpp'), 'samples': []}
+                                        'source_sha256': sha(folder / 'main.cpp'), 'samples': [],
+                                        'workers': (args.candidate_workers if name == 'candidate' and args.candidate_workers is not None else args.workers)}
             run(['docker', 'run', '--rm', '--platform', 'linux/amd64', '--network=none',
                  '-v', f'{folder}:/build', GCC, 'g++', *flags, '/build/main.cpp', '-o', '/build/solution'])
         timer = SUB / '.work/timer'
@@ -109,7 +111,7 @@ def main():
                          '--pids-limit=512', '--cap-drop=ALL', '--cap-add=SETUID', '--cap-add=SETGID',
                          '--security-opt=no-new-privileges', '-v', f'{work / name}:/candidate:ro',
                          '-v', f'{data}:/data:ro', '-v', f'{sd}:/sd', '-v', f'{timer}:/timer:ro',
-                         '-e', f'WORKERS={args.workers}', '-e', f'OUTPUT={OUTPUT[args.track]}']
+                         '-e', f'WORKERS={record["versions"][name]["workers"]}', '-e', f'OUTPUT={OUTPUT[args.track]}']
                 if args.qemu:
                     command += ['--user=65534:65534', '-v', f'{qemu}:/qemu:ro', metadata['arm_runtime_image']]
                 else:
@@ -126,6 +128,7 @@ def main():
                                if line.startswith('MEMORY_PEAK ')), 'unknown')
                 sample = {'wall_ns': timing['wall_ns'], 'output_sha256': expected,
                           'cgroup_peak_bytes': int(memory) if memory.isdigit() else None,
+                          'workers': record['versions'][name]['workers'],
                           'warmup': iteration == 0}
                 record['versions'][name]['samples'].append(sample)
                 print(name, iteration, timing['wall_ns'], sample['cgroup_peak_bytes'], flush=True)

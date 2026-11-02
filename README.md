@@ -17,11 +17,11 @@
 
 ---
 
-> **Latest native trial `ccc259f`:** all four registered tracks pass the board.
-> Trial assembled-head score: **72.088**. Historical best-three: **73.012**.
-> Target: **90 live overall machine points**, still unmet. The regressing trial
-> was rejected. New B/C candidates passed local verification and await native runs.
-> See [STATUS.md](STATUS.md) for current source, selected candidates and proof.
+> **Verified native checkpoint `036225c`:** all four registered tracks pass.
+> Assembled-head overall: **72.971**. Historical best-three: **73.256**.
+> Target: **90 live overall machine points**, still unmet. C improved to **73.983**.
+> Native B/C ASan/UBSan and fresh-sample checks passed. A/B trials now await scoring.
+> See [STATUS.md](STATUS.md) for selected sources and exact verification scope.
 
 ## The entry
 
@@ -63,31 +63,31 @@ map, and only a valid frontier bound terminates a search.
 
 ## Official live-board measurements
 
-| Track | Machine points | Time | cgroup peak | Real run at `ccc259f` |
+| Track | Machine points | Time | cgroup peak | Real run at `036225c` |
 | :--- | ---: | ---: | ---: | :--- |
-| A | 79.856533 | 0.026894 s | 24,780,800 B | `run-af057be8bbd9` |
-| B | 65.461918 | 0.333285 s | 46,641,152 B | `run-aba2bc28e2a3` |
-| C | 71.662257 | 0.049922 s | 12,931,072 B | `run-b603168892dc` |
-| D | 52.201648 | 0.566995 s | 271,425,536 B | `run-aa2034569555` |
+| A | 79.808946 | 0.026911 s | 25,014,272 B | `run-5f9bb2ac6c4e` |
+| B | 65.806136 | 0.321271 s | 46,911,488 B | `run-81df8b60b921` |
+| C | 73.983336 | 0.043319 s | 12,263,424 B | `run-5390ab67f3f3` |
+| D | 53.924001 | 0.483486 s | 271,896,576 B | `run-7b43f4f31e6e` |
 
 All four tracks are registered. Overall selects the best three. These are
-single public-data runs; final holdout scoring and judging remain separate.
-This C record-lookahead trial regressed and was rejected; its exact result is
-retained instead of being presented as an improvement.
-[Immutable receipt](benchmarks/board/2026-11-02T080605.562657Z.json) ·
+single public-data runs; final holdout and judging remain separate. The C name-local
+membership layout improved its actual score and is retained. Small time differences
+remain noisy. New A/B experiments are recorded separately until scored.
+[Immutable receipt](benchmarks/board/2026-11-02T083443.958935Z.json) ·
 [Kryptonite on the board](https://speeddemon.dev/board/#kryptonite-96429f)
 
 ## Verification
 
 Evidence is keyed by actual source/build/input hashes and worker options.
 Historical manifests certify their recorded source, rather than every later
-rewrite. The new B/C trial is pinned in
-[the B/C trial manifest](benchmarks/prefix-and-inline-bits-trial.json).
+rewrite. The new A/B trial is pinned in
+[its manifest](benchmarks/compact-a-six-b-trial.json). C retains its verified winning source.
 
 | Check | Current evidence |
 | :--- | :--- |
-| **Native board** | All four tracks passed build, public-full correctness, timeout and sandbox gates at ccc259f. |
-| **Native development checks** | Matching parent-source x86 fixture, ASan/UBSan, generated-sample and worker checks are retained in per-track logs. |
+| **Native board** | All four tracks passed build, public-full correctness, timeout and sandbox gates at036225c. |
+| **Native development checks** | Exact036225c B/C fixtures, ASan/UBSan and fresh sample42 passed in [native CI](https://github.com/Avi36005/Speed-demon/actions/runs/41413513572); unchanged A/D parent proofs remain in their logs. |
 | **Independent full input** | Current A/C/D and proposed B match the untouched full-seed7 oracle; B also passes workers1/12. |
 | **Changed B/C paths** | All fixtures pass UBSan with halt-on-error and C++ bounds assertions, including independent OR revival and concurrent country-word boundary cases. |
 | **Deterministic B/C output** | Five paired public-full executions and five exact-image sandbox runs retain the published output hash. |

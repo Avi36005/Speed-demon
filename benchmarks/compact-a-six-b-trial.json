@@ -1,0 +1,78 @@
+{
+  "utc": "2026-11-02T08:49:07.696827+00:00",
+  "parent_commit": "036225c7dd50f0eb1107ffee842feb15e0cafa3b",
+  "changes": {
+    "a": {
+      "source_sha256": "7094ac6a65425036976542af4efb939e8746293d996a08f9141e4192ce29004e",
+      "checks": [
+        ".work/cached-runtime/a-177e9f8ae1",
+        ".work/cached-runtime/a-27724ec5b1",
+        ".work/cached-runtime/a-507926ddbe",
+        ".work/cached-runtime/a-6e7164e1e0"
+      ],
+      "images": [
+        ".work/containers/a-6facf6f8f8",
+        ".work/containers/a-cb1dc76acc"
+      ],
+      "comparison": ".work/linux-compare/a-8a2c15a6c1",
+      "local_middle_means": {
+        "baseline": 0.35580597199999997,
+        "candidate": 0.349413403
+      },
+      "comparison_workers": {
+        "baseline": 12,
+        "candidate": 12
+      },
+      "S": 441,
+      "D": 1
+    },
+    "b": {
+      "source_sha256": "9609524491271e6e3c65bdbfa6bc82dbe0ab1c2c5954dd5a3736835710883f7b",
+      "checks": [
+        ".work/cached-runtime/b-51d86064c6",
+        ".work/cached-runtime/b-2951af52d2"
+      ],
+      "images": [
+        ".work/containers/b-fe94096019",
+        ".work/containers/b-382811d195"
+      ],
+      "comparison": ".work/linux-compare/b-d5599c1a2b",
+      "local_middle_means": {
+        "baseline": 2.350044473666667,
+        "candidate": 2.8349752240000003
+      },
+      "comparison_workers": {
+        "baseline": 12,
+        "candidate": 6
+      },
+      "S": 783,
+      "D": 1
+    }
+  },
+  "official_result": null,
+  "native_sanitizers": "A12/B6 pending next manual native CI; unchanged C native proof retained",
+  "rationale": "A reduces allocation slack and handles all-equal selection in linear progress. B is one explicit 6-P-core memory/time tradeoff trial: QEMU6 is slower, host/SMT topology differs, no native gain claimed. Revert B default if complete native axes regress.",
+  "runtime_inputs": {
+    "a": {
+      "a_ingest.py": "d82b43b8f617016808f85cbe9be86af1fee8466296a0848ab8e6908ee3c4b0b4",
+      "Dockerfile": "fa7a3091e52e548734b736ef5cde7991ffe2746f4d7582b195c56a784525ccf4",
+      ".speed-demon.toml": "b2b684e6fff97846ada04662eb0f8850b7786039925e30cdb1a8c010ea501564",
+      "main.cpp": "7094ac6a65425036976542af4efb939e8746293d996a08f9141e4192ce29004e"
+    },
+    "b": {
+      "Dockerfile": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
+      ".speed-demon.toml": "625871dfe8f3cc66517f22cfc910583968e36f3a958e562dda4d831366dbddea",
+      "main.cpp": "9609524491271e6e3c65bdbfa6bc82dbe0ab1c2c5954dd5a3736835710883f7b"
+    },
+    "c": {
+      "Dockerfile": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
+      ".speed-demon.toml": "82561d3cf9545bb00643eeefd7b29b1fb3e4c636831858ac1eac013927e94ad8",
+      "main.cpp": "b3d9888eba8dd86b10726344ef368866421191760680e1296e7106ebc6290226"
+    },
+    "d": {
+      "Dockerfile": "0ac7b4e46800131d6698a5a39d5efddec016f0f9f18c9771b10af42826e60ea2",
+      ".speed-demon.toml": "4d9ffc87eddf41682b837f8bc3ef497ef008685ff322662a4f67ccd5442e624f",
+      "main.cpp": "bb065b3e74ec4d10e5e8abcded578b717edbab177f8b7a0db38130049e889fb1"
+    }
+  }
+}

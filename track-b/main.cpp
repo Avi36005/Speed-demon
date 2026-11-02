@@ -109,7 +109,6 @@ struct Vocabulary {
         uint64_t lo = _bzhi_u64(load8(p), 8 * len), hi = load8(p + len - 8) & (0 - uint64_t{len > 8});
         return ((lo * 0x9E3779B97F4A7C15ull) ^ (hi * 0xC2B2AE3D27D4EB4Full) ^ len) * 0xD6E8FEB86659FD93ull;
     }
-    uint32_t find(const char* p, uint32_t len) const { return len > 32 ? NONE : find(p, len, hash(p, len)); }
     const uint32_t* slot(uint64_t h) const { return &slots[h >> (64 - BITS)]; }
     uint32_t find(const char* p, uint32_t len, uint64_t h) const {
         uint32_t fp = static_cast<uint32_t>(h >> 18) & ~MASK;

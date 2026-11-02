@@ -1,42 +1,44 @@
-# Track B — query-driven exact search
+# Track B — exact search in bounded phases
 
-C++20, standard library, POSIX `mmap` and AVX2/BMI2 intrinsics; zero
-third-party dependencies. Reads `/data/docs.txt` and `/data/queries.txt`, writes
-`/out/results.txt`. Local runs may pass `--data DIR --out DIR --workers N`.
+C++20, Linux/x86-64, AVX2/BMI2, standard library and POSIX interfaces only.
+Read `/data/docs.txt` and `/data/queries.txt`; write exactly `/out/results.txt`.
+Local paths use `--data DIR --out DIR`; `--workers N` overrides affinity-based
+worker selection. Zero third-party runtime dependencies; MIT, see ../LICENSE.
 
-## How it works
+Queries are interned into a compact exact vocabulary. Fingerprints reject
+probes; complete zero-padded token bytes decide equality. The corpus is scanned
+once, with bounded padded mappings and AVX2 ASCII classification. Only A–Z fold;
+all non-ASCII bytes separate tokens. Unknown tokens retain their positions.
 
-1. **Query vocabulary.** Queries are parsed into flat term and operator
-   arrays. Every distinct term is interned in a 2^18-slot table: 14-bit
-   fingerprints filter probes, and a full 32-byte comparison of the
-   zero-padded key decides. Terms longer than 32 bytes cannot match any token.
-2. **One tokenizing pass.** Workers own disjoint document ranges that start at
-   multiples of 64, so bitmap words are private. Each document is
-   ASCII-lowercased and classified 32 bytes at a time with AVX2, giving one
-   token bit per byte. Tokens are cut from those bit masks, including tokens
-   that cross 64-byte blocks. Their hashes are computed first and their slots
-   prefetched, then they are resolved. A per-term "last document" check counts
-   each document once.
-3. **Two representations.** A sample of 8,192 documents predicts the common
-   terms (more than 1/40 of documents), which get bitmaps that are written
-   during the scan. All other terms keep their hits per 8192-document block,
-   counting-sorted by term into 16-bit document runs. A per-term run index
-   lists the runs in document order. The prediction only chooses a layout;
-   every answer is exact either way.
-4. **Boolean queries** run strictly left to right. The running set is a sorted
-   list or a bitmap, which stays a zero-copy view of a term's bitmap until it
-   is first written. AND, OR and NOT use word operations, bit tests or
-   branch-free merges. A small list ANDed or NOTed with a large one uses direct
-   run membership tests. Bitmap results report the exact count, the id sum
-   from six bit-position popcounts per word, and the ten smallest ids.
-5. **Phrase queries.** The rarest term seeds the candidates, and every other
-   term must be present (bit test or run search). A candidate is then verified
-   exactly in its raw text: each occurrence of the rarest term is found with
-   an AVX2 two-byte scan and checked as a full token, then its neighbouring
-   tokens are read backwards and forwards with the same byte rules. Repeated
-   terms, overlaps, sentence separators and non-ASCII bytes are handled exactly.
+Ten phases bound peak index storage. Each phase uses word-aligned document
+ranges claimed dynamically by one persistent worker team. Common terms chosen
+by a runtime sample use bitmaps; other hits are counting-sorted into compact
+16-bit runs within8192-document blocks. Sampling chooses representation, never
+an answer. Frequencies and run membership are exact.
 
-Tokenization follows the spec byte for byte: only `A`–`Z` are lowercased, and
-every byte outside `[a-z0-9]` (including all bytes ≥ 0x80) is a separator.
+Phrases are matched inline from complete token-ID sequences around a sampled
+rare anchor. Every term is checked, repeated positions are preserved, and each
+phrase/document pair is counted once. Phrase results are merged in document
+order. No raw-text re-tokenization or positional index is required afterward.
 
-See [PERF.md](PERF.md) for measurements.
+Boolean evaluation preserves strict left-to-right AND/OR/NOT semantics. Sparse
+lists and bitmaps use exact merges, membership tests and word operations. For
+expressions containing no OR, the result equals the intersection of positive
+operands minus the union of NOT operands. A much rarer sparse positive anchor
+can therefore avoid building a large first set. Expressions containing OR use
+the original LTR path, including revival after an empty intermediate.
+
+Each phase owns disjoint documents. Exact counts and64-bit id sums add across
+phases; ascending ranges retain the ten smallest ids. Dense summaries use
+popcounts and six bit-position masks. Original query order and duplicates are
+preserved in final output. Every index and sample is built from current inputs
+inside the timed process; no seed recognition or precomputed answers.
+
+The digest-pinned GCC15/Debian13 image builds offline, statically links C++/GCC
+support, and uses only the documented Intel instruction set. Current candidate
+fixture, fresh full7, repeated full1 and exact-image sandbox evidence appears
+in PERF.md. Local QEMU checks establish compatibility; the board establishes
+native Intel performance. The rare-AND branch is awaiting its official trial.
+
+Next: profile token dictionary dependencies and phase/query overhead on the
+scoring CPU. Preserve the current passing source before any redesign.

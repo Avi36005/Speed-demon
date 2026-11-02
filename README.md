@@ -17,10 +17,11 @@
 
 ---
 
-> **Live-board checkpoint (`0023e65`, 2026-11-02):** all four tracks pass every
-> gate. Registered A/B/C score **≈70.0 overall** (A 72.6, B 66.0, C 71.5; ≈70.7
-> from each track's best run), up from 57.2. The requested 92 is not reached: it is above the board's best entry on
-> every track. See [STATUS.md](STATUS.md) for every run and the scoring formula.
+> **Verified checkpoint `463de7b`:** all four registered tracks pass the board.
+> Latest assembled-head score: **72.804**. Historical best-three score: **72.996**.
+> Target: **90 live overall machine points**. A new exact B query optimization
+> has passed local screening and is awaiting its native scoring trial.
+> See [STATUS.md](STATUS.md) for current source and proof.
 
 ## The entry
 
@@ -41,63 +42,66 @@ all indexing, parsing and aggregation performed from the actual inputs at runtim
 
 ### Engineering decisions
 
-**A — one hour at a time.** Pass one records which hours start a line in each
-16 KiB block. Pass two answers each hour from only its blocks, with AVX2
-endpoint scanning, exact zero-padded key comparison and in-place grouping.
-Exact nearest ranks come from a branch-free quickselect. No global latency
-array is kept.
+**A — compact per-hour records.** One AVX2/SWAR parse stores endpoint IDs,
+error bits and exact latency escapes. A persistent worker team groups and
+selects each hour, releases records, then formats disjoint output slices.
+Endpoint equality and nearest-rank percentiles remain exact.
 
-**C — exact parallel CSV.** Quote parity gives exact chunk boundaries despite
-embedded LFs. Names are interned by their raw quoted bytes (unescaping is
-injective) in a lock-free shared table with prefetched lookups. Distinct names
-use atomic per-group bitsets; amounts are integer cents parsed with SWAR.
+**C — exact parallel CSV.** Record starts follow the frozen grammar. Raw
+canonical name bytes are interned in an exact shared table with prefetched
+lookups; per-country atomic bitsets count distinct names. Numeric aggregates
+are private, use64-bit arithmetic and integer cents, and merge exactly.
 
-**B — one tokenizing pass.** AVX2 lowercasing and classification, prefetched
-fingerprint lookups of the query vocabulary only, bitmaps for terms a sample
-predicts to be common, and 16-bit block runs for the rest. Boolean operators
-run strictly left to right; phrases are verified exactly in the raw text around
-the rarest term.
+**B — one scan, bounded indexes.** AVX2 tokenization feeds inline exact phrase
+checks and ten phased sparse-run/bitmap indexes. Boolean operations preserve
+strict LTR order. For expressions with no OR, a rare positive AND operand can
+anchor membership tests without materializing a much larger first set.
 
-**D — bidirectional Dijkstra.** Parallel CSR build, 32-bit distances with an
-exact side map for very large values, and a stopping rule that treats a
-meeting only as an upper bound.
+**D — exact directed graph search.** Parallel forward/reverse CSR construction
+feeds bidirectional Dijkstra. Compact32-bit distances have an exact64-bit side
+map, and only a valid frontier bound terminates a search.
 
 ## Official live-board measurements
 
-| Track | Machine points | Time | cgroup peak | Commit |
+| Track | Machine points | Time | cgroup peak | Real run at `463de7b` |
 | :--- | ---: | ---: | ---: | :--- |
-| A | 72.575434 | 0.053169 s | 29,184,000 B | `0023e65` |
-| B | 66.035647 | 0.245401 s | 95,227,904 B | `0023e65` |
-| C | 71.454685 | 0.053050 s | 12,742,656 B | `0023e65` |
-| D | 53.724257 | 0.496534 s | 272,211,968 B | `0023e65` (unregistered) |
+| A | 79.864346 | 0.027029 s | 24,428,544 B | `run-b6aeae4ae6b5` |
+| B | 66.167402 | 0.311542 s | 46,931,968 B | `run-6b5417c586c5` |
+| C | 73.025777 | 0.045172 s | 13,053,952 B | `run-723ade7b4bf4` |
+| D | 53.879383 | 0.485033 s | 272,519,168 B | `run-9076dddcddde` |
 
-Single public-data runs; identical code varies by up to ~15% in time between
-runs. Final holdout scoring and judging are separate.
-[Receipts](benchmarks/board) ·
-[Kryptonite on the live board](https://speeddemon.dev/board/#kryptonite-96429f)
+All four tracks are registered. The overall selects the best three; D is
+currently fourth. These are single public-data runs, with visible timing
+variation. Final hidden-seed measurements and judging are separate.
+[Immutable receipt](benchmarks/board/2026-11-02T064445.120607Z.json) ·
+[Kryptonite on the board](https://speeddemon.dev/board/#kryptonite-96429f)
 
 ## Verification
 
-The matrix below applies to the four-track `5c216d1` runtime, pinned in the
-[round-six manifest](benchmarks/round6-manifest.json). Later candidates have
-separate evidence in the performance logs and [current status](STATUS.md).
+Evidence is keyed by actual source/build/input hashes and worker options.
+Historical manifests certify their recorded source, rather than every later
+rewrite. The new B trial is pinned in
+[its manifest](benchmarks/sparse-and-anchor-trial.json).
 
-| Check | Evidence |
+| Check | Current evidence |
 | :--- | :--- |
-| **Byte-exact public results** | Tiny, sample and full seed 1 match the untouched references; full inputs and outputs match published hashes. |
-| **Additional generated data** | Sample seeds **2, 3, 42** and independently generated full seed **7** match the official references. |
-| **Failure-prone semantics** | Official worked examples, hand-computed fixtures, boundary cases, quoted CSV, Unicode separators and repeated phrases. |
-| **Memory safety checks** | Small development builds pass **AddressSanitizer + UndefinedBehaviorSanitizer**. |
-| **Deterministic output** | Five repeated native full-input runs per track; A/D also checked across **1, 2, 4, 6, 12** workers. |
-| **Packaging and sandbox** | Clean, offline `linux/amd64` builds; five public-full container runs and one full seed 7 run per track under the required sandbox limits. |
+| **Native board** | All four tracks passed build, public-full correctness, timeout and sandbox gates at463de7b. |
+| **Native development checks** | Matching parent-source x86 fixture, ASan/UBSan, generated-sample and worker checks are retained in per-track logs. |
+| **Independent full input** | Current A/C/D and proposed B match the untouched full-seed7 oracle; B also passes workers1/12. |
+| **Changed B semantics** | All fixtures pass UBSan with halt-on-error and C++ bounds assertions, including independent rare-AND, NOT and OR-revival cases. |
+| **Deterministic B output** | Five paired public-full executions and five exact-image sandbox runs retain the published output hash. |
+| **Clean B packaging** | Offline/no-cache amd64 build, runtime-library inspection, uid65534, read-only root/data, no network, exact output and empty filesystem diffs; fresh full7 also passes. |
 
-Local Linux container checks used **amd64 emulation on an ARM64 Mac**. The
-real live board supplies native scoring-machine measurements for its recorded
-commits. Local process RSS and emulated timings remain separate from those axes.
+Current local compatibility checks use native ARM QEMU emulating x86 Haswell.
+They establish semantics and image compatibility. Their elapsed times and
+cgroup peaks include emulator costs and cannot replace native Intel T/M.
+ASan's local shadow allocator cannot initialize in this QEMU setup; the new
+branch uses UBSan/bounds checks, and existing native ASan evidence is retained
+for unchanged parent code. Final assembled-head release checks remain scheduled
+before freeze.
 
-[Full verification report](SUBMISSION_REPORT.md) ·
-[Test coverage](tests/README.md) ·
-[Runtime manifest](benchmarks/round6-manifest.json)
+[Verification report](SUBMISSION_REPORT.md) · [Test coverage](tests/README.md) ·
+[Experiment records](benchmarks)
 
 ## Local measurements
 
@@ -131,7 +135,7 @@ methods are retained in [benchmarks](benchmarks) and the per-track performance l
 ### Build an independent track
 
 Prepare every exact base-image digest listed in the track's Dockerfile before
-the offline build. A's PGO trial adds a build-only Python training stage. Then build from that track folder alone:
+the offline build. Build from that track folder alone:
 
 ```sh
 docker build --platform linux/amd64 --network=none -t kryptonite-a track-a
@@ -188,7 +192,7 @@ interval; repeated timed runs include candidate startup, processing and output.
 
 The source is already pushed to
 **[Avi36005/Speed-demon](https://github.com/Avi36005/Speed-demon)**.
-A/B/C registry and repository access are confirmed by the scored board runs.
+A/B/C/D registration and repository access are confirmed by the scored board runs.
 The setup procedure, including changes to entered tracks, is documented in the
 [official kickstart](https://speeddemon.dev/kickstart/):
 
@@ -196,7 +200,7 @@ The setup procedure, including changes to entered tracks, is documented in the
 2. Grant the [Speed Demon Board App](https://github.com/apps/speed-demon-board)
    access to `Avi36005/Speed-demon`.
 3. Submit the [team form](https://tally.so/r/Ar7g9z): **Kryptonite**, **C++**,
-   tracks **A + B + C**, this repository URL, and the real contact/member details.
+   tracks **A + B + C + D**, this repository URL, and the real contact/member details.
 4. Check the [live board](https://speeddemon.dev/board/) after registry and queue
    processing. Save actual run IDs and results in the relevant performance logs.
 
@@ -206,8 +210,7 @@ The setup procedure, including changes to entered tracks, is documented in the
 The repo can stay private before freeze when the Board App has access. Confirm
 the final branch commit was observed before **2 November 2026, 20:30 IST**.
 Make the recorded source public under MIT by **21:30 IST** that day, within the
-published one-hour window. To enter D, update the team form to select D after
-its candidate verification; a new directory alone does not prove registration.
+published one-hour window. All four tracks are confirmed registered in the latest saved receipt.
 
 ## Repository map
 
@@ -233,6 +236,6 @@ development history is preserved; later file-import commits are documented in
 
 ## Licence
 
-Released under the **[MIT licence](LICENSE)**. The original starter copyright
+Licensed under the **[MIT licence](LICENSE)**. The original starter copyright
 notices are retained. See the track READMEs for assumptions, limitations and the
 next experiments worth testing.

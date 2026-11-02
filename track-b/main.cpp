@@ -517,7 +517,25 @@ int main(int argc, char** argv) {
                     for (size_t i = 0; i + 1 < terms.size(); ++i)
                         any_or |= ops[i] == 'O', empty |= ops[i] == 'A' && (terms[i + 1] == NONE || !df[terms[i + 1]]);
                     if (empty && !any_or) continue;
-                    {
+                    // With no OR, the result is the intersection of positive
+                    // terms minus the union of NOT terms. A rare positive AND
+                    // anchor can avoid materializing a much larger first set.
+                    uint32_t anchor = terms[0];
+                    if (!any_or)
+                        for (size_t i = 0; i + 1 < terms.size(); ++i)
+                            if (ops[i] == 'A' && df[terms[i + 1]] < df[anchor]) anchor = terms[i + 1];
+                    if (!any_or && !dense(anchor) && df[anchor] * 16ull < df[terms[0]]) {
+                        materialize(anchor, list);
+                        size_t keep = 0;
+                        for (uint32_t doc : list) {
+                            bool match = contains(terms[0], doc);
+                            for (size_t i = 0; match && i + 1 < terms.size(); ++i)
+                                match = contains(terms[i + 1], doc) == (ops[i] == 'A');
+                            if (match) list[keep++] = doc;
+                        }
+                        list.resize(keep);
+                        report(list);
+                    } else {
                         // The running set is a sorted list or a bitmap (`bits`, which
                         // may still point at a term's own bitmap until first written).
                         const uint64_t* bits = nullptr;

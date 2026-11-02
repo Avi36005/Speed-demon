@@ -1,0 +1,17 @@
+{
+  "method": "independent fixture values and untouched official reference agree",
+  "argv": [
+    "/opt/homebrew/opt/python@3.13/bin/python3.13",
+    "../official/speed-demon-2026/reference/b_index.py",
+    "--data",
+    ".work/fixtures/b/rare-and-anchor",
+    "--out",
+    ".work/rare-and-anchor-reference"
+  ],
+  "exit": 0,
+  "output_sha256": "3e8ad6195aa8fb64003f282d164f8935cc63c8439651afca35513d495a7872a4",
+  "inputs": {
+    "queries.txt": "9699b5ff587361530c163221b023f6b764d062989402351a78a7c4122948be6e",
+    "docs.txt": "864f836d645b35a87b8c6ccd280af87b4274441e6be0beb6013d3057dfbe0e25"
+  }
+}

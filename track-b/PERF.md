@@ -291,3 +291,37 @@ dense terms from a sample, so their hits never enter the run buffers. Things
 measured and not kept: a branch-free dense/sparse hit path (no change), 4096-
 and 2048-document blocks (more runs, more memory), and a lower N/80 bitmap
 threshold (5% faster but 12% more memory, so about neutral on K).
+
+## Codex takeover — rare positive AND anchor trial
+
+Baseline463de7b (runtime42317bd) run-6b5417c586c5: T.311542s,
+M46,931,968B, S775, D1, points66.167402. All gates passed; raw receipt
+2026-11-02T064445.120607Z. All four tracks are now registered.
+
+First isolated attempt: index only BOOL terms after inline phrase matching.
+All semantic/UBSan/bounds/full1/full7 checks passed. Paired QEMU means
+1.972606 ->1.983256s were inconclusive; retain as unselected, no native gain
+claimed. Source6433d5f92b19b1a07d0bd8619403bf050dda98a6d3730166c2be45c17f360ac6.
+
+Selected for a native experiment: for an expression with NO OR, all positive
+AND operands intersect and NOT operands subtract. If a sparse positive term
+is at least16x rarer than the first term, enumerate it and test the remaining
+memberships. Mixed OR expressions retain the original strict LTR path. This
+avoids materializing large early sets; no query term or answer is compiled in.
+
+All fixtures pass UBSan with halt-on-error and libstdc++ bounds assertions at
+12workers, including a new independently derived rare-AND/NOT/OR-revival test
+that agrees with the untouched oracle. Full1 five paired runs match published
+bytes; full7 atworkers12/1 matches the untouched reference. QEMU paired means
+2.551391 ->2.498198s are only screening evidence, not an Intel speed claim.
+The exact image builds offline/no-cache in9.978691s, is30,061,441 bytes, and
+passes five restricted full1 runs plus full7, uid65534, read-only root/data,
+no network, empty filesystem diffs. Local QEMU image checks leave child T
+unknown; recorded Docker elapsed includes startup. Measured S793/D1.
+
+Local ASan itself cannot initialize its shadow allocator under this QEMU
+backend; failed setup attempts are retained. Existing native parent ASan
+records remain source-matched to unchanged code, and new branch checks use
+UBSan plus bounds assertions. Complete current-source/build-input proof is
+in benchmarks/sparse-and-anchor-trial.json. Actual candidate board effect is
+pending; keep/revert only after native score evidence.

@@ -32,6 +32,7 @@ def main():
     ap.add_argument("--skip-build", action="store_true")
     ap.add_argument("--context", type=Path, help="build from an archived clean track folder")
     ap.add_argument("--tag", help="distinct local image tag for an isolated build experiment")
+    ap.add_argument("--qemu", action="store_true", help="run the exact amd64 image through prepared native ARM QEMU")
     args = ap.parse_args()
     track = (args.context or SUB / f"track-{args.track}").resolve()
     data = (args.data or ROOT / f"data/track-{args.track}/full-seed1").resolve()
@@ -50,6 +51,10 @@ def main():
               "dockerfile_sha256": sha(track / "Dockerfile"), "data": str(data),
               "expected_sha256": expected, "commands": [], "runs": [],
               "official_cgroup_memory": None, "board_run_id": None}
+    qemu = SUB / '.work/qemu-runtime'
+    if args.qemu:
+        record['environment'] = 'exact linux/amd64 image through native ARM QEMU Haswell; not native Intel timing'
+        record['emulator'] = json.loads((qemu / 'metadata.json').read_text())
     work = SUB / ".work/containers" / (args.track + "-" + uuid.uuid4().hex[:10])
     work.mkdir(parents=True)
     record["artifact_dir"] = str(work.relative_to(SUB))
@@ -104,21 +109,32 @@ def main():
             container = "kryptonite-check-" + uuid.uuid4().hex[:12]
             cmd = ["docker", "run", "--name", container, "--platform", "linux/amd64",
                    "--no-healthcheck", "--network=none", "--read-only", "--tmpfs", "/tmp:rw,size=1g,exec",
-                   "--memory=8g", "--memory-swap=8g", "--pids-limit=512", "--user=0:0",
-                   "--cap-drop=ALL", "--cap-add=SETUID", "--cap-add=SETGID", "--security-opt=no-new-privileges",
+                   "--memory=8g", "--memory-swap=8g", "--pids-limit=512", "--user=" + ("65534:65534" if args.qemu else "0:0"),
+                   "--cap-drop=ALL", "--security-opt=no-new-privileges",
                    "--ulimit", "nofile=8192:8192", "-v", f"{data}:/data:ro", "-v", f"{out}:/out:rw",
-                   "-v", f"{sd}:/sd", "-v", f"{timer}:/sd-bin:ro", "-e", f"TRACK={args.track}",
-                   "--entrypoint", "/sd-bin/sd-timer", tag, "/sd/timing.json", "65534", "65534", "--",
-                   "/app/solution"]
+                   "-v", f"{sd}:/sd", "-v", f"{timer}:/sd-bin:ro", "-e", f"TRACK={args.track}"]
+            if args.qemu:
+                # Compatibility mode executes as nobody directly. The nested
+                # emulated timer rejected its argument contract in this setup;
+                # leave the child interval unknown and retain Docker elapsed.
+                cmd += ['-v', f'{qemu / "bin"}:/qemu:ro', '--entrypoint', '/qemu/qemu-x86_64',
+                        tag, '-cpu', 'Haswell-noTSX', '-L', '/', '/app/solution']
+            else:
+                cmd += ['--cap-add=SETUID', '--cap-add=SETGID', '--entrypoint', '/sd-bin/sd-timer',
+                        tag, '/sd/timing.json', '65534', '65534', '--', '/app/solution']
             try:
                 done = run(cmd)
                 diff = run(["docker", "diff", container])["stdout"].splitlines()
                 diff = [line for line in diff if line.split(maxsplit=1)[-1] not in
-                        ("/data", "/out", "/sd", "/sd-bin", "/tmp")]
+                        ("/data", "/out", "/sd", "/sd-bin", "/tmp", "/qemu")]
                 assert not diff, diff
                 assert sorted(p.name for p in out.iterdir()) == [name]
-                result = json.loads((sd / "timing.json").read_text())
-                assert result["exit_code"] == 0 and result["signal"] == 0
+                if args.qemu:
+                    result = {"wall_ns": None, "exit_code": 0, "signal": 0,
+                              "timing_method": "child interval unknown; outside_s includes Docker and QEMU startup"}
+                else:
+                    result = json.loads((sd / "timing.json").read_text())
+                    assert result["exit_code"] == 0 and result["signal"] == 0
                 result["output_sha256"] = sha(out / name)
                 assert result["output_sha256"] == expected
                 result["outside_s"] = done["outside_s"]

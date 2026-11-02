@@ -150,6 +150,26 @@ def make_b():
         b'BOOL rare\nBOOL first\nBOOL late\nPHRASE "rare marker"\n')
     line = " ".join(map(str, [len(positions), sum(positions), *sorted(positions)])) + "\n"
     answer("b", "posting-gap-boundaries", line + "1 65535 65535\n1 200000 200000\n" + line)
+    # Later rare AND operands, intervening NOT, and OR revival. Sets are
+    # derived from fixture values independently of query evaluation/index code.
+    rare = {0, 63, 64, 4096}
+    wide = set(range(0, 4097, 50)) | rare
+    ban, other = {63, 2500}, {63, 64, 1000}
+    checks = [("BOOL wide AND rare", rare),
+              ("BOOL wide NOT ban AND rare", rare - ban),
+              ("BOOL wide AND rare NOT rare", set()),
+              ("BOOL wide NOT rare AND rare", set()),
+              ("BOOL wide AND rare NOT ban NOT other", rare - ban - other),
+              ("BOOL missing AND rare", set()),
+              ("BOOL wide AND missing OR rare", rare),
+              ("BOOL missing OR rare AND other", rare & other),
+              ("BOOL wide NOT ban OR other AND rare", ((wide - ban) | other) & rare)]
+    values = {"wide": wide, "rare": rare, "ban": ban, "other": other}
+    cases["rare-and-anchor"] = (mod.docs_file([
+        " ".join(["universe", *(term for term, ids in values.items() if doc in ids)])
+        for doc in range(4097)]), "".join(q + "\n" for q, _ in checks).encode())
+    answer("b", "rare-and-anchor", "".join(
+        " ".join(map(str, [len(ids), sum(ids), *sorted(ids)[:10]])) + "\n" for _, ids in checks))
     answer("b", "targeted", b"2 4 1 3\n2 4 1 3\n2 4 1 3\n1 2 2\n0 0\n1 4 4\n")
     answer("b", "wide-sum", b"100000 4999950000 0 1 2 3 4 5 6 7 8 9\n"*2)
     for label, (docs, queries) in cases.items():

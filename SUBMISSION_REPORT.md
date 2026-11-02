@@ -1,90 +1,75 @@
-# Kryptonite — verified optimization checkpoint
+# Kryptonite — current verified checkpoint
 
-The last board-tested runtime is **1429e2e**, with **56.089310 overall** across
-registered A/B/C. All four track runs passed check/build/correctness/timeout/
-sandbox. The requested92 machine-point target remains unmet; this is an
-intermediate engineering checkpoint, not the requested final file handoff.
+Target: **90 live overall machine points**, aiming for top three. Target unmet.
+Current official checkpoint463de7b (runtime42317bd) passed all gates on all four
+registered tracks. Latest assembled-head overall72.804418; historical best-three
+overall72.995658. These differ, and the freeze evaluates the actual final head.
 
-The working candidate is **A13 exact percentile selection with offline PGO,
-B11 direct dense-result summaries, and C9 atomic exact-name publication with
-private parser arenas**. Their complete source/build-input digests, current
-native matrix, clean offline amd64 builds, five public sandbox runs and fresh
-full7 checks are pinned in [the candidate manifest](benchmarks/round6-manifest.json).
-Their official effects remain pending. D3 is preserved unchanged.
+## Official evidence
 
-The A-only PGO trial atf95f205 passed all official gates. A scored64.905010
-with .086905s/63,033,344B/S248. Its +.229959 point change remains within
-observed run variation; B/C/D runtime inputs were unchanged. See the
-[immutable trial receipt](benchmarks/board/2026-11-01T195245.141719Z.json).
+[Receipt2026-11-02T064445.120607Z](benchmarks/board/2026-11-02T064445.120607Z.json)
+contains exact native axes, commits and gate results:
 
-## Verified runtime
+| Track | T s | M bytes | S | Machine points | Run |
+|---|---:|---:|---:|---:|---|
+| A | .027029 | 24,428,544 | 436 | 79.864346 | run-b6aeae4ae6b5 |
+| B | .311542 | 46,931,968 | 775 | 66.167402 | run-6b5417c586c5 |
+| C | .045172 | 13,053,952 | 379 | 73.025777 | run-723ade7b4bf4 |
+| D | .485033 | 272,519,168 | 245 | 53.879383 | run-9076dddcddde |
 
-| Track | Implementation at1429e2e | Actual machine points | Real run |
-|---|---|---:|---|
-| A | Twelve whole-line parsers, contiguous latency groups, parallel exact sorting | 64.675051 | run-18e711ea44af |
-| B | Six query/index workers, SSE2 tokenizer, compact query vocabulary, hybrid postings, exact KMP | 48.838903 | run-4a8ff5ad0553 |
-| C | Six quote-aware CSV parsers, shared exact name/country membership | 55.864717 | run-9c9de469bfe8 |
-| D | Four query workers, forward/reverse CSR, exact bidirectional Dijkstra | 44.723104 | run-48c61f525199 |
+D=1 each. All A/B/C/D are registered; D currently ranks fourth in this portfolio.
+Final five-run holdout and judging are unknown. No current rank or90-point result
+is inferred from earlier screenshots, emulator runs or historical bests.
 
-[Raw official receipt](benchmarks/board/2026-11-01T192637.287985Z.json) contains
-all axes and gates. D is still registered:false and excluded from overall.
-Scores are from single live public-data runs. Final hidden-holdout and judge
-results remain unknown. Local ARM timings/RSS and emulated Docker timings are
-kept separate from official scoring-box T and cgroup M.
+## New B trial
 
-## Verification evidence
+Only B runtime changes relative to463de7b. For a no-OR expression, its positive
+terms intersect and its NOT terms subtract. The program may therefore start
+from a much rarer sparse positive AND operand and test exact memberships,
+avoiding a large initial posting list. Expressions containing OR retain the
+original strict LTR path. Source SHA and all build inputs/proof are pinned in
+[the trial manifest](benchmarks/sparse-and-anchor-trial.json).
 
-[The four-track manifest](benchmarks/round4-manifest.json) pins the1429 runtime
-and proof matrix: public tiny/sample/full1; independently generated sample2/3/42
-and full7; hand-worked and hostile grammar cases; small ASan/UBSan checks;
-worker sweeps; five deterministic native full runs; clean offline amd64 builds;
-five restricted public-full sandbox runs plus independent full7 per track.
-B's actual x86 SSE2 branch also passed sanitizer fixtures.
+All fixtures pass UBSan halt-on-error and libstdc++ bounds assertions at12workers.
+The new rare-AND/NOT/OR-revival fixture's independently derived sets agree with
+the untouched reference. Five alternating full-public runs retain the published
+hash. Independent full7 matches atworkers12/1. The exact amd64 image builds
+offline/no-cache in9.978691s, occupies30,061,441B, and passes five full-public
+sandbox runs plus full7, exact single output and empty filesystem diffs.
+Formatted S793/D1 measured by the unchanged official tooling. Native effect
+remains pending. QEMU screening2.551391 ->2.498198s is not a native gain claim.
 
-A's PGO prototype preserves that main source. A pinned build-only Python stage
-runs the untouched official generator at sample seed8675309. Instrumented GCC
-execution produces profiles, and a strict second compilation consumes them.
-Only the binary enters the Debian runtime. Prototype tiny/sample1/2/3/42,
-fixtures, five public-full and independent full7 checks passed. Rebuilding the
-actual submitted track context offline/no-cache passed five public-full sandbox
-runs; context digests, runtime libraries and empty filesystem diffs are retained.
-The original PGO trial measured S248/D1; current A13 measures S254/D1 with
-the official static tool;
-its published-copy rule excludes the byte-identical generator. Official effect
-is pending. No input-derived training answers or data enter the final image.
+Current A/C/D and the proposed B also passed current-source independent full7
+checks. Raw source hashes, input hashes, untouched-oracle provenance, commands
+and exits are in fresh-qemu.jsonl and per-track cached-runtime logs. Matching
+native parent ASan/UBSan/small/generated checks from Claude remain preserved.
+ASan itself fails during local QEMU allocator startup; new branch checks use
+UBSan plus bounds assertions. This limitation is not relabelled as a passing
+ASan run. Local emulated elapsed/RSS/cgroup values are never official T/M.
 
-C8 was an isolated mechanism test; the selected C9 and B11 now have their own
-complete native/container evidence. B12 and D4 remain isolated experiments;
-D4 was rejected after a local regression. STATUS.md records the
-next concrete checks and raw evidence locations. Original oracle checkouts are
-unchanged. The old report generator refuses to reuse stale release hashes.
+## Reproduction and remaining work
 
-## Reproduce
-
-Use Python3.11+ and the documented workspace layout with the untouched official
-checkout and public datasets adjacent to this repository. Every track is an
-independent C++20 build context with zero third-party runtime dependencies.
-Prepare all digest-pinned base images before the offline build.
+Each track is an independent C++20 Linux/x86 build context, zero third-party
+runtime dependencies, pinned allowlisted GCC15/Debian13. Prepare base digests,
+then build with network disabled. The entry images need no parent-workspace
+files or development tools. On native x86 development hosts, use the existing
+suite with `SD_CXX=g++ ASAN_OPTIONS=detect_leaks=0` and the untouched official
+materials. This ARM Mac uses the source-recorded QEMU compatibility path.
 
 ```sh
-python3.13 tools/dev.py a --data ../data/track-a/full-seed1 --label full-seed1 --repeat 5
-python3.13 tools/suite.py b --fixtures --workers 12 --seeds 2 3 42
-python3.13 tools/suite.py c --fixtures --workers 12 --seeds 2 3 42
-python3.13 tools/suite.py d --fixtures --workers 12 --seeds 2 42
-python3.13 tools/container_check.py a --runs 5
-python3.13 tools/container_check.py b --runs 5
-python3.13 tools/container_check.py c --runs 5
-python3.13 tools/container_check.py d --runs 5
+docker build --platform linux/amd64 --network=none -t kryptonite-b track-b
+python3.13 tools/container_check.py b --qemu --runs 5
+python3.13 tools/qemu_fresh_check.py
 python3.13 tools/board_receipt.py
 ```
 
-Container checks use network=none, read-only root/data, uid65534,8GB/no swap,
-PID/scratch limits, exactly one output with its expected SHA, runtime-library
-inspection and empty filesystem diffs. See per-track PERF.md for the commands,
-source/input hashes and all retained/rejected comparisons.
+The QEMU commands require prepared development-only emulator files described by
+their pinned metadata in test records; they are not submission dependencies.
+The old report generator refuses stale source hashes and must not overwrite
+new evidence. Historic release manifests/reports remain unchanged.
 
-MIT notices are retained. Repository access and A/B/C team registration are
-evidenced by the board; individual-registration attestations remain outside
-that feed. No D form update or visibility change has been performed. Freeze is
-2026-11-02 15:00UTC/20:30IST; reserve the final two hours for verification.
-The public-source requirement still needs attention before its stated deadline.
+Next: push this tested B trial, wait for its exact native board result, retain
+or revert by complete axes, then continue measured portfolio work. Stop broad
+rewrites by13:00UTC and reserve two hours for final assembled-head verification.
+Freeze:2026-11-02 15:00UTC/20:30IST. MIT source must be public by21:30IST;
+visibility still needs applicable authorization. Do not call an old ZIP current.

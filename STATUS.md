@@ -1,72 +1,101 @@
-# Kryptonite — current checkpoint
+# Kryptonite — active takeover checkpoint
 
-Updated 2026-11-02 04:50 UTC. Target requested: **92 overall live-board points**.
-Not reached: 92 is above the board's best entry on every track (best A 88.3,
-B 82.4, C 84.9, D 76.3 at 02:50 UTC). Previous status: `benchmarks/status-history/2026-11-01T200600Z.md`.
+Updated 2026-11-02 07:00 UTC. Target: **90 live overall machine points**, aiming for top three; neither achieved.
+Freeze today2026-11-02 15:00UTC/20:30IST. Stop broad rewrites by13:00UTC and reserve final two hours.
 
-## How the score works (harness/scoring.py, frozen)
+## Current source and official evidence
 
-`K = (T_ref/T)^0.5 · min(M_ref/M, 50)^0.2 · min(S_ref/S, 1)^0.15 · (D_ref/D)^0.15`,
-`points = 50·log10(K)`, overall = geometric mean of the best three registered
-tracks. 92 points needs K ≈ 69 on every track. S is `scc` code lines after
-`clang-format --style=LLVM` (80 columns), Dockerfile included; prose is free.
-The board's `/out` is tmpfs, so the output file counts towards M.
+Entrant https://github.com/Avi36005/Speed-demon.git, branch `speed-demon`.
+Current local/pushed head **463de7b14c484d6efd2762ee694c0dc6a2fd53eb**, runtime code **42317bd**.
+User confirmed Claude stopped. All 19 newer Claude commits were fast-forwarded; none overwritten.
+Current runtime files remain unchanged. Local archive branches preserve older unpushed evidence:
+`codex/pre-claude-evidence-20261102` at3577d79; `codex/pre-final-claude-handoff-20261102` at263c0ec.
 
-## Live-board runs this session (full public seed 1, one run per push)
+Latest assembled-head overall **72.804418**; historical best-three overall **72.995658**.
+Raw receipt `benchmarks/board/2026-11-02T064445.120607Z.json` (all latest runs463de7b).
+Watcher matches, no pending run in that receipt, every track passed all five gates.
+**A/B/C/D are now all registered.** D entry is complete and scored; do not repeat stale unregistered claims.
+Overall always selects the BEST THREE registered scores; never geometric-mean all four.
 
-| Commit | A | B | C | D (unregistered) |
-|---|---:|---:|---:|---:|
-| `5c216d1` (previous best) | 65.83 | 49.57 | 57.29 | 46.04 |
-| `b6fb4a7` A two-pass rewrite | 67.26 | 50.02 | 56.67 | 46.29 |
-| `b1d2ca3` B and C rewrites | 69.41 | 63.93 | 69.12 | 45.14 |
-| `71f59b0` A per-hour design | **74.61** | 63.87 | 69.06 | 51.71 |
-| `a8f69d1` B prefetch, C tables, D 32-bit | 72.35 | 63.76 | 69.71 | **54.31** |
-| `c624b2e` C bit prefetch, B flat queries | 72.83 | 65.10 | **70.85** | 54.29 |
-| `35d1a42` A in-place, D owner fill | 74.21 | 63.58 | 70.60 | 51.32 |
-| `3f87fd9` B counting-sort blocks | 73.41 | 65.95 | 70.81 | 51.80 |
-| `e05f716` C 8-bit regions, D atomic fill restored | 72.66 | **66.35** | 68.33 | 53.45 |
-| `0023e65` B 32-bit offsets, C branch-free hash | 72.58 | 66.04 | **71.45** | 53.72 |
+| Track | Latest points | T s | cgroup M bytes | S | Run |
+|---|---:|---:|---:|---:|---|
+| A | 79.864346 | 0.027029 | 24,428,544 | 436 | run-b6aeae4ae6b5 |
+| B | 66.167402 | 0.311542 | 46,931,968 | 775 | run-6b5417c586c5 |
+| C | 73.025777 | 0.045172 | 13,053,952 | 379 | run-723ade7b4bf4 |
+| D | 53.879383 | 0.485033 | 272,519,168 | 245 | run-9076dddcddde |
 
-Registered overall (A/B/C): **57.18 → ≈70.0** on the latest run `0023e65`
-(≈70.7 using each track's best run). Identical code varies by up to ~15% in T between runs (for
-example B at 0.248 s and 0.290 s), so single-run differences under about
-2 points are not meaningful. Receipts: `benchmarks/board/`.
+User-reported historical rank40/41 of111 is not a current rank claim. Latest measured D is fourth.
+User authorized tested normal pushes. No force pushes, fake/backdated commits, paid infrastructure,
+form attestations or visibility changes. Repo private at last check; MIT notice retained.
 
-Latest axes at `0023e65`:
+## Verification state and local execution path
 
-| Track | T (s) | M (bytes) | S | Points |
-|---|---:|---:|---:|---:|
-| A | 0.053169 | 29,184,000 | 338 | 72.58 |
-| B | 0.245401 | 95,227,904 | 696 | 66.04 |
-| C | 0.053050 | 12,742,656 | 371 | 71.45 |
-| D | 0.496534 | 272,211,968 | 238 | 53.72 |
+Current hashes match Claude native x86 ASan/UBSan/small/generated-sample records in experiments.jsonl:
+A22 passes, B30 passes, C many at12/33workers, D11. Reuse only exact source/input/options proof.
+No structured full-seed7 record matches the latest current source hashes, so fresh full7 remains needed.
+Old report/round7 manifest and Mac timings describe historical source, not this Linux/x86 rewrite.
 
-## Verification for every pushed change
+Default Docker amd64 translator stalls before main on this AVX2 program (release and sanitizer).
+Link-order and missing A targeted-oracle issues in development helper were fixed and failures retained.
+A release probe also had an incorrect expected-hash argument; it timed out before comparison. Subsequent
+checks derive hashes from saved fixture/reference bytes. Never guess an expected hash.
 
-- Official fixtures (worked examples, edge cases, targeted cases) under
-  AddressSanitizer + UndefinedBehaviorSanitizer, at several worker counts
-  (1, 3, 5, 7, 12, 33).
-- Generated tiny and sample seeds compared with the untouched official
-  reference; full seed 1 output compared with the published hash.
-- The board's own correctness, timeout and sandbox gates passed on every run above.
-- All four tracks also match the official references on an independently
-  generated full seed 7 (`benchmarks/verification-2026-11-02.md`).
+Working fallback: **native ARM QEMU10.2.3, Haswell-noTSX CPU model**, in an unprivileged ARM Docker image.
+The SAME old x86 binary that stalled under the default translator passes the worked bytes under QEMU.
+Exact CURRENT463 A release now passed every fixture at12workers under QEMU. Artifact:
+`.work/final-claude-a-qemu-release.stdout` and corresponding cached-runtime record.
+QEMU setup `.work/qemu-runtime/metadata.json` pins emulator/library/ARM image digests. No privileged
+binfmt registration or host settings changed. These are compatibility checks, never native Intel timings.
 
-Measured and rejected this session: O_DIRECT output (no effect on tmpfs),
-D owner-range CSR fill (slower on the box), B branch-free hit path and
-small-token cache (no gain or slower), smaller B blocks, transparent huge
-pages for D (slower), and a lower B bitmap threshold (neutral on K).
+`tools/cached_runtime.py` development changes: --cxx-flag; static sanitizer archive group; explicit
+oracle provenance when hand bytes absent; timeout stderr; --qemu path with read-only copied x86 libraries.
+Use EXACT Docker CPU flags: A -mavx2; B/C -mavx2 -mbmi2; D no extra CPU flags.
+Compiler stays pinned GCC15; final runtime stays pinned Debian13. QEMU dev image is not a submission input.
 
-Local tooling notes: `tools/dev.py` accepts `SD_CXX=g++` (the container's
-clang lacks ASan runtimes) and adds `-mavx2 -mbmi2` on x86-64. Run sanitizer
-suites with `ASAN_OPTIONS=detect_leaks=0`: allocations are intentionally
-released at process exit.
+## Tested B rare-AND trial ready for native push
 
-## Open items
+Current working B source is the isolated rare positive AND anchor candidate,
+SHA3d26d55e05de1197e3bb92a08e4f5e00e042c39fea3cea7e5bcdae9441884990.
+A/C/D remain byte-identical to463de7b. New no-OR branch avoids materializing a
+large first set, while mixed OR queries retain exact original LTR evaluation.
+All fixtures UBSan halt-on-error + C++ bounds assertions pass; new independent
+rare-AND/NOT/OR-revival fixture agrees with untouched oracle. Five paired full1
+runs match published hash; full7 workers12/1 pass. Exact image clean offline
+build + five sandbox full1 + one full7 pass, S793/D1. Source/build/proof ledger:
+`benchmarks/sparse-and-anchor-trial.json`. QEMU mean2.551391 ->2.498198s is only
+screening; native score effect is pending. Next: commit/push and observe it.
 
-- D is implemented and scored, but the board still shows it unregistered.
-  Entering it needs the team form updated by a team member; it would only
-  count if it beat the lowest of A/B/C.
-- The repository must be public under MIT within the hour after the freeze
-  (2026-11-02 15:00 UTC), and the final commit must be on `speed-demon` by then.
-- Final scoring uses a private holdout seed; these are public-seed numbers.
+Current A/C/D also passed exact-current independent full7 under QEMU. Matching
+native parent ASan records remain preserved. Local ASan cannot initialize under
+QEMU (allocator range error; reserved-VA probe also failed). Do not claim ASan
+passed for new source. UBSan + bounds assertions provide fresh changed-branch
+checks. Default translator stalls even before main; QEMU10.2.3 Haswell works.
+
+Earlier Boolean-only-posting candidate passed correctness but QEMU timing was
+inconclusive1.972606 ->1.983256s; keep unselected. Old phases4/ring16 candidates
+are based on50a13a7 and must not be selected as current. Persistent teams were
+already implemented by Claude; do not repeat them. B9b64023 observed66.489154
+versus current66.167402: noisy small difference, not automatic rollback proof.
+
+Development tools now support QEMU, corrected static sanitizer archive order,
+explicit compiler flags, exact oracle provenance and local paired screening.
+Exact-image QEMU checks run uid65534 directly and leave child wall time unknown;
+Docker elapsed includes startup. The failed nested timer attempt is retained.
+No official harness files/behavior were changed.
+
+## Documentation and next actions
+
+Read score-push master fully (done), linked B/C/D/measure briefs and current source (done); preserve
+local master instructions and unchanged official specs/oracles. SCORE_PUSH_PLAN historical sections still
+need a full non-truncated read if relying on them; calibration refs parsed in analysis JSON.
+Root README, B README and submission report now describe the actual current designs/proof;
+A/C track narratives still need refresh before final delivery.
+Save real experiment and board evidence. No new files/ZIP handoff yet; old project ZIP is outdated.
+Final recorded source public under MIT by21:30IST; visibility action still needs applicable authorization.
+
+Docker environment: `DOCKER_CONFIG="$PWD/.work/docker-public-config"` and
+`DOCKER_HOST=unix:///Users/avinashgehi3/.docker/run/docker.sock`; use authorized sandbox escalation.
+Python3.13. Serialize builds/generation/performance. Keep commentary updates within60seconds.
+Do not spawn agents unless explicitly authorized (none yet). Do not create goals/automations implicitly.
+
+Prior Claude STATUS archived at `benchmarks/status-history/2026-11-02T070018Z-final-claude.md`.

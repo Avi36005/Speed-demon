@@ -17,11 +17,11 @@
 
 ---
 
-> **Verified native checkpoint `036225c`:** all four registered tracks pass.
-> Assembled-head overall: **72.971**. Historical best-three: **73.256**.
-> Target: **90 live overall machine points**, still unmet. C improved to **73.983**.
-> Native B/C ASan/UBSan and fresh-sample checks passed. A/B trials now await scoring.
-> See [STATUS.md](STATUS.md) for selected sources and exact verification scope.
+> **All-four optimization trial prepared.** Prior verified source remains preserved.
+> Historical best-three overall: **73.343**. Target: **90**, still unmet.
+> A compact allocation and C name-local membership gained; the B6 trial was rejected.
+> New A/B/C/D candidates pass fresh-seed and offline-image checks; native scoring is next.
+> See [STATUS.md](STATUS.md) and [the trial manifest](benchmarks/four-track-portfolio-trial.json).
 
 ## The entry
 
@@ -58,7 +58,7 @@ strict LTR order. Per-phase frequencies eliminate guaranteed-empty prefixes
 and preserve exact OR revival, reducing unnecessary query work.
 
 **D — exact directed graph search.** Parallel forward/reverse CSR construction
-feeds bidirectional Dijkstra. Compact32-bit distances have an exact64-bit side
+feeds bidirectional Dijkstra. Sparse private distance tables have an exact64-bit side
 map, and only a valid frontier bound terminates a search.
 
 ## Official live-board measurements
@@ -81,8 +81,8 @@ remain noisy. New A/B experiments are recorded separately until scored.
 
 Evidence is keyed by actual source/build/input hashes and worker options.
 Historical manifests certify their recorded source, rather than every later
-rewrite. The new A/B trial is pinned in
-[its manifest](benchmarks/compact-a-six-b-trial.json). C retains its verified winning source.
+rewrite. The new all-four trial is pinned in
+[its manifest](benchmarks/four-track-portfolio-trial.json). Native scoring will determine selection.
 
 | Check | Current evidence |
 | :--- | :--- |

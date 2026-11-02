@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.13/bin/python3.13",
+    "../official/speed-demon-2026/reference/a_ingest.py",
+    "--data",
+    ".work/fixtures/a/small-group-ranks",
+    "--out",
+    ".work/a-small-group-ranks-reference"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "reference_sha256": "6c3cff053f5d620aa873038e30bb32a31319bcbcd79b3b662a2ae152bb2664f1",
+  "expected_sha256": "497f987aaa05a57c4894b53c7a565623025f3369cca0f57929fd7a4051a56d05"
+}

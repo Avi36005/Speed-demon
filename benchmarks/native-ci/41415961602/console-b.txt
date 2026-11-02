@@ -1,0 +1,17 @@
+worked PASS
+boolean_semantics PASS
+digit_tokens_are_strings PASS
+empty_and_separator_only_documents PASS
+phrase_semantics PASS
+result_line_lists_ten_smallest_ids PASS
+tokenizer_byte_rule PASS
+targeted PASS
+wide-sum PASS
+kmp-overlap PASS
+token-block-boundaries PASS
+dense-phrase-anchor PASS
+bitmap-summary PASS
+posting-gap-boundaries PASS
+rare-and-anchor PASS
+/home/runner/work/Speed-demon/Speed-demon/submission/.work/data/track-b/sample-seed42 PASS
+sample-seed42 PASS

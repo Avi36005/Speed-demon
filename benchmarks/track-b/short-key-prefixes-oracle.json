@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.13/bin/python3.13",
+    "../official/speed-demon-2026/reference/b_index.py",
+    "--data",
+    ".work/fixtures/b/short-key-prefixes",
+    "--out",
+    ".work/b-short-key-prefixes-reference"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "reference_sha256": "02d7148fa38ed1968b1177147e91a4e1c2151b65c6f709f30a546e5205e6b1ad",
+  "expected_sha256": "fc070708a6fac3bf13e0479e4a3e06e7d794a3cfdcf1437d25c79336f8b1c453"
+}

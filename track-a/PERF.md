@@ -251,3 +251,20 @@ QEMU means.355806 ->.349413s inconclusive; process cgroup292,950,016 ->
 294,174,720B includes pagecache/emulator and cannot estimate board M. S441/D1.
 Native memory/time trial pending, prior source preserved036225c. Ledger
 benchmarks/compact-a-six-b-trial.json. Next native ASan12 on actual committed source.
+
+### Compact allocation native result — kept
+
+b6ebbc8/run-3e475613b1fe: all gates pass, T0.027008s/M23781376B/S441/D1/K39.72327/79.95225points.
+Memory fell from25,014,272B at036225c to23,781,376B. Runtime remains effectively
+unchanged; small point gain is noisy but reduced allocation and the verified
+all-equal guard justify retention. Native A12 ASan job41415961602 is pending.
+
+## Four-track portfolio trial — native pending
+
+Small <=24 groups now sort once for all three nearest ranks; new independent1..32-size fixture agrees with oracle.
+Sourceb2470c2a995f821ac26a295fc992370278d04a1a8de430cedad3e8b713c53e61, S443/D1. Fixtures UBSan/bounds1/12,
+fresh full7, five offline exact-image public runs and one fresh-image full7
+pass. Five paired QEMU means0.404389 ->
+0.393222s; not scoring-machine T/M. Exact
+proof ledger benchmarks/four-track-portfolio-trial.json. Native ASan and board
+effect pending; preserve prior source and select by complete native axes.

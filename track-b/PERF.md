@@ -372,3 +372,29 @@ pass. QEMU12-v6 mean2.350044 ->2.834975s regresses; cgroup316,997,632 ->
 will decide; no improvement claimed. Restore036 B if complete native axes lose.
 Ledger benchmarks/compact-a-six-b-trial.json; exact worker settings recorded
 per comparison version. Existing036 B native ASan12 proof remains distinct.
+
+### Six-worker native trial rejected
+
+b6ebbc8/run-081abd790d21: all gates pass, T0.369951s/M39047168B/S783/D1/K19.542043/64.548498points.
+Memory falls below its cap, while runtime loses enough to lower complete score.
+Restore036225c twelve-worker default exactly. Do not pursue six further.
+
+## Inline short-key dictionary rejected locally
+
+Source9c7dde786418bd22606fdbb04686b97b086e92935d5588a68cb1367c45908952,
+UBSan/bounds fixtures12 and five paired public hashes pass. QEMU means
+3.568851 ->3.922050s regress; local cgroup314,933,248 ->314,671,104B includes
+emulator/cache. Larger slots and token-length branching do not pay in this screen.
+Unselected; no native score claim. Stop this dictionary-layout line. Native
+dependent-key prefetch alone also regressed1.274706 ->1.304224s on single-core
+Xeon in CI41415961602. Preserve artifacts; leave it unselected.
+
+## Four-track portfolio trial — native pending
+
+Dead query remapping buffers are released. Idle workers spin briefly then park with atomic wait; publication/termination use acquire/release and notifications.
+Sourcef1ed726d6e8830bde2b83112919f4ddb67841cdd0cc6eeb2695bc7e5cdc46a9c, S791/D1. Fixtures UBSan/bounds1/12,
+fresh full7, five offline exact-image public runs and one fresh-image full7
+pass. Five paired QEMU means1.335104 ->
+1.176699s; not scoring-machine T/M. Exact
+proof ledger benchmarks/four-track-portfolio-trial.json. Native ASan and board
+effect pending; preserve prior source and select by complete native axes.

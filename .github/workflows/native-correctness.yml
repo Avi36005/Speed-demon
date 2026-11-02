@@ -6,7 +6,7 @@ on:
       tracks:
         description: Tracks to verify
         type: choice
-        options: [bc, ab, a, abcd]
+        options: [bc, ab, bcd, a, d, abcd]
         default: bc
       b_workers:
         description: Explicit B verification workers

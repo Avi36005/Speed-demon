@@ -287,3 +287,13 @@ S353/D1/K30.17635/73.983336points. This exceeds prior historical C
 best73.246578 at6179d73/run-e8a44288f8f2. Against same parent baseline C at
 2d48af0: .044476s/M13,066,240B/S379/73.190280. Memory/source gains are
 measured; a single small time difference is noisy. Receipt2026-11-02T083443.958935Z.
+
+## Four-track portfolio trial — native pending
+
+Prefetch both immutable record header and exact-key line. Shared atomic slots are explicitly constructed before worker publication.
+Sourcec18bd52a58ba17836285c5d7af96405067f6dcc0d6c1eec837de1a5fb4f869de, S357/D1. Fixtures UBSan/bounds1/12,
+fresh full7, five offline exact-image public runs and one fresh-image full7
+pass. Five paired QEMU means0.632634 ->
+0.630418s; not scoring-machine T/M. Exact
+proof ledger benchmarks/four-track-portfolio-trial.json. Native ASan and board
+effect pending; preserve prior source and select by complete native axes.

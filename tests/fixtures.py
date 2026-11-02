@@ -50,6 +50,17 @@ def make_a():
         expected.append((path, f"2026-10-30T18:00:00Z {path} {n} {' '.join(map(str, ranks))} {errors} {errors * 1000000 // n}\n"))
     cases["packed-chunk-boundaries"] = "".join(reversed(rows))
     answer("a", "packed-chunk-boundaries", "".join(text for _, text in sorted(expected)))
+    rows, expected = [], []
+    for n in range(1, 33):
+        path = f"/small/{n}"
+        values = [((i % 7) * 1103515245 + n * 12345) & 65535 for i in range(n)]
+        ordered = sorted(values)
+        ranks = [ordered[(p * n + 99) // 100 - 1] for p in (50, 95, 99)]
+        for value in reversed(values):
+            rows.append(f"2026-10-30T18:00:00.000000Z GET {path} 200 {value}\n")
+        expected.append((path, f"2026-10-30T18:00:00Z {path} {n} {' '.join(map(str, ranks))} 0 0\n"))
+    cases["small-group-ranks"] = "".join(rows)
+    answer("a", "small-group-ranks", "".join(text for _, text in sorted(expected)))
     for label, text in cases.items():
         data = SUB / ".work/fixtures/a" / label
         data.mkdir(parents=True, exist_ok=True)
@@ -180,6 +191,21 @@ def make_b():
            b"44 2838 0 3 6 9 12 15 18 21 24 27\n"
            b"86 5547 1 2 4 5 7 8 10 11 13 14\n"
            b"44 2838 0 3 6 9 12 15 18 21 24 27\n")
+    words = ["a", "a0", "abcdefg", "abcdefgh", "abcdefghi", "abcdefghj",
+             "abcdefgh0", "12345678", "123456789", "z" * 32]
+    rows = [[w, w] for w in words] + [["abcdefgh", "abcdefghi"],
+            ["abcdefghj", "abcdefgh"], ["a", "a0", "abcdefgh0"], ["z" * 32, "abcdefgh"]]
+    sets = {w: {i for i, row in enumerate(rows) if w in row} for w in words}
+    checks = [("BOOL " + w, sets[w]) for w in words]
+    checks += [("BOOL abcdefgh AND abcdefghi", sets["abcdefgh"] & sets["abcdefghi"]),
+               ("BOOL abcdefgh NOT abcdefghi OR abcdefghj", (sets["abcdefgh"] - sets["abcdefghi"]) | sets["abcdefghj"]),
+               ('PHRASE "abcdefgh abcdefghi"', {10}),
+               ('PHRASE "abcdefgh abcdefgh"', {3}),
+               ('PHRASE "abcdefghi abcdefghi"', {4})]
+    cases["short-key-prefixes"] = (mod.docs_file([" ".join(row) for row in rows]),
+                                   "".join(q + "\n" for q, _ in checks).encode())
+    answer("b", "short-key-prefixes", "".join(
+        " ".join(map(str, [len(ids), sum(ids), *sorted(ids)[:10]])) + "\n" for _, ids in checks))
     # A partial final bitmap word plus every six-bit id-position boundary.
     # Expected sets are built from fixture values independently of bitmap math.
     populations = {

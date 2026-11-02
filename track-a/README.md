@@ -19,7 +19,8 @@ may pass `--data DIR --out DIR --workers N` (default: the CPUs in the affinity m
 4. **Exact percentiles.** Workers claim hours, count and scatter records by
    endpoint, and select nearest ranks `(p*n + 99) / 100`. Branch-free Lomuto
    partitions reuse the right partition after each selected rank. An all-equal
-   minimum-pivot check avoids quadratic progress on constant groups. Counts,
+   minimum-pivot check avoids quadratic progress on constant groups. Groups with
+   at most24 values sort once and read all three ranks from that order. Counts,
    errors and compact percentile results determine each output slice's size.
 5. **Ordered output.** One persistent worker team coordinates through barriers.
    Records are released before output pages are allocated. Exact byte offsets

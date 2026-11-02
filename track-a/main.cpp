@@ -310,6 +310,10 @@ int main(int argc, char** argv) {
                     uint64_t n = count[id];
                     if (!n) continue;
                     uint32_t *first = values.get() + fill[id] - n, *last = first + n, *rest = first, ranks[3];
+                    // select() completely sorts its small insertion range.
+                    // Read every rank from that one sort instead of sorting
+                    // already sorted suffixes again for p95 and p99.
+                    if (n <= 24) select(first, last, first), rest = last;
                     for (int i = 0; i < 3; ++i) {
                         uint32_t* rank = first + (uint64_t{i == 0 ? 50u : i == 1 ? 95u : 99u} * n + 99) / 100 - 1;
                         if (rank >= rest) select(rest, last, rank), rest = rank + 1;

@@ -140,3 +140,13 @@ and was not used. D is still unregistered on the board.
 D is registered and passing in current2026-11-02 receipts (including ccc259f/
 run-aa2034569555). Earlier unregistered statements describe historical snapshots.
 No D runtime change during these B/C trials; its timing fluctuations are variation.
+
+## Four-track portfolio trial — native pending
+
+Private sparse distance tables replace two fully initialized node arrays per worker. Full uint64 distances retain the exact side map. Clear only occupied slots, grow before half load, preserve all Dijkstra bounds.
+Source055f90aca740e30b7acf3b28092176e8e4f23b6364018b6d4d9c9cded52fd226, S273/D1. Fixtures UBSan/bounds1/12,
+fresh full7, five offline exact-image public runs and one fresh-image full7
+pass. Five paired QEMU means1.001046 ->
+0.873029s; not scoring-machine T/M. Exact
+proof ledger benchmarks/four-track-portfolio-trial.json. Native ASan and board
+effect pending; preserve prior source and select by complete native axes.

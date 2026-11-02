@@ -56,17 +56,51 @@ struct Edge {
 // 32-bit distances per node; the rare values from 2^32 - 2 up are kept
 // exactly in a side map, so every comparison still sees the full value.
 constexpr uint32_t BIG = UINT32_MAX - 1;
+// Private sparse distances avoid initializing two n-node arrays per worker.
+// Nonzero entries pack node+1 and the same exact small-distance encoding.
 struct Dist {
-    std::vector<uint32_t> small;
+    std::vector<uint64_t> slots = std::vector<uint64_t>(1024);
+    std::vector<uint32_t> used;
     std::unordered_map<uint32_t, uint64_t> big;
-    explicit Dist(uint32_t n) : small(n, UINT32_MAX) {}
+    explicit Dist(uint32_t) {}
+    size_t locate(uint32_t v) const {
+        uint64_t h = uint64_t{v} * 0x9E3779B97F4A7C15ull;
+        size_t i = (h ^ (h >> 32)) & (slots.size() - 1);
+        while (slots[i] && uint32_t(slots[i] >> 32) != v + 1) i = (i + 1) & (slots.size() - 1);
+        return i;
+    }
     uint64_t get(uint32_t v) const {
-        uint32_t x = small[v];
-        return x < BIG ? x : x == UINT32_MAX ? INF : big.at(v);
+        uint64_t e = slots[locate(v)];
+        if (!e) return INF;
+        uint32_t x = static_cast<uint32_t>(e);
+        return x < BIG ? x : big.at(v);
+    }
+    void clear() {
+        for (uint32_t i : used) slots[i] = 0;
+        used.clear();
+        big.clear();
+    }
+    void grow() {
+        auto old = std::move(slots);
+        auto positions = std::move(used);
+        slots.assign(old.size() * 2, 0);
+        used.clear();
+        used.reserve(positions.size() * 2);
+        for (uint32_t p : positions) {
+            size_t i = locate(static_cast<uint32_t>(old[p] >> 32) - 1);
+            slots[i] = old[p];
+            used.push_back(static_cast<uint32_t>(i));
+        }
     }
     void set(uint32_t v, uint64_t d) {
-        if (d < BIG) small[v] = static_cast<uint32_t>(d);
-        else small[v] = BIG, big[v] = d;
+        size_t i = locate(v);
+        if (!slots[i]) {
+            if ((used.size() + 1) * 2 > slots.size()) grow(), i = locate(v);
+            used.push_back(static_cast<uint32_t>(i));
+        }
+        uint32_t x = d < BIG ? static_cast<uint32_t>(d) : BIG;
+        if (d >= BIG) big[v] = d;
+        slots[i] = uint64_t{v + 1} << 32 | x;
     }
 };
 
@@ -147,7 +181,6 @@ int main(int argc, char** argv) {
         std::atomic<size_t> next{0};
         run([&](size_t) {
             Dist dist[2] = {Dist(n), Dist(n)};
-            std::vector<uint32_t> touched[2];
             using Item = std::pair<uint64_t, uint32_t>;
             std::vector<Item> heap[2];
             auto later = [](const Item& a, const Item& b) { return a.first > b.first; };
@@ -159,13 +192,10 @@ int main(int argc, char** argv) {
                     continue;
                 }
                 for (int d = 0; d < 2; ++d) {
-                    for (uint32_t u : touched[d]) dist[d].small[u] = UINT32_MAX;
-                    dist[d].big.clear();
-                    touched[d].clear();
+                    dist[d].clear();
                     heap[d].clear();
                 }
                 dist[0].set(s, 0), dist[1].set(t, 0);
-                touched[0].push_back(s), touched[1].push_back(t);
                 heap[0].push_back({0, s}), heap[1].push_back({0, t});
                 uint64_t best = INF;
                 for (;;) {
@@ -187,7 +217,6 @@ int main(int argc, char** argv) {
                         uint64_t nd = du + e->weight;  // at most (n - 1) * (2^32 - 1): no overflow
                         uint64_t cur = dist[d].get(e->to);
                         if (nd < cur) {
-                            if (cur == INF) touched[d].push_back(e->to);
                             dist[d].set(e->to, nd);
                             heap[d].push_back({nd, e->to});
                             std::push_heap(heap[d].begin(), heap[d].end(), later);

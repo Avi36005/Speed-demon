@@ -164,7 +164,7 @@ int main(int argc, char** argv) {
         // Shared name table. A slot holds a 16-bit hash tag and a pointer to an
         // arena record {length, country bits, bytes}: the inserting worker writes the
         // record, then publishes it with a release CAS; readers acquire it.
-        auto* slots = static_cast<std::atomic<uint64_t>*>(calloc(SLOTS, 8));
+        auto* slots = new std::atomic<uint64_t>[SLOTS]{};
         std::atomic<size_t> claim{0};
         std::vector<std::vector<std::unique_ptr<char[]>>> arenas(workers);  // live until exit
         std::vector<std::vector<Group>> part(workers, std::vector<Group>(G));
@@ -249,7 +249,11 @@ int main(int argc, char** argv) {
                 uint64_t h = hash(nb, len);
                 __builtin_prefetch(&slots[h & (SLOTS - 1)]);
                 Pending& half = ring[(pending + 4) % 8];
-                if (pending >= 4) __builtin_prefetch(reinterpret_cast<const char*>(slots[half.h & (SLOTS - 1)].load(std::memory_order_relaxed) & ((1ull << 48) - 1)));
+                if (pending >= 4) {
+                    uintptr_t rec = slots[half.h & (SLOTS - 1)].load(std::memory_order_relaxed) & ((1ull << 48) - 1);
+                    __builtin_prefetch(reinterpret_cast<const char*>(rec));
+                    __builtin_prefetch(reinterpret_cast<const char*>(rec + header));  // the exact key may occupy the next cache line
+                }
                 Pending& slot = ring[pending % 8];
                 if (pending >= 8) resolve(slot);
                 slot = {nb, len, static_cast<uint32_t>(&x - g.data()), h};

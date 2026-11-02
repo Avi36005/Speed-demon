@@ -25,6 +25,10 @@ replacement = '''                for (size_t i = 0; i < n; ++i) {
                     uint32_t id = pt[i].len'''
 assert original.decode().count(needle) == 1
 candidate = original.decode().replace(needle, replacement).encode()
+if 'static constexpr uint32_t IDMASK' in original.decode():
+    # Inline short keys already avoid the dependent full-key load.
+    candidate = candidate.replace(b'if (e != NONE) __builtin_prefetch(&vocab.keys[e & Vocabulary::MASK]);',
+                                  b'if (e != NONE && !(e & Vocabulary::SHORT)) __builtin_prefetch(&vocab.keys[e & Vocabulary::IDMASK]);')
 work = SUB / '.work/native-pair' / uuid.uuid4().hex[:10]
 work.mkdir(parents=True)
 data = SUB.parent / 'data/track-b/full-seed1'

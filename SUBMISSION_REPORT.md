@@ -1,24 +1,31 @@
-# Kryptonite — verified source and active native trial
+# Kryptonite — verified source and all-four trial
 
-Target90 live overall machine points/top three remains unmet. Verified036225c overall72.971055; historical best-three73.256138. The freeze evaluates the actual selected head.
+Target90 live overall/top three remains unmet. Historical best-three73.343024;
+latest b6ebbc8 trial72.622399. Freeze scores the actual head, not a collage.
+All four registered; all native gates pass in the saved receipt.
 
-|Track|Time s|M bytes|S|Machine points|Native run at036225c|
-|---|---:|---:|---:|---:|---|
-|A|0.026911|25014272|436|79.808946|run-5f9bb2ac6c4e|
-|B|0.321271|46911488|782|65.806136|run-81df8b60b921|
-|C|0.043319|12263424|353|73.983336|run-5390ab67f3f3|
-|D|0.483486|271896576|245|53.924001|run-7b43f4f31e6e|
+|Track|Points|Time s|M bytes|Run at b6ebbc8|
+|---|---:|---:|---:|---|
+|A|79.95225|0.027008|23,781,376|run-3e475613b1fe|
+|B|64.548498|0.369951|39,047,168|run-081abd790d21|
+|C|74.215556|0.042425|12,247,040|run-bc13d0d4199a|
+|D|54.227357|0.470085|272,011,264|run-74efb88d7bc1|
 
-All four tracks are registered; all five native board gates pass. D is currently fourth. C name-local country membership improves its prior historical score to73.983336 and is retained. Small timing differences remain noisy. Receipt: benchmarks/board/2026-11-02T083443.958935Z.json.
+B six-worker tradeoff lost and was restored to twelve. A allocation reduction
+is retained; C's current name-local membership source remains verified. New
+all-four trial source/proof is pinned in benchmarks/four-track-portfolio-trial.json:
+A sorts small groups once; B releases dead buffers and parks idle workers;
+C prefetches the dependent key line and constructs atomic slots; D uses sparse
+exact distance tables. All pass UBSan/bounds1/12, full7, five paired public hash
+checks, offline images, five public sandbox runs and a full7 image run. Native
+ASan and actual score for THESE sources are pending.
 
-Native CI41413513572 passed exact036225c B/C:16 B checks including14 ASan,9 C checks including8 ASan, fresh sample42 at12workers and full-public native diagnostic oracle checks. Source/build/input hashes, compiler flags, commands and outputs are saved in benchmarks/native-ci/41413513572. GCC13.3 on Intel Xeon6975P-C is development evidence, separate from the official13500/GCC15 score.
+Prior native ASan/UBSan/fresh sample42 proof is saved from CI41413513572 and
+41415961602, matched to their immutable sources. Native Xeon/GCC13 development
+timings differ from13500/GCC15 scoring. QEMU timings/peaks include emulation.
+No official improvement is inferred before its commit and run are observed.
 
-The newly selected A/B trial is pinned in benchmarks/compact-a-six-b-trial.json. A reduces append-chunk slack and scratch allocations and avoids quadratic all-equal selection. B tests a six-worker default while preserving CLI overrides. C/D remain unchanged. Both candidates pass relevant UBSan/bounds fixtures, independently oracle-checked cases, full7, repeated public hashes, exact offline amd64 images, five default sandbox runs and fresh full7 image checks. A passes1/12worker fresh checks; B6 is explicit in its records. A S441/B S783, D1 each.
-
-QEMU screening A.355806 ->.349413s is inconclusive. B12-v6 QEMU2.350044 ->2.834975s regresses while worker-state memory falls; one native physical-core tradeoff trial will decide. No native gain is claimed before its actual commit/run. Reject B6 if complete score axes lose. The current A12/B6 native ASan job is pending.
-
-A manual bounded CI workflow can also screen dependent exact-key prefetch on one native core using an isolated development copy. That candidate is unselected and cannot be credited as a scored improvement. Final container builds use only the source in each track folder.
-
-Local QEMU cannot initialize ASan; native CI supplies that missing evidence. QEMU elapsed/cgroup values include emulation and are never substituted for official T/M. Unchanged source proof is reused only by matching hashes/options. Rejected rare-AND, hot-cache and C lookahead experiments remain recorded.
-
-Stop broad rewrites13:00UTC; freeze15:00UTC/20:30IST. Final assembled committed-archive images, an additional unused seed, repeat determinism and watched-head verification remain due. MIT retained; private repository visibility must be resolved by16:00UTC/21:30IST using applicable authorization. No historical ZIP is called current.
+An unused full seed20261102 is preparing reference bytes, not checking the
+entrant yet. Final selected committed-archive images must pass those inputs.
+Stop broad rewrites18:30IST; final verification until freeze20:30IST. MIT source
+public deadline21:30IST still needs applicable authorization. No old ZIP is current.

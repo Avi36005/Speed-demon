@@ -3,7 +3,7 @@
 C++20, Linux/x86-64, AVX2/BMI2, standard library and POSIX interfaces only.
 Read `/data/docs.txt` and `/data/queries.txt`; write exactly `/out/results.txt`.
 Local paths use `--data DIR --out DIR`; `--workers N` overrides affinity-based
-worker selection (default capped at six for the current native trial). Zero third-party runtime dependencies; MIT, see ../LICENSE.
+worker selection. Zero third-party runtime dependencies; MIT, see ../LICENSE.
 
 Queries are interned into a compact exact vocabulary. Fingerprints reject
 probes; complete zero-padded token bytes decide equality. The corpus is scanned
@@ -11,7 +11,10 @@ once, with bounded padded mappings and AVX2 ASCII classification. Only A–Z fol
 all non-ASCII bytes separate tokens. Unknown tokens retain their positions.
 
 Ten phases bound peak index storage. Each phase uses word-aligned document
-ranges claimed dynamically by one persistent worker team. Common terms chosen
+ranges claimed dynamically by one persistent worker team. Idle workers briefly
+spin, then park with atomic wait; release/acquire task publication and explicit
+notifications preserve synchronization. Dead query-remapping buffers are released
+before indexing. Common terms chosen
 by a runtime sample use bitmaps; other hits are counting-sorted into compact
 16-bit runs within8192-document blocks. Sampling chooses representation, never
 an answer. Frequencies and run membership are exact.

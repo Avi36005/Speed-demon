@@ -141,8 +141,8 @@ struct Query {
 };
 
 // One team of threads for every parallel step. Waiting threads spin on a
-// generation counter (with pause), which wakes them far faster than
-// creating threads or a sleeping barrier.
+// generation counter. A short spin covers immediate reuse, then atomic wait
+// parks idle workers so serial steps and stragglers keep their CPU resources.
 struct Threads {
     std::vector<std::thread> list;
     std::atomic<uint64_t> generation{0};
@@ -155,22 +155,26 @@ struct Threads {
             for (size_t i = 1; i < n; ++i)
                 list.emplace_back([this, i] {
                     for (uint64_t seen = 0;;) {
-                        while (generation.load(std::memory_order_acquire) == seen) _mm_pause();
+                        for (unsigned spin = 0; spin < 128 && generation.load(std::memory_order_acquire) == seen; ++spin) _mm_pause();
+                        generation.wait(seen, std::memory_order_acquire);
                         ++seen;
                         if (stop) return;
                         job(i);
-                        left.fetch_sub(1, std::memory_order_release);
+                        if (left.fetch_sub(1, std::memory_order_release) == 1) left.notify_one();
                     }
                 });
         job = f;
         left.store(n - 1, std::memory_order_relaxed);
         generation.fetch_add(1, std::memory_order_release);
+        generation.notify_all();
         f(0);
-        while (left.load(std::memory_order_acquire)) _mm_pause();
+        for (size_t remaining; (remaining = left.load(std::memory_order_acquire));)
+            left.wait(remaining, std::memory_order_acquire);
     }
     ~Threads() {
         stop = true;
         generation.fetch_add(1, std::memory_order_release);
+        generation.notify_all();
         for (auto& t : list) t.join();
     }
 };
@@ -189,8 +193,7 @@ int main(int argc, char** argv) {
     try {
         std::string data_dir = "/data", out_dir = "/out";
         cpu_set_t cpus;
-        // Six P-cores on the published scoring CPU; CLI overrides remain explicit.
-        size_t workers = std::min<size_t>(6, sched_getaffinity(0, sizeof cpus, &cpus) == 0 ? CPU_COUNT(&cpus) : 6);
+        size_t workers = sched_getaffinity(0, sizeof cpus, &cpus) == 0 ? CPU_COUNT(&cpus) : 12;
         for (int i = 1; i + 1 < argc; i += 2) {
             std::string arg = argv[i];
             if (arg == "--data") data_dir = argv[i + 1];
@@ -242,6 +245,9 @@ int main(int argc, char** argv) {
         std::vector<uint32_t> ids(raw.size());
         for (size_t i = 0; i < raw.size(); ++i) ids[i] = vocab.intern(raw[i].s, raw[i].len, raw[i].h);
         for (uint32_t& t : all_terms) if (t != NONE) t = ids[t];
+        // Remapping views are dead after every query term has its exact ID.
+        std::vector<Raw>().swap(raw);
+        std::vector<uint32_t>().swap(ids);
         const size_t V = vocab.keys.size();
 
         // The corpus is indexed and queried in phases, so the whole index never

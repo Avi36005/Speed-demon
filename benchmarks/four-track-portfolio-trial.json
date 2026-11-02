@@ -1,0 +1,89 @@
+{
+  "utc": "2026-11-02T11:46:18.103369+00:00",
+  "parent_commit": "b6ebbc890b712b40d155c824f16e09181d76d380",
+  "official_result": null,
+  "target": 90,
+  "changes": {
+    "a": {
+      "source_sha256": "b2470c2a995f821ac26a295fc992370278d04a1a8de430cedad3e8b713c53e61",
+      "S": 443,
+      "D": 1,
+      "checks": [
+        ".work/cached-runtime/a-5c71f48dbf",
+        ".work/cached-runtime/a-fd29807186",
+        ".work/cached-runtime/a-0c3c3bf1fa"
+      ],
+      "exact_image_checks": [
+        ".work/containers/a-6b54019ca5",
+        ".work/containers/a-caefaaef27"
+      ],
+      "paired_record": ".work/linux-compare/a-265b4d0d51",
+      "qemu_middle_means": {
+        "baseline": 0.40438880600000005,
+        "candidate": 0.3932218193333334
+      },
+      "native_effect": null
+    },
+    "b": {
+      "source_sha256": "f1ed726d6e8830bde2b83112919f4ddb67841cdd0cc6eeb2695bc7e5cdc46a9c",
+      "S": 791,
+      "D": 1,
+      "checks": [
+        ".work/cached-runtime/b-b7163c7b2c",
+        ".work/cached-runtime/b-37c4da0b40",
+        ".work/cached-runtime/b-a0ec50a205"
+      ],
+      "exact_image_checks": [
+        ".work/containers/b-537342683c",
+        ".work/containers/b-101aa2d7ca"
+      ],
+      "paired_record": ".work/linux-compare/b-34c742a24f",
+      "qemu_middle_means": {
+        "baseline": 1.3351039313333333,
+        "candidate": 1.1766985006666666
+      },
+      "native_effect": null
+    },
+    "c": {
+      "source_sha256": "c18bd52a58ba17836285c5d7af96405067f6dcc0d6c1eec837de1a5fb4f869de",
+      "S": 357,
+      "D": 1,
+      "checks": [
+        ".work/cached-runtime/c-98e240b25e",
+        ".work/cached-runtime/c-c5e227cac7",
+        ".work/cached-runtime/c-a5196494e6"
+      ],
+      "exact_image_checks": [
+        ".work/containers/c-35cb338b65",
+        ".work/containers/c-34c3b492c5"
+      ],
+      "paired_record": ".work/linux-compare/c-ee3777a1dc",
+      "qemu_middle_means": {
+        "baseline": 0.6326339676666667,
+        "candidate": 0.6304182226666667
+      },
+      "native_effect": null
+    },
+    "d": {
+      "source_sha256": "055f90aca740e30b7acf3b28092176e8e4f23b6364018b6d4d9c9cded52fd226",
+      "S": 273,
+      "D": 1,
+      "checks": [
+        ".work/cached-runtime/d-8e1cd23421",
+        ".work/cached-runtime/d-3b31c184b4",
+        ".work/cached-runtime/d-bf2bf2ae82"
+      ],
+      "exact_image_checks": [
+        ".work/containers/d-d07ce9f372",
+        ".work/containers/d-f99e451741"
+      ],
+      "paired_record": ".work/linux-compare/d-dd618f61bf",
+      "qemu_middle_means": {
+        "baseline": 1.0010460283333333,
+        "candidate": 0.8730287226666666
+      },
+      "native_effect": null
+    }
+  },
+  "scope": "All four changed candidates passed fixtures UBSan/bounds1/12, fresh full7, five exact offline public-image runs and one full7 image run. QEMU times and peaks are screens only. Native ASan and exact board runs pending."
+}

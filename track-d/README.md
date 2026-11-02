@@ -17,9 +17,11 @@ runs may pass `--data DIR --out DIR --workers N`.
    smaller frontier expands. A meeting is only an upper bound; the search
    stops once the frontier minima cannot improve it. `s == t` is 0, a source
    with no out-edges or a target with no in-edges is `-1`.
-3. **Memory.** Distances are stored as 32 bits per node. Values from
+3. **Memory.** Each worker keeps sparse open-addressed distance tables for the
+   nodes its searches actually reach. Keys are exact node IDs; probing and
+   growth preserve entries, and only occupied slots are reset. Values from
    2^32 − 2 upward (reachable only through near-maximal weights) go exactly
    into a small per-thread side map, so every comparison sees the full 64-bit
-   value. Only touched entries are reset between queries.
+   value. Graph construction and all search state are built inside the timed run.
 
 See [PERF.md](PERF.md) for measurements.

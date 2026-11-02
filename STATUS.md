@@ -1,48 +1,44 @@
-# Kryptonite — C native trial / verification checkpoint
+# Kryptonite — last substantive B native trial
 
-Updated 2026-11-02T13:49:18.233708+00:00.
-User requests88 minimum/90 preferred, still NOT achieved. User explicitly asked
-continued improvement after earlier routine cutoff. Freeze15:00UTC/20:30IST;
-preserve final verification time and original fallback8c5b801.
+Updated 2026-11-02T14:00:48.365037+00:00.
+Target88 minimum/90 preferred unmet. Freeze15:00UTC/20:30IST, now~one hour.
+User explicitly prioritized continued improvement; preserve verification and
+fallback, no untested final changes. Repo PUBLIC/MIT with approved visibility.
 
-## Current working entry, next push
+## Current selected source, next push
 
-All Dockerfiles restored byte-for-byte8c5b801 after LTO2671675 lost. A/B/D
-source unchanged8c5b801. ONLY C source changes: monotone country-membership
-bits first relaxed-read, then fetch_or only if clear; first-set counting remains
-exact under concurrency. Proof benchmarks/late-hotpath-trial.json pins source,
-UBSan/bounds fixtures1/12, full7, offline image public5/unused20261102x5, S358/D1.
-QEMU.390552->.350537s is screening only. Native result and native ASan pending.
-Next: commit/push C+compiler rollback, dispatch workflow trackc, observe board
-and exact CI IDs. Keep/revert based on native axes. Avoid new broad rewrites.
+A/D verified source8c5b801 unchanged. C monotone membership330340c kept:
+74.197390 run-4fbffa7f5a30, native CI41456311760 passed. Artifacts saved.
+B now isolated tested inline Boolean summary candidate8e8d9a5337f6107710cb5dcd56c878e80955624820f9968f7af75c3d041174c8, S859/D1.
+Only rare no-OR queries use positive anchors and exact document membership;
+other queries retain strict LTR set path. Omit unused posting sets and release
+Boolean match storage per phase. Proof inline-bool-summary-trial.json.
+Fixtures UBSan/bounds1/12, independent phase/oracle, full7 at1/12, exact offline
+public5/unused20261102x5 pass. QEMU2.512348->2.178001s (screen only), local
+peak313,081,856->310,087,680 includes emulator, NOT official axes.
 
-## Completed/rejected work
+Next: push tested B, run native workflow trackb B12, observe exact native board
+and CI. Keep if complete T/M/S/D improves; otherwise restore330 Bf1ed726...
+No further structural rewrites after this; reserve remaining time for clean
+committed source/image/native proof and watched-head confirmation before freeze.
+All Dockerfiles are restored original8c flags (LTO trial267 lost and rejected).
 
-LTO2671675 full gates passed but points A79.857880/B64.092801/C74.134332/
-D58.169270, overall72.396150. Reject all flags; restore original builds.
-D fused sparse probe passed correctness but QEMU2.092769->2.336830s lost;
-unselected, current D stays verified055f90ac. Prior sparse D gained~5points;
-A compact allocation and small sorts gained~.4point. B remains limiting included
-track. Do not claim88 or90. Latest verified fallback8c5b801 overall73.268128,
-historical best-three73.431380. Final hidden-seed/judging unknown.
+## Actual latest native snapshot / limitations
 
-## Preserved verification
+330340c all gates pass, all four registered. A79.678412/B66.571274/C74.197390/
+D56.409919, overall73.283363. A/B/D runtime identical to8c; differences are
+native run variation. Historical best-three must be recalculated from final
+receipt; do not report88 or90 or current rank from a screenshot.
+Original final native proofs: A/D and Bfallback CI41439655126, C330 CI41456311760.
+All original selected clean committed images pass unused full seed20261102x5.
+New B native ASan is PENDING; new B exact-image tests already pass.
 
-Original selected A/B/D native CI41439655126, old C CI41449471565 pass.
-All original selected runtime/build hashes and clean committed archive images
-match final-assembly.json; unused full seed20261102 FIVE deterministic runs plus
-public checks pass. These certify fallback, not the changed C candidate.
-C candidate local checks/images are source-matched in late-hotpath-trial.json;
-new native source sanitizer proof must complete before final retention.
-LTO exact images additionally passed40small fixtures and44full-image runs;
-those rejected images are historical, not current source proof.
+## Rejections / continuity
 
-## Publication/remote
-
-User explicitly approved PUBLIC visibility. GitHub confirms public,MIT,
-disabled=false; transient git403 cleared, git transport works. Keep public.
-Official branch speed-demon, all four registered, Board App watch okay.
-No form update or ZIP upload required; no new files handed off before target.
-No force/backdate/fake metrics, paid infrastructure, agents/goals/automations.
-Python3.13, isolated Docker config .work/docker-public-config,
+CompilerLTO267 lost ->all original builds restored. D single-probe source passed
+correctness but12% slower locally ->unselected. B unbounded inline first variant
+passed but+7MB/1% time benefit ->unselected; phase summaries fix that tradeoff.
+All source/cmds/raw checks retained in benchmarks and PERF.md. No official files
+changed, no fake/backdated commits, no force push, no paid resources or agents.
+No new ZIP handed off. Python3.13; Docker isolated .work/docker-public-config,
 DOCKER_HOST unix:///Users/avinashgehi3/.docker/run/docker.sock.

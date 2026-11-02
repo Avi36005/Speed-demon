@@ -439,3 +439,19 @@ Proof artifacts in benchmarks/lto-alderlake-trial.json. Fallback8c5b801.
 S791/D1/K19.136214/points64.092801. Compared with8c5b801,
 A/B/D lose and C differs only+.021point. Restore all original Dockerfiles;
 this build line is exhausted. Actual receipt2026-11-02T134312.498999Z.
+
+## Inline rare Boolean queries with bounded phase summaries — trial
+
+Source8e8d9a5337f6107710cb5dcd56c878e80955624820f9968f7af75c3d041174c8. A no-OR query must include all its positive operands. A runtime
+sample selects a rare positive anchor only for representation/planning; exact
+per-document token membership evaluates every AND/NOT operand. Repeated anchors
+are deduplicated per document. Other queries retain original LTR set evaluation.
+Postings used only by direct queries are omitted; counts/sums/smallest10 are
+merged in disjoint-range order each phase and temporary match storage released.
+
+All fixtures UBSan/bounds1/12, independent phase/anchor fixture versus frozen
+oracle, full7 at1/12, clean offline image public5 and unused full20261102x5
+pass. QEMU means2.512348->2.178001s; local cgroup313,081,856->310,087,680B
+includes emulator/cache, never official T/M. First unbounded inline variant
+only1% faster and7MB larger; rejected. Current S859/D1. Native
+result/ASan pending; keep/revert using full axes. Proof inline-bool-summary-trial.json.

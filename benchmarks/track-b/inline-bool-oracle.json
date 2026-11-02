@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.13/bin/python3.13",
+    "../official/speed-demon-2026/reference/b_index.py",
+    "--data",
+    ".work/fixtures/b/inline-bool-phases",
+    "--out",
+    ".work/b-inline-oracle"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "expected_sha256": "19d9e7f1cae5e4455515fc928974fb86e5586fa10577d70cb4debedd03c260f4",
+  "reference_sha256": "02d7148fa38ed1968b1177147e91a4e1c2151b65c6f709f30a546e5205e6b1ad"
+}

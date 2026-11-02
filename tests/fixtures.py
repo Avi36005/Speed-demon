@@ -261,6 +261,23 @@ def make_b():
         for doc in range(4097)]), "".join(q + "\n" for q, _ in checks).encode())
     answer("b", "rare-and-anchor", "".join(
         " ".join(map(str, [len(ids), sum(ids), *sorted(ids)[:10]])) + "\n" for _, ids in checks))
+    rare = {1000, 1001, 4095, 4096, 8191, 8192, 16000}
+    other, ban = {1000, 4096, 16000}, {1001, 8192}
+    wide = set(range(16384))
+    checks = [("BOOL rare", rare), ("BOOL wide AND rare", rare),
+              ("BOOL rare NOT ban", rare - ban), ("BOOL rare AND other", rare & other),
+              ("BOOL wide NOT ban AND rare", rare - ban),
+              ("BOOL rare AND rare NOT ban", rare - ban),
+              ("BOOL rare AND missing", set()),
+              ("BOOL wide OR rare AND other", other),
+              ("BOOL rare NOT rare OR other", other),
+              ('PHRASE "rare rare"', rare), ('PHRASE "rare marker"', rare)]
+    docs = ["wide" + (" rare rare marker" if i in rare else "")
+            + (" other" if i in other else "") + (" ban" if i in ban else "")
+            for i in range(16384)]
+    cases["inline-bool-phases"] = (mod.docs_file(docs), "".join(q + "\n" for q, _ in checks).encode())
+    answer("b", "inline-bool-phases", "".join(
+        " ".join(map(str, [len(ids), sum(ids), *sorted(ids)[:10]])) + "\n" for _, ids in checks))
     answer("b", "targeted", b"2 4 1 3\n2 4 1 3\n2 4 1 3\n1 2 2\n0 0\n1 4 4\n")
     answer("b", "wide-sum", b"100000 4999950000 0 1 2 3 4 5 6 7 8 9\n"*2)
     for label, (docs, queries) in cases.items():

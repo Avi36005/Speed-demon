@@ -1,0 +1,35 @@
+{
+  "utc": "2026-11-02T14:00:48.361315+00:00",
+  "parent_commit": "330340c9a6206948500bf6f594b5431a129c8ee3",
+  "fallback": "330340c",
+  "target": 90,
+  "minimum_target": 88,
+  "hypothesis": "Evaluate rare no-OR Boolean queries inline from exact document membership and remove posting sets only those plans need. Summarize direct results per phase to bound storage.",
+  "source_sha256": "8e8d9a5337f6107710cb5dcd56c878e80955624820f9968f7af75c3d041174c8",
+  "dockerfile_sha256": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
+  "S": 859,
+  "D": 1,
+  "checks": [
+    ".work/cached-runtime/b-b02b1b8760",
+    ".work/cached-runtime/b-48e632283b",
+    ".work/cached-runtime/b-052d18e0e8",
+    ".work/cached-runtime/b-2fd9d93507"
+  ],
+  "exact_images": [
+    ".work/containers/b-643639c50f",
+    ".work/containers/b-330f6913cd"
+  ],
+  "independent_fixture": "benchmarks/track-b/inline-bool-oracle.json",
+  "comparison": ".work/linux-compare/b-0bfce99f2e",
+  "qemu_means": {
+    "baseline": 2.512348057,
+    "candidate": 2.17800051
+  },
+  "qemu_peaks": {
+    "baseline": 313081856,
+    "candidate": 310087680
+  },
+  "official_result": null,
+  "native_sanitizers": "pending exact-source native CI",
+  "decision": "one tested native trial; compare complete axes and restore verified B if it loses"
+}

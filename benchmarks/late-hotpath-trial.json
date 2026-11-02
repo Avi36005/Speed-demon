@@ -1,0 +1,51 @@
+{
+  "utc": "2026-11-02T13:48:41.374768+00:00",
+  "parent_commit": "2671675f6e6405a57d570182057d03a724207b55",
+  "fallback": "8c5b801",
+  "official_result": null,
+  "minimum_target": 88,
+  "target": 90,
+  "target_achieved": false,
+  "tracks": {
+    "c": {
+      "source_sha256": "cf51e0b5c7d4a39b3832bfa7fd4c9bab9cac081d3bd4fa29a49f7e60b9b7130e",
+      "checks": [
+        ".work/cached-runtime/c-686abbfff5",
+        ".work/cached-runtime/c-4b7b24e737",
+        ".work/cached-runtime/c-e06c4e1570"
+      ],
+      "images": [
+        ".work/containers/c-bfcd3efd1a",
+        ".work/containers/c-a93b3cd10a"
+      ],
+      "comparison": ".work/linux-compare/c-fb59a09b88",
+      "qemu_middle_means": {
+        "baseline": 0.39055158366666665,
+        "candidate": 0.35053687533333333
+      },
+      "S": 358,
+      "D": 1,
+      "decision": "native trial"
+    },
+    "d": {
+      "source_sha256": "c3bebc9481a4e4a96332915547ccc66d682942fcc528ca079e2f6e9cfc766bdd",
+      "checks": [
+        ".work/cached-runtime/d-144d20e360",
+        ".work/cached-runtime/d-f87061ce0c",
+        ".work/cached-runtime/d-a8cf06b856"
+      ],
+      "images": [
+        ".work/containers/d-c795e13daa",
+        ".work/containers/d-0413c1499f"
+      ],
+      "comparison": ".work/linux-compare/d-b2cb2803c0",
+      "qemu_middle_means": {
+        "baseline": 2.0927690240000003,
+        "candidate": 2.3368299456666666
+      },
+      "S": 278,
+      "D": 1,
+      "decision": "rejected locally: 11.7% slower despite fewer logical probes"
+    }
+  }
+}

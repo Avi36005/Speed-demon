@@ -215,8 +215,13 @@ int main(int argc, char** argv) {
                 char* rec = intern(q.s, q.len, q.h, arena, room);
                 auto* bits = reinterpret_cast<std::atomic<uint64_t>*>(rec + 8);
                 uint64_t mask = 1ull << (q.k % 64);
-                uint64_t old = bits[q.k / 64].fetch_or(mask, std::memory_order_relaxed);
-                g[q.k].distinct += (old & mask) == 0;
+                // Membership bits only grow. A previously set bit needs no
+                // write ownership; fetch_or still arbitrates every first set.
+                auto& word = bits[q.k / 64];
+                if (!(word.load(std::memory_order_relaxed) & mask)) {
+                    uint64_t old = word.fetch_or(mask, std::memory_order_relaxed);
+                    g[q.k].distinct += (old & mask) == 0;
+                }
             };
             for (size_t c; (c = claim.fetch_add(1)) < pieces;)
             for (const char *p = data + cut[c], *end = data + cut[c + 1]; p < end;) {

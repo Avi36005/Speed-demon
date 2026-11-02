@@ -432,3 +432,10 @@ unchanged. Exact candidate offline image builds in6.973s, size
 exact single output and empty filesystem diffs. Native sanitizer proof remains
 source-matched to unchanged code; no native timing improvement claimed yet.
 Proof artifacts in benchmarks/lto-alderlake-trial.json. Fallback8c5b801.
+
+### Actual compiler-trial result — rejected
+
+2671675/run-170d13a273d4: gates pass, T0.384634s/M42602496B/
+S791/D1/K19.136214/points64.092801. Compared with8c5b801,
+A/B/D lose and C differs only+.021point. Restore all original Dockerfiles;
+this build line is exhausted. Actual receipt2026-11-02T134312.498999Z.

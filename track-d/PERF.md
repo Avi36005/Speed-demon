@@ -187,3 +187,20 @@ unchanged. Exact candidate offline image builds in5.780s, size
 exact single output and empty filesystem diffs. Native sanitizer proof remains
 source-matched to unchanged code; no native timing improvement claimed yet.
 Proof artifacts in benchmarks/lto-alderlake-trial.json. Fallback8c5b801.
+
+### Actual compiler-trial result — rejected
+
+2671675/run-9b3d276d7707: gates pass, T0.42036s/M133824512B/
+S273/D1/K14.567513/points58.16927. Compared with8c5b801,
+A/B/D lose and C differs only+.021point. Restore all original Dockerfiles;
+this build line is exhausted. Actual receipt2026-11-02T134312.498999Z.
+
+## Renewed late hot-path experiment
+
+Sourcec3bebc9481a4e4a96332915547ccc66d682942fcc528ca079e2f6e9cfc766bdd. C monotone membership reads can skip redundant RMW while atomic
+first-set arbitration stays exact; D fuses distance comparison/update into one
+probe. UBSan/bounds fixtures1/12, full7, offline image public5 and unused full
+20261102x5 pass. Paired QEMU means2.092769
+->2.336830s. Decision:
+rejected locally: 11.7% slower despite fewer logical probes. Native gain unclaimed. S278/D1.
+Proof benchmarks/late-hotpath-trial.json; original source preserved8c5b801.

@@ -13,7 +13,7 @@ SUB = Path(__file__).resolve().parents[1]
 OUT = SUB / '.work/ci-evidence'
 OUT.mkdir(parents=True, exist_ok=True)
 tracks = os.environ.get('TRACKS', 'bc')
-assert tracks in ('bc', 'ab', 'bcd', 'a', 'd', 'abcd')
+assert tracks in ('bc', 'ab', 'cd', 'bcd', 'a', 'c', 'd', 'abcd')
 b_workers = int(os.environ.get('B_WORKERS', '12'))
 assert b_workers in (6, 12)
 assert platform.machine() in ('x86_64', 'AMD64')

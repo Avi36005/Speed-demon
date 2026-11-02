@@ -1,0 +1,1177 @@
+{
+  "utc": "2026-11-02T13:38:37.112192+00:00",
+  "method": "Exact previously built LTO images on all small correctness fixtures; not native timing",
+  "checks": [
+    {
+      "track": "a",
+      "fixture": "worked",
+      "image_id": "sha256:13eb84af9d8b9b0fd2a1c307592458d401e3bb84c62af963658649f99214e699",
+      "expected_sha256": "0782f9b9a885bdbcdfadf330f6bea55accdc06018c0108f69ea43372d2fac692",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/a/worked"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "a",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-a",
+        "--tag",
+        "kryptonite/track-a:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/a/worked",
+        "--expected",
+        "0782f9b9a885bdbcdfadf330f6bea55accdc06018c0108f69ea43372d2fac692",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/a/worked.stdout"
+    },
+    {
+      "track": "a",
+      "fixture": "edges",
+      "image_id": "sha256:13eb84af9d8b9b0fd2a1c307592458d401e3bb84c62af963658649f99214e699",
+      "expected_sha256": "1f43d4bbd4b84dc66319a414138225ff5c2ab9f30aeb2398ec0e54b339011459",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/a/edges"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "a",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-a",
+        "--tag",
+        "kryptonite/track-a:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/a/edges",
+        "--expected",
+        "1f43d4bbd4b84dc66319a414138225ff5c2ab9f30aeb2398ec0e54b339011459",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/a/edges.stdout"
+    },
+    {
+      "track": "a",
+      "fixture": "empty",
+      "image_id": "sha256:13eb84af9d8b9b0fd2a1c307592458d401e3bb84c62af963658649f99214e699",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/a/empty"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "a",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-a",
+        "--tag",
+        "kryptonite/track-a:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/a/empty",
+        "--expected",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/a/empty.stdout"
+    },
+    {
+      "track": "a",
+      "fixture": "targeted",
+      "image_id": "sha256:13eb84af9d8b9b0fd2a1c307592458d401e3bb84c62af963658649f99214e699",
+      "expected_sha256": "504ad7654bdc0fdb4cc09421c57c86bbf9b8500576b47eecb362f5023ee99397",
+      "provenance": {
+        "method": "fresh untouched reference",
+        "argv": [
+          "/opt/homebrew/opt/python@3.13/bin/python3.13",
+          "../official/speed-demon-2026/reference/a_ingest.py",
+          "--data",
+          ".work/fixtures/a/targeted",
+          "--out",
+          ".work/lto-fixture-oracles/a/targeted"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "a",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-a",
+        "--tag",
+        "kryptonite/track-a:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/a/targeted",
+        "--expected",
+        "504ad7654bdc0fdb4cc09421c57c86bbf9b8500576b47eecb362f5023ee99397",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/a/targeted.stdout"
+    },
+    {
+      "track": "a",
+      "fixture": "packed-chunk-boundaries",
+      "image_id": "sha256:13eb84af9d8b9b0fd2a1c307592458d401e3bb84c62af963658649f99214e699",
+      "expected_sha256": "009afa2aa405a0660a24a925f63e60f51e554ad948a4864c942b4673d78726e9",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/a/packed-chunk-boundaries"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "a",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-a",
+        "--tag",
+        "kryptonite/track-a:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/a/packed-chunk-boundaries",
+        "--expected",
+        "009afa2aa405a0660a24a925f63e60f51e554ad948a4864c942b4673d78726e9",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/a/packed-chunk-boundaries.stdout"
+    },
+    {
+      "track": "a",
+      "fixture": "small-group-ranks",
+      "image_id": "sha256:13eb84af9d8b9b0fd2a1c307592458d401e3bb84c62af963658649f99214e699",
+      "expected_sha256": "497f987aaa05a57c4894b53c7a565623025f3369cca0f57929fd7a4051a56d05",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/a/small-group-ranks"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "a",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-a",
+        "--tag",
+        "kryptonite/track-a:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/a/small-group-ranks",
+        "--expected",
+        "497f987aaa05a57c4894b53c7a565623025f3369cca0f57929fd7a4051a56d05",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/a/small-group-ranks.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "worked",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "9c296c063de983fd734d9e6ab985866967731d6478d33b7e1b8723391b6e325b",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/worked"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/worked",
+        "--expected",
+        "9c296c063de983fd734d9e6ab985866967731d6478d33b7e1b8723391b6e325b",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/worked.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "boolean_semantics",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "8c1b749f49c9f6913f9896759370b6b4fe874240ac41eba3acfb9daa7de24044",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/boolean_semantics"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/boolean_semantics",
+        "--expected",
+        "8c1b749f49c9f6913f9896759370b6b4fe874240ac41eba3acfb9daa7de24044",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/boolean_semantics.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "digit_tokens_are_strings",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "ab90784645a6c677f886b5b28b05e5850f540745651ea4784028bb4763f97175",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/digit_tokens_are_strings"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/digit_tokens_are_strings",
+        "--expected",
+        "ab90784645a6c677f886b5b28b05e5850f540745651ea4784028bb4763f97175",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/digit_tokens_are_strings.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "empty_and_separator_only_documents",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "8ab749d69edf8e4cf5231cc4817664e74cae4fce989fc4e3a43fa16d59a96db4",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/empty_and_separator_only_documents"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/empty_and_separator_only_documents",
+        "--expected",
+        "8ab749d69edf8e4cf5231cc4817664e74cae4fce989fc4e3a43fa16d59a96db4",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/empty_and_separator_only_documents.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "phrase_semantics",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "aa7696f4f5fed52c6d3c0363ed988cc2a0a563df624657060fe19a29deabbba0",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/phrase_semantics"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/phrase_semantics",
+        "--expected",
+        "aa7696f4f5fed52c6d3c0363ed988cc2a0a563df624657060fe19a29deabbba0",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/phrase_semantics.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "result_line_lists_ten_smallest_ids",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "b58facf8cebf221d4a83be3e309c23696418edb1f471b950b3eb98bed1bbd51f",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/result_line_lists_ten_smallest_ids"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/result_line_lists_ten_smallest_ids",
+        "--expected",
+        "b58facf8cebf221d4a83be3e309c23696418edb1f471b950b3eb98bed1bbd51f",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/result_line_lists_ten_smallest_ids.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "tokenizer_byte_rule",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "d418b1f89068d1b8951d53a679bc5a31b9d9b092700f70d3beffe050f2b44f2a",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/tokenizer_byte_rule"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/tokenizer_byte_rule",
+        "--expected",
+        "d418b1f89068d1b8951d53a679bc5a31b9d9b092700f70d3beffe050f2b44f2a",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/tokenizer_byte_rule.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "targeted",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "720a430894228571a657b71adfbda8652856b0e45aad16f71e39a4ae152253eb",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/targeted"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/targeted",
+        "--expected",
+        "720a430894228571a657b71adfbda8652856b0e45aad16f71e39a4ae152253eb",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/targeted.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "wide-sum",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "c55532536bb0f786d257a80b5eb270832f9a055eb67595e418b545f624256b6e",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/wide-sum"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/wide-sum",
+        "--expected",
+        "c55532536bb0f786d257a80b5eb270832f9a055eb67595e418b545f624256b6e",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/wide-sum.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "kmp-overlap",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "3ea19e66178ebcc6c314b16c2c317bd89a1ef7ddb999b90841cf2fa071f11ddb",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/kmp-overlap"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/kmp-overlap",
+        "--expected",
+        "3ea19e66178ebcc6c314b16c2c317bd89a1ef7ddb999b90841cf2fa071f11ddb",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/kmp-overlap.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "token-block-boundaries",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "dadbc015f5f1936cd67f8e73d1e6f6e79639f6bc820f581e4990d605ac808f06",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/token-block-boundaries"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/token-block-boundaries",
+        "--expected",
+        "dadbc015f5f1936cd67f8e73d1e6f6e79639f6bc820f581e4990d605ac808f06",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/token-block-boundaries.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "dense-phrase-anchor",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "19f32846739ad664ca9cd663f07a2c49f8da08aa1a5b02a79dea72cc57d6365d",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/dense-phrase-anchor"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/dense-phrase-anchor",
+        "--expected",
+        "19f32846739ad664ca9cd663f07a2c49f8da08aa1a5b02a79dea72cc57d6365d",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/dense-phrase-anchor.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "short-key-prefixes",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "fc070708a6fac3bf13e0479e4a3e06e7d794a3cfdcf1437d25c79336f8b1c453",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/short-key-prefixes"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/short-key-prefixes",
+        "--expected",
+        "fc070708a6fac3bf13e0479e4a3e06e7d794a3cfdcf1437d25c79336f8b1c453",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/short-key-prefixes.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "bitmap-summary",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "b7d51784972f58b3f7b053ad2baea34b0bde0dd5f75bec66ddf8a07910b9073e",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/bitmap-summary"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/bitmap-summary",
+        "--expected",
+        "b7d51784972f58b3f7b053ad2baea34b0bde0dd5f75bec66ddf8a07910b9073e",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/bitmap-summary.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "posting-gap-boundaries",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "7401faeb2788966f5952bef51a09602064f312ae19046ebeaf8fcb025bcccca1",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/posting-gap-boundaries"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/posting-gap-boundaries",
+        "--expected",
+        "7401faeb2788966f5952bef51a09602064f312ae19046ebeaf8fcb025bcccca1",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/posting-gap-boundaries.stdout"
+    },
+    {
+      "track": "b",
+      "fixture": "rare-and-anchor",
+      "image_id": "sha256:54569b818864ecd6a4ea1ac2d6ee357c6134f8cb667e7d437f47552cc7c21ef1",
+      "expected_sha256": "266cebc7d99af614d1fb90fda24c56ad179a6d5222f729db2fcfa4214d459c53",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/b/rare-and-anchor"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "b",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-b",
+        "--tag",
+        "kryptonite/track-b:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/b/rare-and-anchor",
+        "--expected",
+        "266cebc7d99af614d1fb90fda24c56ad179a6d5222f729db2fcfa4214d459c53",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/b/rare-and-anchor.stdout"
+    },
+    {
+      "track": "c",
+      "fixture": "worked",
+      "image_id": "sha256:bfadf201e19aa072bac997e8facb02326ff6fa5f6b35923d41e2bb13a53daf15",
+      "expected_sha256": "72ed9e59bff2dad354a9fb4cbc2d4b102477f634230b47e86035864c88d27444",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/c/worked"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "c",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-c",
+        "--tag",
+        "kryptonite/track-c:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/c/worked",
+        "--expected",
+        "72ed9e59bff2dad354a9fb4cbc2d4b102477f634230b47e86035864c88d27444",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/c/worked.stdout"
+    },
+    {
+      "track": "c",
+      "fixture": "rules",
+      "image_id": "sha256:bfadf201e19aa072bac997e8facb02326ff6fa5f6b35923d41e2bb13a53daf15",
+      "expected_sha256": "0c084eef633858f79b023d1d767c8c474e73ad5c37f3f587c1145c3aa36e52ec",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/c/rules"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "c",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-c",
+        "--tag",
+        "kryptonite/track-c:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/c/rules",
+        "--expected",
+        "0c084eef633858f79b023d1d767c8c474e73ad5c37f3f587c1145c3aa36e52ec",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/c/rules.stdout"
+    },
+    {
+      "track": "c",
+      "fixture": "rules-final-lf",
+      "image_id": "sha256:bfadf201e19aa072bac997e8facb02326ff6fa5f6b35923d41e2bb13a53daf15",
+      "expected_sha256": "0c084eef633858f79b023d1d767c8c474e73ad5c37f3f587c1145c3aa36e52ec",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/c/rules-final-lf"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "c",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-c",
+        "--tag",
+        "kryptonite/track-c:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/c/rules-final-lf",
+        "--expected",
+        "0c084eef633858f79b023d1d767c8c474e73ad5c37f3f587c1145c3aa36e52ec",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/c/rules-final-lf.stdout"
+    },
+    {
+      "track": "c",
+      "fixture": "rules-leading-bom",
+      "image_id": "sha256:bfadf201e19aa072bac997e8facb02326ff6fa5f6b35923d41e2bb13a53daf15",
+      "expected_sha256": "0c084eef633858f79b023d1d767c8c474e73ad5c37f3f587c1145c3aa36e52ec",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/c/rules-leading-bom"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "c",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-c",
+        "--tag",
+        "kryptonite/track-c:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/c/rules-leading-bom",
+        "--expected",
+        "0c084eef633858f79b023d1d767c8c474e73ad5c37f3f587c1145c3aa36e52ec",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/c/rules-leading-bom.stdout"
+    },
+    {
+      "track": "c",
+      "fixture": "empty",
+      "image_id": "sha256:bfadf201e19aa072bac997e8facb02326ff6fa5f6b35923d41e2bb13a53daf15",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/c/empty"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "c",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-c",
+        "--tag",
+        "kryptonite/track-c:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/c/empty",
+        "--expected",
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/c/empty.stdout"
+    },
+    {
+      "track": "c",
+      "fixture": "concurrent-name-membership",
+      "image_id": "sha256:bfadf201e19aa072bac997e8facb02326ff6fa5f6b35923d41e2bb13a53daf15",
+      "expected_sha256": "9a59d84d237611ef9fdb0da8eab9324cff1c91590debfac074756bbfd0d603ce",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/c/concurrent-name-membership"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "c",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-c",
+        "--tag",
+        "kryptonite/track-c:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/c/concurrent-name-membership",
+        "--expected",
+        "9a59d84d237611ef9fdb0da8eab9324cff1c91590debfac074756bbfd0d603ce",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/c/concurrent-name-membership.stdout"
+    },
+    {
+      "track": "c",
+      "fixture": "country-bit-boundaries",
+      "image_id": "sha256:bfadf201e19aa072bac997e8facb02326ff6fa5f6b35923d41e2bb13a53daf15",
+      "expected_sha256": "5e470e6c4aad64c0da8f8e705358fb44b84feb7fd4c9c6428dadb1199fed4194",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/c/country-bit-boundaries"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "c",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-c",
+        "--tag",
+        "kryptonite/track-c:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/c/country-bit-boundaries",
+        "--expected",
+        "5e470e6c4aad64c0da8f8e705358fb44b84feb7fd4c9c6428dadb1199fed4194",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/c/country-bit-boundaries.stdout"
+    },
+    {
+      "track": "c",
+      "fixture": "structural-vector-boundaries",
+      "image_id": "sha256:bfadf201e19aa072bac997e8facb02326ff6fa5f6b35923d41e2bb13a53daf15",
+      "expected_sha256": "f4878380118b870d96faf430780c57862fc7b10a74c5c9a01bc35bbc297292e8",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/c/structural-vector-boundaries"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "c",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-c",
+        "--tag",
+        "kryptonite/track-c:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/c/structural-vector-boundaries",
+        "--expected",
+        "f4878380118b870d96faf430780c57862fc7b10a74c5c9a01bc35bbc297292e8",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/c/structural-vector-boundaries.stdout"
+    },
+    {
+      "track": "d",
+      "fixture": "direction_matters",
+      "image_id": "sha256:30060337d2bb8dde3c06688a517049a29b919b3040b0e29fe0bb654463ac9de5",
+      "expected_sha256": "faf1a8c4ae91be910b44369c9a08c131dc1417a5eb7f231c5b6d4a19cda55d61",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/d/direction_matters"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "d",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-d",
+        "--tag",
+        "kryptonite/track-d:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/d/direction_matters",
+        "--expected",
+        "faf1a8c4ae91be910b44369c9a08c131dc1417a5eb7f231c5b6d4a19cda55d61",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/d/direction_matters.stdout"
+    },
+    {
+      "track": "d",
+      "fixture": "long_chain_of_max_weights_fits_in_int64",
+      "image_id": "sha256:30060337d2bb8dde3c06688a517049a29b919b3040b0e29fe0bb654463ac9de5",
+      "expected_sha256": "38c646ce978239d5c81cee2059ab72cf8ff63d3761ed1601828896948fc3660d",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/d/long_chain_of_max_weights_fits_in_int64"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "d",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-d",
+        "--tag",
+        "kryptonite/track-d:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/d/long_chain_of_max_weights_fits_in_int64",
+        "--expected",
+        "38c646ce978239d5c81cee2059ab72cf8ff63d3761ed1601828896948fc3660d",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/d/long_chain_of_max_weights_fits_in_int64.stdout"
+    },
+    {
+      "track": "d",
+      "fixture": "parallel_edges_lighter_listed_first",
+      "image_id": "sha256:30060337d2bb8dde3c06688a517049a29b919b3040b0e29fe0bb654463ac9de5",
+      "expected_sha256": "4d4387237135fde785bb110ed704c4b99fd9f425364b480ddd5cc90b43726b9e",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/d/parallel_edges_lighter_listed_first"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "d",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-d",
+        "--tag",
+        "kryptonite/track-d:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/d/parallel_edges_lighter_listed_first",
+        "--expected",
+        "4d4387237135fde785bb110ed704c4b99fd9f425364b480ddd5cc90b43726b9e",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/d/parallel_edges_lighter_listed_first.stdout"
+    },
+    {
+      "track": "d",
+      "fixture": "parallel_edges_three_way_and_exact_duplicates",
+      "image_id": "sha256:30060337d2bb8dde3c06688a517049a29b919b3040b0e29fe0bb654463ac9de5",
+      "expected_sha256": "44afc78e43fa3ec801952ecfc03e3c16f98bd6560212f3f9f61f0e4649af506f",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/d/parallel_edges_three_way_and_exact_duplicates"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "d",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-d",
+        "--tag",
+        "kryptonite/track-d:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/d/parallel_edges_three_way_and_exact_duplicates",
+        "--expected",
+        "44afc78e43fa3ec801952ecfc03e3c16f98bd6560212f3f9f61f0e4649af506f",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/d/parallel_edges_three_way_and_exact_duplicates.stdout"
+    },
+    {
+      "track": "d",
+      "fixture": "source_with_no_out_edges_and_target_with_no_in_edges",
+      "image_id": "sha256:30060337d2bb8dde3c06688a517049a29b919b3040b0e29fe0bb654463ac9de5",
+      "expected_sha256": "d60be47960818dd6fa7759ac3fa15eff17a826316e155ced9459efab2323f7d4",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/d/source_with_no_out_edges_and_target_with_no_in_edges"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "d",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-d",
+        "--tag",
+        "kryptonite/track-d:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/d/source_with_no_out_edges_and_target_with_no_in_edges",
+        "--expected",
+        "d60be47960818dd6fa7759ac3fa15eff17a826316e155ced9459efab2323f7d4",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/d/source_with_no_out_edges_and_target_with_no_in_edges.stdout"
+    },
+    {
+      "track": "d",
+      "fixture": "worked_example",
+      "image_id": "sha256:30060337d2bb8dde3c06688a517049a29b919b3040b0e29fe0bb654463ac9de5",
+      "expected_sha256": "2e9871bba1d5013144ceff48d806a28da0e3f203b29118a89d98d8f654c3f6a0",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/d/worked_example"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "d",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-d",
+        "--tag",
+        "kryptonite/track-d:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/d/worked_example",
+        "--expected",
+        "2e9871bba1d5013144ceff48d806a28da0e3f203b29118a89d98d8f654c3f6a0",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/d/worked_example.stdout"
+    },
+    {
+      "track": "d",
+      "fixture": "zero_weight_cycle_and_zero_distance",
+      "image_id": "sha256:30060337d2bb8dde3c06688a517049a29b919b3040b0e29fe0bb654463ac9de5",
+      "expected_sha256": "506e2bfd11650b547deac071a486fee5d72b3e22f6dd87724cca748094941334",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/d/zero_weight_cycle_and_zero_distance"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "d",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-d",
+        "--tag",
+        "kryptonite/track-d:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/d/zero_weight_cycle_and_zero_distance",
+        "--expected",
+        "506e2bfd11650b547deac071a486fee5d72b3e22f6dd87724cca748094941334",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/d/zero_weight_cycle_and_zero_distance.stdout"
+    },
+    {
+      "track": "d",
+      "fixture": "empty-edges",
+      "image_id": "sha256:30060337d2bb8dde3c06688a517049a29b919b3040b0e29fe0bb654463ac9de5",
+      "expected_sha256": "721289485d071184c2981ab7c8d10ff0932fdff5b339f74f329784574483b78d",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/d/empty-edges"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "d",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-d",
+        "--tag",
+        "kryptonite/track-d:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/d/empty-edges",
+        "--expected",
+        "721289485d071184c2981ab7c8d10ff0932fdff5b339f74f329784574483b78d",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/d/empty-edges.stdout"
+    },
+    {
+      "track": "d",
+      "fixture": "first-meeting-trap",
+      "image_id": "sha256:30060337d2bb8dde3c06688a517049a29b919b3040b0e29fe0bb654463ac9de5",
+      "expected_sha256": "cd0fa1b166694bb9868f1b9a01eaf1cbfba0e632286e4456b1c96da21a650632",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/d/first-meeting-trap"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "d",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-d",
+        "--tag",
+        "kryptonite/track-d:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/d/first-meeting-trap",
+        "--expected",
+        "cd0fa1b166694bb9868f1b9a01eaf1cbfba0e632286e4456b1c96da21a650632",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/d/first-meeting-trap.stdout"
+    },
+    {
+      "track": "d",
+      "fixture": "random-all-pairs",
+      "image_id": "sha256:30060337d2bb8dde3c06688a517049a29b919b3040b0e29fe0bb654463ac9de5",
+      "expected_sha256": "716da6be0c25e2d5a096b760ac652ab44759b0db8af9358a154f4178a79cd761",
+      "provenance": {
+        "method": "official or independently aggregated fixture bytes",
+        "file": ".work/fixture-answers/d/random-all-pairs"
+      },
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "tools/container_check.py",
+        "d",
+        "--context",
+        ".work/build-trials/lto-alderlake/track-d",
+        "--tag",
+        "kryptonite/track-d:lto-alderlake",
+        "--skip-build",
+        "--qemu",
+        "--data",
+        ".work/fixtures/d/random-all-pairs",
+        "--expected",
+        "716da6be0c25e2d5a096b760ac652ab44759b0db8af9358a154f4178a79cd761",
+        "--runs",
+        "1"
+      ],
+      "exit": 0,
+      "log": ".work/lto-fixture-logs/d/random-all-pairs.stdout"
+    }
+  ],
+  "passed": true
+}

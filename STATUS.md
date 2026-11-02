@@ -1,64 +1,48 @@
-# Kryptonite — final verified source, publication pending
+# Kryptonite — C native trial / verification checkpoint
 
-Updated 2026-11-02T13:29:00.136629+00:00. Target90/top three NOT achieved. Observed runtime cda897a:
-live overall72.996661; historical best-three73.431380; gap17.003339.
-All four registered, watcher matches and queue empty in benchmarks/board/2026-11-02T132724.472348Z.json.
+Updated 2026-11-02T13:49:18.233708+00:00.
+User requests88 minimum/90 preferred, still NOT achieved. User explicitly asked
+continued improvement after earlier routine cutoff. Freeze15:00UTC/20:30IST;
+preserve final verification time and original fallback8c5b801.
 
-| Track | Points | T seconds | M bytes | S | D | K | Run |
-|---|---:|---:|---:|---:|---:|---:|---|
-| A | 80.194319 | 0.026335 | 23,875,584 | 443 | 1 | 40.168570 | `run-d94d9f16b2eb` |
-| B | 66.205260 | 0.316628 | 42,373,120 | 791 | 1 | 21.091390 | `run-36f6fa75dbfb` |
-| C | 73.261008 | 0.047442 | 11,489,280 | 355 | 1 | 29.189064 | `run-e41baccfb1c7` |
-| D | 58.844665 | 0.395828 | 133,132,288 | 273 | 1 | 15.027727 | `run-a38947ec1bda` |
+## Current working entry, next push
 
-## Verified and selected
+All Dockerfiles restored byte-for-byte8c5b801 after LTO2671675 lost. A/B/D
+source unchanged8c5b801. ONLY C source changes: monotone country-membership
+bits first relaxed-read, then fetch_or only if clear; first-set counting remains
+exact under concurrency. Proof benchmarks/late-hotpath-trial.json pins source,
+UBSan/bounds fixtures1/12, full7, offline image public5/unused20261102x5, S358/D1.
+QEMU.390552->.350537s is screening only. Native result and native ASan pending.
+Next: commit/push C+compiler rollback, dispatch workflow trackc, observe board
+and exact CI IDs. Keep/revert based on native axes. Avoid new broad rewrites.
 
-A7b/B7b/C139/D7b runtime inputs are pinned in final-assembly.json. Native
-ASan/UBSan and fresh sample42 PASS for all selected tracks: CI41439655126 plus
-selected C CI41449471565. Artifacts saved benchmarks/native-ci/. Exact runtime,
-Dockerfile and metadata hashes match scoredcda897a and current tree. All selected
-clean committed archive images PASS unused full seed20261102 FIVE times/public1.
-Audit: benchmarks/final-verification.json. No runtime work remains unverified.
-Native final hidden-seed/judging unknown; do not call90 or top three achieved.
+## Completed/rejected work
 
-## Release state / next action
+LTO2671675 full gates passed but points A79.857880/B64.092801/C74.134332/
+D58.169270, overall72.396150. Reject all flags; restore original builds.
+D fused sparse probe passed correctness but QEMU2.092769->2.336830s lost;
+unselected, current D stays verified055f90ac. Prior sparse D gained~5points;
+A compact allocation and small sorts gained~.4point. B remains limiting included
+track. Do not claim88 or90. Latest verified fallback8c5b801 overall73.268128,
+historical best-three73.431380. Final hidden-seed/judging unknown.
 
-Final docs/evidence commit is next; runtime/build inputs unchanged. Confirm its
-push and watched head before freeze20:30IST. No more broad rewrites (cutoff18:30).
-Repo PRIVATE, MIT retained. Explicit public visibility approval requested via
-async question and pending. If YES, make Avi36005/Speed-demon public with gh,
-verify visibility; if NO, tell user to publish manually before21:30IST. Never
-infer approval from elapsed time. No new ZIP handed off; project root ZIP old.
-User authorized ordinary tested pushes only. Prior auto-review usage-limit
-failure blocked the last composite call; retry after user continued succeeded.
-No force/backdate/fake commits or metrics. No agents/goals/automations created.
+## Preserved verification
 
-Detailed final report SUBMISSION_REPORT.md; source-matched proof/manifests retained.
-Python3.13; Docker isolated .work/docker-public-config and
-unix:///Users/avinashgehi3/.docker/run/docker.sock. Stop duplicate expensive tests
-unless runtime changes or a new correctness issue invalidates existing proof.
+Original selected A/B/D native CI41439655126, old C CI41449471565 pass.
+All original selected runtime/build hashes and clean committed archive images
+match final-assembly.json; unused full seed20261102 FIVE deterministic runs plus
+public checks pass. These certify fallback, not the changed C candidate.
+C candidate local checks/images are source-matched in late-hotpath-trial.json;
+new native source sanitizer proof must complete before final retention.
+LTO exact images additionally passed40small fixtures and44full-image runs;
+those rejected images are historical, not current source proof.
 
-## User requested further work after final verification
+## Publication/remote
 
-User revised minimum to88 (90 preferred), not achieved. Public visibility was
-explicitly approved and applied; GitHub API confirms public/MIT/disabled=false.
-A transient Git403 immediately after visibility change cleared; subsequent
-git ls-remote matched8c5b801. Keep repo public.
-One bounded BUILD-ONLY experiment is running, no broad source rewrite:
-.work/build-trials/lto-alderlake contexts add-flto -mtune=alderlake to pinned
-GCC15 flags. Instruction-set requirements unchanged; all source remains verified
-8c5b801. Session49918 tests exact offline images public5/full7/unused20261102x5.
-Manifest benchmarks/lto-alderlake-trial.json. No native gain claimed. Next: if
-all pass, publish one native trial, compare full axes, keep winners per-track
-and restore others. Preserve8c5b801 as fully verified fallback. Limit time for
-final head verification before20:30IST; do not promise88 from a small flag change.
-
-## LTO trial ready for native push
-
-All four isolated images PASS public5/full7x1/unused20261102x5. Copied only
-Dockerfiles from those exact contexts. Source unchanged; native ASan proof reused
-by exact hash. Manifest pins build digests/image IDs/artifacts and fallback8c5b801.
-Next push, wait for EXACT commit native runs, keep/revert per complete T/M/S/D
-score. No empty repeated pushes. Repo now PUBLIC/MIT with explicit approval.
-Target88 minimum/90 preferred remains unmet; do not promise this flag trial will
-close15+points. Freeze20:30IST; no broad rewrites.
+User explicitly approved PUBLIC visibility. GitHub confirms public,MIT,
+disabled=false; transient git403 cleared, git transport works. Keep public.
+Official branch speed-demon, all four registered, Board App watch okay.
+No form update or ZIP upload required; no new files handed off before target.
+No force/backdate/fake metrics, paid infrastructure, agents/goals/automations.
+Python3.13, isolated Docker config .work/docker-public-config,
+DOCKER_HOST unix:///Users/avinashgehi3/.docker/run/docker.sock.

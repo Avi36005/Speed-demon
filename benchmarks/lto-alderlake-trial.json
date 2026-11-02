@@ -6,7 +6,139 @@
     "-flto",
     "-mtune=alderlake"
   ],
-  "official_result": null,
+  "official_result": {
+    "receipt": "benchmarks/board/2026-11-02T134312.498999Z.json",
+    "tracks": {
+      "a": {
+        "run_id": "run-5a95e14ba959",
+        "commit": "2671675f6e6405a57d570182057d03a724207b55",
+        "pushed_at": "2026-11-02T13:35:12Z",
+        "dispatched_at": "2026-11-02T13:41:10Z",
+        "started_at": "2026-11-02T13:42:12Z",
+        "ended_at": "2026-11-02T13:42:16Z",
+        "queue_latency_s": 420.3,
+        "ok": true,
+        "stage": "scored",
+        "gates": {
+          "check": true,
+          "build": true,
+          "correctness": true,
+          "timeout": true,
+          "sandbox": true
+        },
+        "T_s": 0.027303,
+        "M_bytes": 23572480,
+        "S": 443,
+        "D": 1,
+        "K": 39.551012,
+        "points": 79.85788,
+        "static_axes": "measured",
+        "timeout_s": 96.142,
+        "build_s": 13.215,
+        "image_bytes": 118196286,
+        "failure": null,
+        "lang": [
+          "C++"
+        ]
+      },
+      "b": {
+        "run_id": "run-170d13a273d4",
+        "commit": "2671675f6e6405a57d570182057d03a724207b55",
+        "pushed_at": "2026-11-02T13:35:12Z",
+        "dispatched_at": "2026-11-02T13:41:10Z",
+        "started_at": "2026-11-02T13:42:18Z",
+        "ended_at": "2026-11-02T13:42:23Z",
+        "queue_latency_s": 426.7,
+        "ok": true,
+        "stage": "scored",
+        "gates": {
+          "check": true,
+          "build": true,
+          "correctness": true,
+          "timeout": true,
+          "sandbox": true
+        },
+        "T_s": 0.384634,
+        "M_bytes": 42602496,
+        "S": 791,
+        "D": 1,
+        "K": 19.136214,
+        "points": 64.092801,
+        "static_axes": "measured",
+        "timeout_s": 169.057,
+        "build_s": 12.72,
+        "image_bytes": 118278143,
+        "failure": null,
+        "lang": [
+          "C++"
+        ]
+      },
+      "c": {
+        "run_id": "run-f72683800a3f",
+        "commit": "2671675f6e6405a57d570182057d03a724207b55",
+        "pushed_at": "2026-11-02T13:35:12Z",
+        "dispatched_at": "2026-11-02T13:41:10Z",
+        "started_at": "2026-11-02T13:42:25Z",
+        "ended_at": "2026-11-02T13:42:27Z",
+        "queue_latency_s": 433.1,
+        "ok": true,
+        "stage": "scored",
+        "gates": {
+          "check": true,
+          "build": true,
+          "correctness": true,
+          "timeout": true,
+          "sandbox": true
+        },
+        "T_s": 0.04296,
+        "M_bytes": 12042240,
+        "S": 355,
+        "D": 1,
+        "K": 30.386917,
+        "points": 74.134332,
+        "static_axes": "measured",
+        "timeout_s": 43.332,
+        "build_s": 6.683,
+        "image_bytes": 118189248,
+        "failure": null,
+        "lang": [
+          "C++"
+        ]
+      },
+      "d": {
+        "run_id": "run-9b3d276d7707",
+        "commit": "2671675f6e6405a57d570182057d03a724207b55",
+        "pushed_at": "2026-11-02T13:35:12Z",
+        "dispatched_at": "2026-11-02T13:41:10Z",
+        "started_at": "2026-11-02T13:42:29Z",
+        "ended_at": "2026-11-02T13:42:33Z",
+        "queue_latency_s": 437.3,
+        "ok": true,
+        "stage": "scored",
+        "gates": {
+          "check": true,
+          "build": true,
+          "correctness": true,
+          "timeout": true,
+          "sandbox": true
+        },
+        "T_s": 0.42036,
+        "M_bytes": 133824512,
+        "S": 273,
+        "D": 1,
+        "K": 14.567513,
+        "points": 58.16927,
+        "static_axes": "measured",
+        "timeout_s": 218.078,
+        "build_s": 6.029,
+        "image_bytes": 118199381,
+        "failure": null,
+        "lang": [
+          "C++"
+        ]
+      }
+    }
+  },
   "tracks": {
     "a": {
       "context": ".work/build-trials/lto-alderlake/track-a",
@@ -110,6 +242,8 @@
   "prepared_utc": "2026-11-02T13:34:37.758457+00:00",
   "target": 90,
   "minimum_requested_target": 88,
-  "decision": "one native build-only trial; retain by actual per-track score, otherwise restore8c5b801",
-  "source_changes": false
+  "decision": "reject all build changes; A/B/D regress, C tiny noisy0.021point does not support changed build complexity",
+  "source_changes": false,
+  "additional_fixture_proof": "benchmarks/lto-exact-image-fixtures.json",
+  "additional_fixture_checks": 40
 }

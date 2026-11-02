@@ -72,3 +72,9 @@ Publication update: the user approved public visibility on November2. GitHub
 confirmed public/MIT and the git transport recovered after a transient visibility
 propagation error. A final reversible build-only LTO/scheduling experiment is
 running at the user's request for88+; it is not a claimed scored improvement.
+
+Latest follow-up: the LTO2671675 trial regressed overall to72.396150 and all
+added flags were rejected. A checked monotone C-membership candidate is now
+awaiting native scoring, with original A/B/D and builds restored. Its local
+proof is benchmarks/late-hotpath-trial.json. Native ASan and score remain
+pending; the previous final verification describes the preserved fallback.

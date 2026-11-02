@@ -246,3 +246,14 @@ per-worker name arena was freed while other workers still compared against
 it, which over-counted distinct names. The full-hash checks caught the
 second. Prefetching both the name slot and the bitset word (eight records
 ahead) cut single-thread parse time by about 18%.
+
+## Bounded record lookahead native trial
+
+Sourcea077037e5c98e31162f6a7ff06e58441c81c7b2efb63e1d113f335c9c45854f5; bounded16-record quote-parity lookahead gives independent parse
+starts. Exact CSV semantics, interning and aggregates unchanged. New independently
+aggregated vector/escape/BOM/CRLF/final-line fixture agrees with official oracle.
+UBSan+bounds fixtures1/12, full1 paired hashes, full7 and exact offline image
+five full1/one full7 pass. QEMU middle means0.413203 ->
+0.455003s regress; this does not model native dependency latency.
+One native board trial will decide; S418/D1. No improvement claimed.
+Proofledger benchmarks/c-record-batch16-trial.json. Native ASan unavailable locally.

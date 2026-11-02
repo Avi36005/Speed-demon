@@ -1,38 +1,34 @@
 # Kryptonite — active takeover checkpoint
 
-Updated 2026-11-02 07:00 UTC. Target: **90 live overall machine points**, aiming for top three; neither achieved.
+Updated 2026-11-02 08:03 UTC. Target: **90 live overall machine points**, aiming for top three; neither achieved.
 Freeze today2026-11-02 15:00UTC/20:30IST. Stop broad rewrites by13:00UTC and reserve final two hours.
 
 ## Current source and official evidence
 
-Entrant https://github.com/Avi36005/Speed-demon.git, branch `speed-demon`.
-Current local/pushed head **463de7b14c484d6efd2762ee694c0dc6a2fd53eb**, runtime code **42317bd**.
-User confirmed Claude stopped. All 19 newer Claude commits were fast-forwarded; none overwritten.
-Current runtime files remain unchanged. Local archive branches preserve older unpushed evidence:
-`codex/pre-claude-evidence-20261102` at3577d79; `codex/pre-final-claude-handoff-20261102` at263c0ec.
+Pushed head **2d48af07a22b4571b5c542b6c34eda36c61f7ff7**; watcher matches, queue empty.
+All four registered and all gates pass. Receipt `2026-11-02T07:53:57.581616+00:00`:
+`benchmarks/board/2026-11-02T075357.581616Z.json`.
+Latest assembled-head overall **72.681974**; historical best-three **73.012154**.
+Neither90 nor top three achieved. Best THREE geometric mean, never all four.
 
-Latest assembled-head overall **72.804418**; historical best-three overall **72.995658**.
-Raw receipt `benchmarks/board/2026-11-02T064445.120607Z.json` (all latest runs463de7b).
-Watcher matches, no pending run in that receipt, every track passed all five gates.
-**A/B/C/D are now all registered.** D entry is complete and scored; do not repeat stale unregistered claims.
-Overall always selects the BEST THREE registered scores; never geometric-mean all four.
-
-| Track | Latest points | T s | cgroup M bytes | S | Run |
+|Track|Latest points|T s|M bytes|S|Run|
 |---|---:|---:|---:|---:|---|
-| A | 79.864346 | 0.027029 | 24,428,544 | 436 | run-b6aeae4ae6b5 |
-| B | 66.167402 | 0.311542 | 46,931,968 | 775 | run-6b5417c586c5 |
-| C | 73.025777 | 0.045172 | 13,053,952 | 379 | run-723ade7b4bf4 |
-| D | 53.879383 | 0.485033 | 272,519,168 | 245 | run-9076dddcddde |
+|A|79.918502|0.026918|24375296|436|run-4faaad9a8812|
+|B|65.641637|0.325392|46702592|793|run-650505a4fc9b|
+|C|73.19028|0.044476|13066240|379|run-e18f2b09b560|
+|D|54.283219|0.467529|272220160|245|run-c63203a09904|
 
-User-reported historical rank40/41 of111 is not a current rank claim. Latest measured D is fourth.
-User authorized tested normal pushes. No force pushes, fake/backdated commits, paid infrastructure,
-form attestations or visibility changes. Repo private at last check; MIT notice retained.
+New B rare-AND branch regressed to65.641637 from prior66.167402 (S793vs775),
+so local B has been restored byte-for-byte to42317bd, pending a meaningful C
+checkpoint push. Rejected commit/evidence retained. A/C/D unchanged from463.
+Archive branches preserve earlier evidence; Claude stopped, single writer.
+Normal tested speed-demon pushes authorized; no force/backdate/visibility action.
 
 ## Verification state and local execution path
 
 Current hashes match Claude native x86 ASan/UBSan/small/generated-sample records in experiments.jsonl:
 A22 passes, B30 passes, C many at12/33workers, D11. Reuse only exact source/input/options proof.
-No structured full-seed7 record matches the latest current source hashes, so fresh full7 remains needed.
+Exact-current A/C/D full7 passed under QEMU; prior B and rare-AND B both passed full7 at12/1.
 Old report/round7 manifest and Mac timings describe historical source, not this Linux/x86 rewrite.
 
 Default Docker amd64 translator stalls before main on this AVX2 program (release and sanitizer).
@@ -52,7 +48,7 @@ oracle provenance when hand bytes absent; timeout stderr; --qemu path with read-
 Use EXACT Docker CPU flags: A -mavx2; B/C -mavx2 -mbmi2; D no extra CPU flags.
 Compiler stays pinned GCC15; final runtime stays pinned Debian13. QEMU dev image is not a submission input.
 
-## Tested B rare-AND trial ready for native push
+## Rejected B rare-AND trial — native result observed
 
 Current working B source is the isolated rare positive AND anchor candidate,
 SHA3d26d55e05de1197e3bb92a08e4f5e00e042c39fea3cea7e5bcdae9441884990.
@@ -63,7 +59,7 @@ rare-AND/NOT/OR-revival fixture agrees with untouched oracle. Five paired full1
 runs match published hash; full7 workers12/1 pass. Exact image clean offline
 build + five sandbox full1 + one full7 pass, S793/D1. Source/build/proof ledger:
 `benchmarks/sparse-and-anchor-trial.json`. QEMU mean2.551391 ->2.498198s is only
-screening; native score effect is pending. Next: commit/push and observe it.
+screening; native result65.641637 at2d48af0/run-650505a4fc9b. Reject; prior B restored locally.
 
 Current A/C/D also passed exact-current independent full7 under QEMU. Matching
 native parent ASan records remain preserved. Local ASan cannot initialize under
@@ -99,3 +95,13 @@ Python3.13. Serialize builds/generation/performance. Keep commentary updates wit
 Do not spawn agents unless explicitly authorized (none yet). Do not create goals/automations implicitly.
 
 Prior Claude STATUS archived at `benchmarks/status-history/2026-11-02T070018Z-final-claude.md`.
+
+## Active C experiment
+
+C record batch16 passed UBSan/bounds1/12, independently derived new fixture,
+public full1 hashes, full7, exact offline image five full1 plus one full7.
+QEMU0.413203 ->0.455003s regressed10%; native dependency latency differs, so
+one explicit board trial is prepared without claiming a gain. Ledger:
+benchmarks/c-record-batch16-trial.json. C selected only for this native trial;
+B restored42317bd, A/D unchanged. Next commit/push, observe exact run, reject if
+complete score axes regress. B coarse diagnostic source is separate and running.

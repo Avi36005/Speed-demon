@@ -1,0 +1,48 @@
+{
+  "utc": "2026-11-02T08:03:19.351780+00:00",
+  "hypothesis": "Bounded16-record structural lookahead breaks previous-record parser dependency; QEMU screens overhead, native board decides",
+  "parent_commit": "2d48af07a22b4571b5c542b6c34eda36c61f7ff7",
+  "c_source_sha256": "a077037e5c98e31162f6a7ff06e58441c81c7b2efb63e1d113f335c9c45854f5",
+  "comparison": ".work/linux-compare/c-f85249a75f",
+  "qemu_baseline_s": 0.41320327799999995,
+  "qemu_candidate_s": 0.4550031666666667,
+  "interpretation": "QEMU regressed10.1%; dependency and cache latency differ on Intel. One bounded native trial decides; no gain claimed. Reject if complete axes do not improve.",
+  "runtime_checks": [
+    ".work/cached-runtime/c-7caa75cf84",
+    ".work/cached-runtime/c-8fe6c14c1c",
+    ".work/cached-runtime/c-2cd7fc0307"
+  ],
+  "image_checks": [
+    ".work/containers/c-51af542cd4",
+    ".work/containers/c-911c24e3e0"
+  ],
+  "S": 418,
+  "D": 1,
+  "independent_seed_oracle": {
+    "method": "reused verified untouched-reference bytes",
+    "prior_record_utc": "2026-11-01T18:28:34.255017+00:00",
+    "command": {
+      "argv": [
+        "/opt/homebrew/opt/python@3.13/bin/python3.13",
+        "/Users/avinashgehi3/projects/Speed Demon/official/speed-demon-2026/reference/c_join.py",
+        "--data",
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/data/track-c/full-seed7",
+        "--out",
+        "/Users/avinashgehi3/projects/Speed Demon/submission/.work/track-c/2026-11-01T18_28_34.255017_00_00-full-seed7/reference"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "reference_output": "/Users/avinashgehi3/projects/Speed Demon/submission/.work/track-c/2026-11-01T18_28_34.255017_00_00-full-seed7/reference/aggregates.txt",
+    "inputs": {
+      "regions.csv": "aa5ceb246fb1b577347e415376da7430a7e5d873d316975f397035cead758168",
+      "records.csv": "68b7c2d9adf38cc0c730c5b6d4ff33ae469529ff9466bfab474bf713c5702c96"
+    },
+    "reference_source_sha256": "caef796f05b971037bb6b70989dcdb2cb600698bd4d261195a8a7aa260617577",
+    "expected_sha256": "da8b48aef3c54504a45cd4a8952916f4968ff5319a35fe2664e57b30655043db"
+  },
+  "ASan": "new source ASan cannot initialize locally; UBSan halt-on-error+bounds all fixtures1/12 pass",
+  "official_result": null,
+  "b_change": "Restore exact42317bd after measured regression of rare-AND branch"
+}

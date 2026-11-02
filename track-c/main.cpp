@@ -233,8 +233,38 @@ int main(int argc, char** argv) {
                 if (nbits > 8) set(slot);
                 slot = bit;
             };
-            for (size_t c; (c = claim.fetch_add(1)) < pieces;)
-            for (const char *p = data + cut[c], *end = data + cut[c + 1]; p < end;) {
+            for (size_t c; (c = claim.fetch_add(1)) < pieces;) {
+                const char *scan = data + cut[c], *end = data + cut[c + 1], *block = scan;
+                const char* record_start[16] = {scan};
+                size_t record_count = scan < end;
+                uint32_t left = 0;
+                bool in_quotes = false;
+                // Look ahead in a bounded batch. Quote-prefix parity removes
+                // embedded LFs, including escaped pairs crossing vector edges.
+                // Independent starts break the previous-record parser chain.
+                while (record_count || left || scan < end) {
+                    while (record_count < 16 && (left || scan < end)) {
+                        if (!left) {
+                            block = scan;
+                            __m256i bytes = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(scan));
+                            uint32_t q = static_cast<uint32_t>(_mm256_movemask_epi8(_mm256_cmpeq_epi8(bytes, _mm256_set1_epi8('"'))));
+                            q ^= q << 1; q ^= q << 2; q ^= q << 4; q ^= q << 8; q ^= q << 16;
+                            q ^= in_quotes ? UINT32_MAX : 0;
+                            uint32_t lf = static_cast<uint32_t>(_mm256_movemask_epi8(_mm256_cmpeq_epi8(bytes, _mm256_set1_epi8('\n'))));
+                            size_t remaining = static_cast<size_t>(end - scan);
+                            uint32_t valid = remaining >= 32 ? UINT32_MAX : (uint32_t{1} << remaining) - 1;
+                            left = lf & ~q & valid;
+                            in_quotes = (q >> 31) != 0;
+                            scan += 32;
+                        }
+                        if (left) {
+                            const char* next = block + __builtin_ctz(left) + 1;
+                            left &= left - 1;
+                            if (next < end) record_start[record_count++] = next;
+                        }
+                    }
+                    for (size_t i = 0; i < record_count; ++i) {
+                        const char* p = record_start[i];
                 __builtin_prefetch(p + 2048);  // the hardware prefetcher stops at page ends
                 if (static_cast<unsigned char>(p[0]) == 0xEF && static_cast<unsigned char>(p[1]) == 0xBB &&
                     static_cast<unsigned char>(p[2]) == 0xBF)
@@ -269,6 +299,9 @@ int main(int argc, char** argv) {
                 if (pending >= 8) resolve(slot);
                 slot = {nb, len, static_cast<uint32_t>(&x - g.data()), h};
                 ++pending;
+                    }
+                    record_count = 0;
+                }
             }
             for (uint32_t i = pending > 8 ? pending - 8 : 0; i < pending; ++i) resolve(ring[i % 8]);
             for (size_t i = nbits > 8 ? nbits - 8 : 0; i < nbits; ++i) set(bitring[i % 8]);

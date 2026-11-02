@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Library/Developer/CommandLineTools/usr/bin/python3",
+    "../official/speed-demon-2026/reference/c_join.py",
+    "--data",
+    ".work/fixtures/c/structural-vector-boundaries",
+    "--out",
+    ".work/c-vector-reference"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "expected_sha256": "f4878380118b870d96faf430780c57862fc7b10a74c5c9a01bc35bbc297292e8",
+  "reference_sha256": "caef796f05b971037bb6b70989dcdb2cb600698bd4d261195a8a7aa260617577"
+}

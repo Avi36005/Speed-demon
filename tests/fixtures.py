@@ -77,6 +77,30 @@ def make_c():
     answer("c", label, "".join(
         f"{key} {a[0]} {a[1]} {money(a[2])} {money(a[3])} {money(a[4])} {len(a[5])} {a[6]} {a[7]}\n"
         for key, a in sorted(groups.items())))
+    # Put an escaped quote pair and a quoted LF at every vector offset.
+    # Derive aggregates from values, independently of structural masks.
+    records = [b"\xef\xbb\xbfid,name,note,region_id,amount\r\n"]
+    groups = {}
+    for i in range(2048):
+        ident = i + 1
+        name = ("", "Ann \"A\"", "Shared ", "Z")[i % 4]
+        note = "a" * (i % 64) + '"x"\nend'
+        region, amount = (1, 2, 999)[i % 3], -i - 1
+        country = {1: "AAA", 2: "BBB"}.get(region, "_UNMATCHED")
+        a = groups.setdefault(country, [0, 0, 0, amount, amount, set(), 0, 0])
+        a[0] += 1; a[1] += ident; a[2] += amount
+        a[3] = min(a[3], amount); a[4] = max(a[4], amount)
+        a[5].add(name); a[6] += len(name.encode()); a[7] += len(note.encode())
+        quote = lambda s: '"' + s.replace('"', '""') + '"'
+        field = "" if not name and i % 8 == 0 else quote(name)
+        row = f'{ident},{field},{quote(note)},{region},{money(amount)}'
+        records.append((b"\xef\xbb\xbf" if i % 17 == 0 else b"") + row.encode()
+                       + (b"" if i == 2047 else b"\r\n" if i % 2 else b"\n"))
+    label = "structural-vector-boundaries"
+    cases[label] = (b"".join(records), b"region_id,country\n1,AAA\n2,BBB\n")
+    answer("c", label, "".join(
+        f"{key} {a[0]} {a[1]} {money(a[2])} {money(a[3])} {money(a[4])} {len(a[5])} {a[6]} {a[7]}\n"
+        for key, a in sorted(groups.items())))
     for label, (records, regions) in cases.items():
         data = SUB / ".work/fixtures/c" / label
         data.mkdir(parents=True, exist_ok=True)

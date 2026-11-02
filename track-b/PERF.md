@@ -325,3 +325,12 @@ records remain source-matched to unchanged code, and new branch checks use
 UBSan plus bounds assertions. Complete current-source/build-input proof is
 in benchmarks/sparse-and-anchor-trial.json. Actual candidate board effect is
 pending; keep/revert only after native score evidence.
+
+## Rare-AND trial rejected — native2d48af0
+
+Receipt2026-11-02T075357.581616Z.json, run-650505a4fc9b: all gates pass,
+T0.325392s/M46,702,592B/S793/D1/K20.550989/65.641637points. Parent463:
+T0.311542s/M46,931,968B/S775/66.167402. QEMU screening did not predict a
+native gain; source increased too. Reject and restore42317bd B exactly. This is
+a measured regression, not an improvement. Source-identical other-track changes
+are board variation.

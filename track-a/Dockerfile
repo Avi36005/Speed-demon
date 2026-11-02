@@ -7,10 +7,10 @@ FROM gcc:15@sha256:eb5e64286ad47187b32bda75c6b6916166ecb41da56559b8b09e0001748d2
 WORKDIR /src
 COPY main.cpp .
 COPY --from=training /training /training
-RUN g++ -std=c++20 -O3 -DNDEBUG -pthread -static-libstdc++ -static-libgcc \
+RUN g++ -std=c++20 -O3 -mavx2 -DNDEBUG -pthread -static-libstdc++ -static-libgcc \
     -fprofile-generate=/profiles -fprofile-update=atomic main.cpp -o /solution
 RUN mkdir /trainout && /solution --data /training --out /trainout
-RUN g++ -std=c++20 -O3 -DNDEBUG -pthread -static-libstdc++ -static-libgcc \
+RUN g++ -std=c++20 -O3 -mavx2 -DNDEBUG -pthread -static-libstdc++ -static-libgcc \
     -fprofile-use=/profiles -fprofile-correction \
     -Werror=coverage-mismatch -Werror=missing-profile main.cpp -o /solution
 

@@ -42,7 +42,7 @@ def main():
     ap.add_argument("--repeat", type=int, default=0)
     ap.add_argument("--sanitize", action="store_true")
     ap.add_argument("--workers", type=int)
-    ap.add_argument("--compiler", default="clang++")
+    ap.add_argument("--compiler", default=os.environ.get("SD_CXX", "clang++"))
     ap.add_argument("--binary", type=Path, help="use an already built binary (e.g. baseline)")
     ap.add_argument("--source", type=Path, help="compile an isolated development candidate")
     ap.add_argument("--reuse-reference", action="store_true",
@@ -70,6 +70,7 @@ def main():
     try:
         record["inputs"] = {p.name: digest(p) for p in sorted(args.data.iterdir()) if p.is_file()}
         flags = ["-std=c++20", "-pthread", "-Wall", "-Wextra", "-Wpedantic"]
+        flags += ["-mavx2"] if platform.machine() in ("x86_64", "AMD64") else []
         flags += (["-O1", "-g", "-fsanitize=address,undefined", "-fno-omit-frame-pointer"]
                   if args.sanitize else ["-O3", "-DNDEBUG"])
         binary = args.binary.resolve() if args.binary else work / "solution"

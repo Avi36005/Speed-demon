@@ -20,7 +20,7 @@
 // Two exact passes over the mapped log. Pass one records which hours start a
 // line in each 16 KiB block. Pass two answers each hour independently, reading
 // only that hour's blocks, so only one hour's latencies are held per worker.
-constexpr uint32_t HOURS = 72, SLOTS = 8192, CAP = 4096, KEY = 128, BLOCK = 14;
+constexpr uint32_t HOURS = 72, SLOTS = 8192, CAP = 4096, KEY = 64, BLOCK = 14;
 alignas(16) static const char ONES[32] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 static uint64_t load8(const char* p) {
@@ -53,15 +53,15 @@ struct Table {
             uint32_t id = table[i];
             if (!id) {
                 id = static_cast<uint32_t>(names.size());
-                if (id >= CAP || len > KEY) throw std::runtime_error("unsupported endpoint set");
+                if (id >= CAP) throw std::runtime_error("unsupported endpoint set");
                 table[i] = static_cast<uint16_t>(id + 1);
-                memcpy(&keys[size_t{id} * KEY], s, len);
+                memcpy(&keys[size_t{id} * KEY], s, std::min(len, KEY));
                 lens[id] = len;
                 names.emplace_back(s, len);
                 return id;
             }
             const char* k = &keys[size_t{--id} * KEY];
-            if (lens[id] == len && !(~eq64(v, load32(k), load32(k + 32)) & need) && (len <= 64 || !memcmp(k + 64, s + 64, len - 64)))
+            if (lens[id] == len && !(~eq64(v, load32(k), load32(k + 32)) & need) && (len <= KEY || !memcmp(names[id].data() + KEY, s + KEY, len - KEY)))
                 return id;
         }
     }
@@ -92,16 +92,17 @@ struct Threads {
 
 // Quickselect with branch-free Lomuto partitions; the pivot is excluded each
 // round, so equal values still shrink the range. Small ranges use insertion sort.
-static void select(uint32_t* first, uint32_t* last, uint32_t* k) {
+template <class T>
+static void select(T* first, T* last, T* k) {
     while (last - first > 24) {
-        uint32_t *mid = first + (last - first) / 2, *back = last - 1;
+        T *mid = first + (last - first) / 2, *back = last - 1;
         if (*mid < *first) std::swap(*mid, *first);
         if (*back < *mid) std::swap(*back, *mid);
         if (*mid < *first) std::swap(*mid, *first);
         std::swap(*mid, *back);
-        uint32_t pivot = *back, *j = first;
-        for (uint32_t* i = first; i < back; ++i) {
-            uint32_t x = *i;
+        T pivot = *back, *j = first;
+        for (T* i = first; i < back; ++i) {
+            T x = *i;
             *i = *j;
             *j = x;
             j += x < pivot;
@@ -111,8 +112,11 @@ static void select(uint32_t* first, uint32_t* last, uint32_t* k) {
         if (k < j) last = j;
         else first = j + 1;
     }
-    for (uint32_t* i = first + 1; i < last; ++i)
-        for (uint32_t *j = i, x = *i; j > first && j[-1] > x; --j) j[0] = j[-1], j[-1] = x;
+    for (T* i = first + 1; i < last; ++i) {
+        T x = *i, *j = i;
+        for (; j > first && j[-1] > x; --j) j[0] = j[-1];
+        *j = x;
+    }
 }
 
 static const struct Digits {
@@ -185,7 +189,7 @@ int main(int argc, char** argv) {
         uint32_t written = 0;
         threads.run(workers, [&](size_t) {
             Table table;
-            std::vector<uint32_t> count(CAP), errors(CAP), start(CAP), ids, values;
+            std::vector<uint32_t> count(CAP), errors(CAP), start(CAP), fill(CAP), ids;
             std::vector<uint64_t> rows;  // id << 32 | latency
             const __m256i space = _mm256_set1_epi8(' ');
             const __m128i newline = _mm_set1_epi8('\n');
@@ -224,10 +228,15 @@ int main(int argc, char** argv) {
                 }
                 // Group this hour's latencies by endpoint in exact byte order.
                 std::sort(ids.begin(), ids.end(), [&](uint32_t a, uint32_t b) { return table.names[a] < table.names[b]; });
+                // In-place counting sort: each swap settles one row in its group.
                 uint32_t at = 0;
-                for (uint32_t id : ids) start[id] = at, at += count[id];
-                values.resize(rows.size());
-                for (uint64_t r : rows) values[start[r >> 32]++] = static_cast<uint32_t>(r);
+                for (uint32_t id : ids) start[id] = at, at += count[id], fill[id] = start[id];
+                for (uint32_t id : ids)
+                    for (uint32_t end = start[id] + count[id]; fill[id] < end;) {
+                        uint32_t t = static_cast<uint32_t>(rows[fill[id]] >> 32);
+                        if (t == id) ++fill[id];
+                        else std::swap(rows[fill[id]], rows[fill[t]++]);
+                    }
                 std::string buf(1024, '\0');
                 size_t used = 0;
                 uint32_t day = (h + 18) / 24, hh = (h + 18) % 24;
@@ -239,8 +248,8 @@ int main(int argc, char** argv) {
                 for (uint32_t id : ids) {
                     uint64_t n = count[id];
                     if (buf.size() - used < 300) buf.resize(buf.size() * 2);
-                    uint32_t* last = values.data() + start[id];
-                    uint32_t* first_value = last - n;
+                    uint64_t* first_value = rows.data() + start[id];
+                    uint64_t* last = first_value + n;
                     char* o = buf.data() + used;
                     memcpy(o, stamp, 21);
                     o += 21;
@@ -248,15 +257,15 @@ int main(int argc, char** argv) {
                     o += table.names[id].size();
                     *o++ = ' ';
                     o = put(o, n);
-                    uint32_t* rest = first_value;
+                    uint64_t* rest = first_value;  // one group: rows order by latency
                     for (uint64_t pct : {50, 95, 99}) {
-                        uint32_t* rank = first_value + (pct * n + 99) / 100 - 1;
+                        uint64_t* rank = first_value + (pct * n + 99) / 100 - 1;
                         if (rank >= rest) {
                             select(rest, last, rank);
                             rest = rank + 1;
                         }
                         *o++ = ' ';
-                        o = put(o, *rank);
+                        o = put(o, static_cast<uint32_t>(*rank));
                     }
                     *o++ = ' ';
                     o = put(o, errors[id]);

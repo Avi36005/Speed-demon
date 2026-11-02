@@ -15,8 +15,8 @@
 #include <unistd.h>
 #include <vector>
 
-// Exact bidirectional Dijkstra over forward and reverse CSR graphs, built by
-// two parallel parses (atomic degree counts, then atomic slot claims).
+// Exact bidirectional Dijkstra over forward and reverse CSR graphs. One
+// parallel parse; each worker then fills the CSR slice of its own node range.
 constexpr uint64_t INF = UINT64_MAX;
 
 static const char* map_file(const std::string& path, size_t& size) {
@@ -103,31 +103,43 @@ int main(int argc, char** argv) {
             while (c < graph + gsize && c[-1] != '\n') ++c;
             cut[w] = c;
         }
-        // Degrees, then offsets; the degree arrays then serve as slot cursors.
+        // Parse once into per-worker edge lists, counting degrees atomically.
+        struct Line {
+            uint32_t u, v, w;
+        };
+        std::vector<std::vector<Line>> lines(workers);
         std::vector<uint32_t> out_at(size_t{n} + 1), in_at(size_t{n} + 1);
-        auto edges_of = [&](size_t w, auto f) {
+        run([&](size_t w) {
+            lines[w].reserve(static_cast<size_t>(cut[w + 1] - cut[w]) / 12);
             for (const char* q = cut[w]; q < cut[w + 1];) {
                 uint32_t u = number(q), v = number(q), wt = number(q);
-                if (u != v) f(u, v, wt);  // a self-loop never shortens a path
-            }
-        };
-        run([&](size_t w) {
-            edges_of(w, [&](uint32_t u, uint32_t v, uint32_t) {
+                if (u == v) continue;  // a self-loop never shortens a path
+                lines[w].push_back({u, v, wt});
                 std::atomic_ref<uint32_t>(out_at[u]).fetch_add(1, std::memory_order_relaxed);
                 std::atomic_ref<uint32_t>(in_at[v]).fetch_add(1, std::memory_order_relaxed);
-            });
+            }
         });
         std::vector<uint32_t> out_off(size_t{n} + 1), in_off(size_t{n} + 1);
         for (uint32_t i = 0; i < n; ++i) out_off[i + 1] = out_off[i] + out_at[i], in_off[i + 1] = in_off[i] + in_at[i];
-        std::copy(out_off.begin(), out_off.end(), out_at.begin());
-        std::copy(in_off.begin(), in_off.end(), in_at.begin());
         std::vector<Edge> out_edges(out_off[n]), in_edges(in_off[n]);
+        // Each worker owns a node range with about 1/workers of the edges and
+        // fills only its own CSR slice: cache-local writes, no atomics.
+        auto fill = [&](size_t w, const std::vector<uint32_t>& off, std::vector<Edge>& edges, bool reverse) {
+            uint32_t lo = static_cast<uint32_t>(std::lower_bound(off.begin(), off.end(), off[n] / workers * w) - off.begin());
+            uint32_t hi = w + 1 == workers ? n : static_cast<uint32_t>(std::lower_bound(off.begin(), off.end(), off[n] / workers * (w + 1)) - off.begin());
+            lo = std::min(lo, n), hi = std::min(hi, n);
+            std::vector<uint32_t> cursor(off.begin() + lo, off.begin() + hi);
+            for (const auto& list : lines)
+                for (const Line& e : list) {
+                    uint32_t key = reverse ? e.v : e.u;
+                    if (key >= lo && key < hi) edges[cursor[key - lo]++] = {reverse ? e.u : e.v, e.w};
+                }
+        };
         run([&](size_t w) {
-            edges_of(w, [&](uint32_t u, uint32_t v, uint32_t wt) {
-                out_edges[std::atomic_ref<uint32_t>(out_at[u]).fetch_add(1, std::memory_order_relaxed)] = {v, wt};
-                in_edges[std::atomic_ref<uint32_t>(in_at[v]).fetch_add(1, std::memory_order_relaxed)] = {u, wt};
-            });
+            fill(w, out_off, out_edges, false);
+            fill(w, in_off, in_edges, true);
         });
+        lines.clear(), lines.shrink_to_fit();
         std::vector<uint32_t>().swap(out_at), std::vector<uint32_t>().swap(in_at);
 
         std::vector<std::pair<uint32_t, uint32_t>> queries;

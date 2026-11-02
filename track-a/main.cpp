@@ -137,6 +137,13 @@ static char* put(char* o, uint64_t v) {
     return o + (tmp + 24 - t);
 }
 
+// Zaps this range's page-table entries now, in parallel, instead of leaving
+// the whole mapping to a single-threaded teardown at exit.
+static void drop(const char* a, const char* b) {
+    uintptr_t s = (reinterpret_cast<uintptr_t>(a) + 4095) & ~uintptr_t{4095}, e = reinterpret_cast<uintptr_t>(b) & ~uintptr_t{4095};
+    if (s < e) madvise(reinterpret_cast<void*>(s), e - s, MADV_DONTNEED);
+}
+
 int main(int argc, char** argv) {
     try {
         std::string data_dir = "/data", out_dir = "/out";
@@ -292,6 +299,7 @@ int main(int argc, char** argv) {
                 }
             }
         });
+        threads.run(workers, [&](size_t w) { drop(data + cut[w], data + cut[w + 1]); });
         return close(out) ? 1 : 0;
     } catch (const std::exception& e) {
         fprintf(stderr, "%s\n", e.what());

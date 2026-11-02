@@ -70,6 +70,13 @@ struct Dist {
     }
 };
 
+// Zaps this range's page-table entries now, in parallel, instead of leaving
+// the whole mapping to a single-threaded teardown at exit.
+static void drop(const char* a, const char* b) {
+    uintptr_t s = (reinterpret_cast<uintptr_t>(a) + 4095) & ~uintptr_t{4095}, e = reinterpret_cast<uintptr_t>(b) & ~uintptr_t{4095};
+    if (s < e) madvise(reinterpret_cast<void*>(s), e - s, MADV_DONTNEED);
+}
+
 int main(int argc, char** argv) {
     try {
         std::string data_dir = "/data", out_dir = "/out";
@@ -127,6 +134,7 @@ int main(int argc, char** argv) {
                 out_edges[std::atomic_ref<uint32_t>(out_at[u]).fetch_add(1, std::memory_order_relaxed)] = {v, wt};
                 in_edges[std::atomic_ref<uint32_t>(in_at[v]).fetch_add(1, std::memory_order_relaxed)] = {u, wt};
             });
+            drop(cut[w], cut[w + 1]);
         });
         std::vector<uint32_t>().swap(out_at), std::vector<uint32_t>().swap(in_at);
 

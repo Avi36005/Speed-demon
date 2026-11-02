@@ -85,6 +85,13 @@ struct Group {
     return p + 1;
 }
 
+// Zaps this range's page-table entries now, in parallel, instead of leaving
+// the whole mapping to a single-threaded teardown at exit.
+static void drop(const char* a, const char* b) {
+    uintptr_t s = (reinterpret_cast<uintptr_t>(a) + 4095) & ~uintptr_t{4095}, e = reinterpret_cast<uintptr_t>(b) & ~uintptr_t{4095};
+    if (s < e) madvise(reinterpret_cast<void*>(s), e - s, MADV_DONTNEED);
+}
+
 int main(int argc, char** argv) {
     try {
         std::string data_dir = "/data", out_dir = "/out";
@@ -262,6 +269,7 @@ int main(int argc, char** argv) {
             }
             for (uint32_t i = pending > 8 ? pending - 8 : 0; i < pending; ++i) resolve(ring[i % 8]);
             for (size_t i = nbits > 8 ? nbits - 8 : 0; i < nbits; ++i) set(bitring[i % 8]);
+            drop(data + cut[w], data + cut[w + 1]);  // names live in the arenas now
         });
         std::vector<uint64_t> distinct(G);
         for (uint32_t k = 0; k < G; ++k)

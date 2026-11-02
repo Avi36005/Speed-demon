@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
+#include <functional>
 #include <immintrin.h>
 #include <sched.h>
 #include <stdexcept>
@@ -139,14 +140,38 @@ struct Query {
     uint32_t at, n;
 };
 
+// One team of threads for every parallel step. Waiting threads spin on a
+// generation counter (with pause), which wakes them far faster than
+// creating threads or a sleeping barrier.
 struct Threads {
     std::vector<std::thread> list;
+    std::atomic<uint64_t> generation{0};
+    std::atomic<size_t> left{0};
+    std::function<void(size_t)> job;
+    bool stop = false;
     template <class F>
     void run(size_t n, F f) {
-        for (size_t i = 1; i < n; ++i) list.emplace_back(f, i);
+        if (list.empty())
+            for (size_t i = 1; i < n; ++i)
+                list.emplace_back([this, i] {
+                    for (uint64_t seen = 0;;) {
+                        while (generation.load(std::memory_order_acquire) == seen) _mm_pause();
+                        ++seen;
+                        if (stop) return;
+                        job(i);
+                        left.fetch_sub(1, std::memory_order_release);
+                    }
+                });
+        job = f;
+        left.store(n - 1, std::memory_order_relaxed);
+        generation.fetch_add(1, std::memory_order_release);
         f(0);
+        while (left.load(std::memory_order_acquire)) _mm_pause();
+    }
+    ~Threads() {
+        stop = true;
+        generation.fetch_add(1, std::memory_order_release);
         for (auto& t : list) t.join();
-        list.clear();
     }
 };
 
@@ -221,7 +246,7 @@ int main(int argc, char** argv) {
         // The corpus is indexed and queried in phases, so the whole index never
         // exists at once. Each phase is split into one range per worker; ranges
         // start at multiples of 64 documents so bitmap words are private.
-        const size_t phases = 8, PR = workers * 4, R = phases * PR;  // ranges claimed in turn within a phase
+        const size_t phases = 10, PR = workers * 4, R = phases * PR;  // ranges claimed in turn within a phase
         std::vector<const char*> cut(R + 1, docs + dsize);
         std::vector<uint32_t> first(R + 1, 0);
         cut[0] = docs;

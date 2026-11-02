@@ -37,3 +37,23 @@ No new ZIP handed off under score-first request; board uses GitHub branch.
 No force/backdates/fake metrics, paid resources, agents/goals/automations.
 Python3.13; isolated Docker config .work/docker-public-config,
 DOCKER_HOST unix:///Users/avinashgehi3/.docker/run/docker.sock.
+
+## Last user-requested attempt —14:28UTC
+
+User explicitly requested one last try. Testing isolated B6 PHASES (not six
+workers) versus current10, same12workers and all algorithms/build flags intact.
+Hypothesis fewer repeated query passes and block rebuilds may outweigh larger
+per-phase memory. Exact current-source six-phase tradeoff has not been measured;
+older phase experiments used materially different code. Candidate:
+.work/candidates/b_six_phases_final.cpp. Native score decides full axes.
+Preserve1c9adf7; do not select until fixture, full seed7 and exact-image fresh
+checks pass. Must leave time for native CI and board before15:00UTC freeze.
+
+##14:31UTC native six-phase trial ready
+
+Candidate c865ecf9... S791/D1 fully passes local fixtures UBSan/bounds1/12,
+full7 at1/12, exact offline public5/unused20261102x5. QEMU4.5% faster,+7.2MB
+local cgroup; not official T/M. Manifest six-phases-final-trial.json. OnlyB
+source constant10->6 changes. Next push, native CItrackb and board. Hard
+restore fallback1c9adf7 by14:52UTC if score/correctness remains pending or loses.
+Do not leave uncertain candidate at15:00UTC freeze. No more experiments.

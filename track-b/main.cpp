@@ -253,7 +253,7 @@ int main(int argc, char** argv) {
         // The corpus is indexed and queried in phases, so the whole index never
         // exists at once. Each phase is split into one range per worker; ranges
         // start at multiples of 64 documents so bitmap words are private.
-        const size_t phases = 10, PR = workers * 4, R = phases * PR;  // ranges claimed in turn within a phase
+        const size_t phases = 6, PR = workers * 4, R = phases * PR;  // ranges claimed in turn within a phase
         std::vector<const char*> cut(R + 1, docs + dsize);
         std::vector<uint32_t> first(R + 1, 0);
         cut[0] = docs;

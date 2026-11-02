@@ -471,3 +471,13 @@ S791/D1/K20.898397/points66.005649. Receiptbenchmarks/board/2026-11-02T141505.59
 This is a single source-matched native run; runtime-identical variation is
 not a new optimization. Native sanitizer and clean committed-image evidence
 are mapped in final-assembly.json. Target88/90 remains unmet.
+
+## Last requested experiment — six phases, native pending
+
+Current selected code and12workers, only phases10->6. Fewer complete query
+passes/block rebuilds trade higher peak memory for time. Sourcec865ecf927e3f0710fb0cffb890dc2fd54e067008e2828c15533985125e92c50, S791/D1.
+UBSan/bounds fixtures1/12, full7 at1/12, clean offline image public5 and unused
+full20261102x5 pass. QEMU1.088659->1.039593s, local cgroup311,132,160->
+318,361,600B includes emulator/cache. Native full axes decide. No gain claimed.
+Ledger six-phases-final-trial.json; fallback1c9adf7. Native CI/board must finish
+by14:52UTC or restore the verified fallback before freeze.

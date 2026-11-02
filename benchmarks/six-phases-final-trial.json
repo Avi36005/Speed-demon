@@ -1,0 +1,34 @@
+{
+  "utc": "2026-11-02T14:31:31.391655+00:00",
+  "parent_commit": "1c9adf7e5dd25283dac6dcbe541ed81acccd3e88",
+  "hypothesis": "Six phases rather than ten reduce repeated Boolean query passes and index metadata construction, trading larger peak memory against time",
+  "source_sha256": "c865ecf927e3f0710fb0cffb890dc2fd54e067008e2828c15533985125e92c50",
+  "dockerfile_sha256": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
+  "workers": 12,
+  "baseline_phases": 10,
+  "candidate_phases": 6,
+  "S": 791,
+  "D": 1,
+  "checks": [
+    ".work/cached-runtime/b-963821ef92",
+    ".work/cached-runtime/b-d65b15f8c1",
+    ".work/cached-runtime/b-92c4f2e285",
+    ".work/cached-runtime/b-d6336a5d21"
+  ],
+  "images": [
+    ".work/containers/b-0f67c82891",
+    ".work/containers/b-d5aeb40e6c"
+  ],
+  "comparison": ".work/linux-compare/b-77e9d2e8c3",
+  "qemu_means": {
+    "baseline": 1.0886587643333334,
+    "candidate": 1.039592598
+  },
+  "qemu_peaks": {
+    "baseline": 311132160,
+    "candidate": 318361600
+  },
+  "official_result": null,
+  "native_sanitizers": null,
+  "decision": "single native time/memory tradeoff trial; fallback1c9adf7. Restore by14:52UTC if native correctness or board result remains unverified."
+}

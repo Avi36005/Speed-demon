@@ -1,59 +1,35 @@
-# Kryptonite — verified release checkpoint
+# Kryptonite — final six-phase entry verified
 
-Updated 2026-11-02T14:17:11.111626+00:00. Target88 minimum/90 preferred NOT achieved.
-Observed source4fe9f66 overall73.099089; historical best-three73.461599.
-Freeze15:00UTC/20:30IST. All four registered, watcher matches4fe and no queue
-in benchmarks/board/2026-11-02T141505.591838Z.json. Every native gate passes. Repo PUBLIC/MIT, explicitly authorized.
+Updated 2026-11-02T14:40:41.277270+00:00. Last user-requested try completed.88/90 NOT achieved.
+Selected runtimef982f44 overall73.275742; historical best-three73.537261.
+B66.648782 is new best by.077508point (small/noisy). All four registered;
+all native board gates pass inbenchmarks/board/2026-11-02T143516.564031Z.json. Repo PUBLIC/MIT, authorized.
 
-| Track | T s | M bytes | S | D | K | Points | Run |
+|Track|T s|M bytes|S|D|K|Points|Run|
 |---|---:|---:|---:|---:|---:|---:|---|
-|A|0.027281|23,199,744|443|1|39.693286|79.935853|run-2e4ae48aea8e|
-|B|0.322503|42,356,736|791|1|20.898397|66.005649|run-55af2256e3e7|
-|C|0.042777|12,386,304|358|1|30.242558|74.030926|run-f786a2d33c07|
-|D|0.550116|132,751,360|273|1|12.754643|55.283415|run-782a80663d84|
+|A|0.025882|23,801,856|443|1|40.543642|80.396138|run-569ef1eafbce|
+|B|0.288839|49,983,488|791|1|21.526610|66.648782|run-a59dfa110601|
+|C|0.046053|11,837,440|358|1|29.412470|73.426575|run-fd99c86dbdab|
+|D|0.453138|131,862,528|273|1|14.072255|57.418185|run-31be93353a04|
 
-## Final selected runtime
+## Final selected code / proof
 
-All runtime/build inputs exactly match correct330340c and scored4fe9f66.
-A/B/D source7b; C330 monotone membership. Original Docker flags restored.
-Manifest final-assembly.json and final-verification.json audit exact hashes.
-Native A/B/D ASan/UBSan CI41439655126; C CI41456311760 all PASS.
-Selected clean committed images pass unused full20261102x5/public1, with
-source-matched proof paths per track. No runtime/build check remains pending.
-Documentation/evidence-only commits may advance branch; source hashes unchanged.
+A/D source7b unchanged, C330 monotone membership, Bf982 six phases. All source,
+Dockerfile and metadata hashes audited in final-assembly.json/final-verification.json.
+Native ASan/UBSan/fresh sample checks: A/D41439655126, C41456311760,
+B41462799819 all PASS. B native artifact saved; clean committed B image proof
+committed-release-f982f44.json complete. All selected images pass unused full
+seed20261102x5 plus public data; Bfull7 at1/12 and fixtures at1/12 pass too.
+No runtime/build verification gate remains pending. No more code experiments.
 
-## Final evidence push / continuity
+## Release closeout
 
-Next commit contains final report/evidence; confirm push and watcher before
-freeze. No more structural experiments. If resumed, inspect HEAD/watch first;
-do not repeat passed matrices unless source/build changed. User's88/90 target
-unmet; never claim otherwise. Final hidden-seed/judging unknown. No current rank.
-All regressing experiments restored; raw evidence remains in PERF/benchmarks.
-
-LTO267 lost natively; B inlineaeeee4e passed native CI41458042088 but lost score;
-A/C MAP_POPULATE and D fused lookup failed screening. B is restoredf1ed726...
-not inline8e8d9a... . C monotone retained. Public visibility action complete.
-No new ZIP handed off under score-first request; board uses GitHub branch.
+Next commit saves final six-phase evidence and README; only docs/records change.
+Confirm final push/watcher before15:00UTC/20:30IST freeze. Original fully verified
+10-phase fallback1c9adf7 remains preserved. PUBLIC visibility/MIT complete.
+Never claim88/90, final holdout/judging or top-three rank. Native single-run
+variation is visible; only B phase count changed in this last trial.
+No ZIP handed off under score-first request; board reads GitHub branch.
 No force/backdates/fake metrics, paid resources, agents/goals/automations.
-Python3.13; isolated Docker config .work/docker-public-config,
-DOCKER_HOST unix:///Users/avinashgehi3/.docker/run/docker.sock.
-
-## Last user-requested attempt —14:28UTC
-
-User explicitly requested one last try. Testing isolated B6 PHASES (not six
-workers) versus current10, same12workers and all algorithms/build flags intact.
-Hypothesis fewer repeated query passes and block rebuilds may outweigh larger
-per-phase memory. Exact current-source six-phase tradeoff has not been measured;
-older phase experiments used materially different code. Candidate:
-.work/candidates/b_six_phases_final.cpp. Native score decides full axes.
-Preserve1c9adf7; do not select until fixture, full seed7 and exact-image fresh
-checks pass. Must leave time for native CI and board before15:00UTC freeze.
-
-##14:31UTC native six-phase trial ready
-
-Candidate c865ecf9... S791/D1 fully passes local fixtures UBSan/bounds1/12,
-full7 at1/12, exact offline public5/unused20261102x5. QEMU4.5% faster,+7.2MB
-local cgroup; not official T/M. Manifest six-phases-final-trial.json. OnlyB
-source constant10->6 changes. Next push, native CItrackb and board. Hard
-restore fallback1c9adf7 by14:52UTC if score/correctness remains pending or loses.
-Do not leave uncertain candidate at15:00UTC freeze. No more experiments.
+Python3.13; Docker .work/docker-public-config and
+unix:///Users/avinashgehi3/.docker/run/docker.sock.

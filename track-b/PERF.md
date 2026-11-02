@@ -481,3 +481,21 @@ full20261102x5 pass. QEMU1.088659->1.039593s, local cgroup311,132,160->
 318,361,600B includes emulator/cache. Native full axes decide. No gain claimed.
 Ledger six-phases-final-trial.json; fallback1c9adf7. Native CI/board must finish
 by14:52UTC or restore the verified fallback before freeze.
+
+### Six-phase native result — provisional keep pending native CI
+
+f982f44/run-a59dfa110601: all five gates pass, T0.288839s/M49983488B/
+S791/D1/K21.52661/66.648782points. Parent1c B was
+.317447s/M42,827,776B/66.177212. Six phases improve native time while memory
+rises above its cap; full score beats prior historical B66.571274 by only
+.077508point. Single-run margin is noisy, not a decisive optimum. Native CI
+41462799819 must pass before final retention; fallback1c9adf7 ready.
+
+### Final six-phase selection — kept
+
+Native CI41462799819 PASS on exactc865ecf9... source (18checks,
+16ASan/UBSan). Committed image fresh20261102x5/public1 PASS.
+Keep6phases after native run-a59dfa110601 scored66.648782. Native memory
+49,983,488B and time.288839s trade off for a small best-score gain of.077508.
+Do not call it a decisive optimum or88-point result. Final manifest updated;
+original10-phase fallback1c9adf7 remains preserved. No more code changes.

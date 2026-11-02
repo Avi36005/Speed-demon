@@ -28,7 +28,47 @@
     "baseline": 311132160,
     "candidate": 318361600
   },
-  "official_result": null,
-  "native_sanitizers": null,
-  "decision": "single native time/memory tradeoff trial; fallback1c9adf7. Restore by14:52UTC if native correctness or board result remains unverified."
+  "official_result": {
+    "receipt": "benchmarks/board/2026-11-02T143516.564031Z.json",
+    "run": {
+      "run_id": "run-a59dfa110601",
+      "commit": "f982f448c5b8aeebc1f6ab6a7e8901a80b88b10a",
+      "pushed_at": "2026-11-02T14:32:34Z",
+      "dispatched_at": "2026-11-02T14:32:38Z",
+      "started_at": "2026-11-02T14:33:34Z",
+      "ended_at": "2026-11-02T14:33:36Z",
+      "queue_latency_s": 59.9,
+      "ok": true,
+      "stage": "scored",
+      "gates": {
+        "check": true,
+        "build": true,
+        "correctness": true,
+        "timeout": true,
+        "sandbox": true
+      },
+      "T_s": 0.288839,
+      "M_bytes": 49983488,
+      "S": 791,
+      "D": 1,
+      "K": 21.52661,
+      "points": 66.648782,
+      "static_axes": "measured",
+      "timeout_s": 169.057,
+      "build_s": 10.706,
+      "image_bytes": 118254634,
+      "failure": null,
+      "lang": [
+        "C++"
+      ]
+    }
+  },
+  "native_sanitizers": {
+    "passed": true,
+    "run_id": 41462799819,
+    "artifact": "benchmarks/native-ci/41462799819",
+    "exact_checks": 18
+  },
+  "decision": "keep6phases: all native gates and exact-source sanitizers pass; B66.648782 beats prior best66.571274 by a small noisy margin",
+  "native_ci_run": 41462799819
 }

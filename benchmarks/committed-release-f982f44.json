@@ -1,0 +1,20 @@
+{
+  "utc": "2026-11-02T14:32:17.062882+00:00",
+  "commit": "f982f448c5b8aeebc1f6ab6a7e8901a80b88b10a",
+  "archive_sha256": "1ffa0985299ba9e981b1b293e47fc86be7f40274d2d51084f1ccf89ca1b44ffb",
+  "source_sha256": "c865ecf927e3f0710fb0cffb890dc2fd54e067008e2828c15533985125e92c50",
+  "seed": 20261102,
+  "complete": true,
+  "checks": {
+    "b": {
+      "source_sha256": "c865ecf927e3f0710fb0cffb890dc2fd54e067008e2828c15533985125e92c50",
+      "fresh_runs": 5,
+      "public_runs": 1,
+      "tag": "kryptonite/track-b:committed-f982f44",
+      "logs": [
+        ".work/b-six-committed-unused.stdout",
+        ".work/b-six-committed-public.stdout"
+      ]
+    }
+  }
+}

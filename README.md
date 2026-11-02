@@ -17,8 +17,8 @@
 
 ---
 
-> **Verified and public under MIT.** All four tracks are registered and pass native board gates.
-> Observed assembled-head overall **73.099** · Historical best-three **73.462**.
+> **Verified and public under MIT.** All four registered tracks pass native board gates.
+> Last-try B best: **66.649** · Observed assembled overall: **73.276** · Historical best-three: **73.537**.
 > The requested 88–90 target remains unmet. Final hidden-seed scoring and judging are separate.
 
 ## The entry
@@ -26,7 +26,7 @@
 | Track | Workload | Approach | Output |
 | :--- | :--- | :--- | :--- |
 | **A · Ingest** | 3.1 million HTTP request lines | Compact per-hour records and exact percentile selection | `summary.txt` |
-| **B · Index** | 50,000 queries over 250,000 documents | Phased sparse runs, bitmaps and inline exact phrase matching | `results.txt` |
+| **B · Index** | 50,000 queries over 250,000 documents | Six-phase sparse runs, bitmaps and inline exact phrase matching | `results.txt` |
 | **C · Join** | 3.32 million hostile CSV records | Exact name interning and name-local atomic country membership | `aggregates.txt` |
 | **D · Traverse** | 2,000 directed shortest-path queries | Forward/reverse CSR and bidirectional Dijkstra with sparse state | `distances.txt` |
 
@@ -42,20 +42,20 @@ remain exact.
 
 ## Native results
 
-Measured runtime inputs at `4fe9f66`; later documentation commits preserve them.
+Measured runtime inputs at `f982f44`; later documentation commits preserve them.
 
 | Track | Machine points | Time | cgroup peak | Native run |
 | :--- | ---: | ---: | ---: | :--- |
-| **A** | 79.935853 | 0.027281 s | 23,199,744 B | `run-2e4ae48aea8e` |
-| **B** | 66.005649 | 0.322503 s | 42,356,736 B | `run-55af2256e3e7` |
-| **C** | 74.030926 | 0.042777 s | 12,386,304 B | `run-f786a2d33c07` |
-| **D** | 55.283415 | 0.550116 s | 132,751,360 B | `run-782a80663d84` |
+| **A** | 80.396138 | 0.025882 s | 23,801,856 B | `run-569ef1eafbce` |
+| **B** | 66.648782 | 0.288839 s | 49,983,488 B | `run-a59dfa110601` |
+| **C** | 73.426575 | 0.046053 s | 11,837,440 B | `run-fd99c86dbdab` |
+| **D** | 57.418185 | 0.453138 s | 131,862,528 B | `run-31be93353a04` |
 
 Overall is the geometric mean of the best three registered machine scores.
 These are single public-data runs with visible timing variation. Historical
 bests are recorded separately from the assembled-head measurement.
 
-[Immutable receipt](benchmarks/board/2026-11-02T141505.591838Z.json) ·
+[Immutable receipt](benchmarks/board/2026-11-02T143516.564031Z.json) ·
 [Kryptonite on the board](https://speeddemon.dev/board/#kryptonite-96429f)
 
 ## Verification

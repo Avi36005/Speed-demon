@@ -10,7 +10,7 @@ probes; complete zero-padded token bytes decide equality. The corpus is scanned
 once, with bounded padded mappings and AVX2 ASCII classification. Only A–Z fold;
 all non-ASCII bytes separate tokens. Unknown tokens retain their positions.
 
-Ten phases bound peak index storage. Each phase uses word-aligned document
+Six phases bound peak index storage. Each phase uses word-aligned document
 ranges claimed dynamically by one persistent worker team. Idle workers briefly
 spin, then park with atomic wait; release/acquire task publication and explicit
 notifications preserve synchronization. Dead query-remapping buffers are released
@@ -41,6 +41,6 @@ The digest-pinned GCC15/Debian13 image builds offline, statically links C++/GCC
 support, and uses only the documented Intel instruction set. Selected-source
 fixture, fresh full7, repeated full1 and exact-image sandbox evidence appears
 in PERF.md. Local QEMU checks establish compatibility; the board establishes
-native Intel performance. The selected source passes the board and native
-ASan/UBSan checks. Earlier rare-AND, inline-key and six-worker trials were
+native Intel performance. The selected six-phase source passes the board and
+native ASan/UBSan checks. Earlier rare-AND, inline-key and six-worker trials were
 rejected after measured regressions; the final source preserves the verified path.

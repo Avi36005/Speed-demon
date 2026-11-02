@@ -78,3 +78,10 @@ added flags were rejected. A checked monotone C-membership candidate is now
 awaiting native scoring, with original A/B/D and builds restored. Its local
 proof is benchmarks/late-hotpath-trial.json. Native ASan and score remain
 pending; the previous final verification describes the preserved fallback.
+
+Final restoration: B inline redesign passed native CI41458042088 but lost
+64.438235 points, so B330 source is restored. A/C MAP_POPULATE did not help
+and was not submitted. All runtime/build inputs exactly match330340c, with
+source-matched native sanitizers and clean committed-image unused full-seed
+proof. Publication is PUBLIC/MIT. Final restoration push/receipt is next;
+88 and90 remain unmet. Manifest final-assembly.json is authoritative.

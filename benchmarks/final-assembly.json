@@ -1,8 +1,10 @@
 {
-  "utc": "2026-11-02T13:03:04.138236+00:00",
-  "purpose": "Final verified source assembly; all runtime gates complete",
+  "utc": "2026-11-02T14:11:32.239997+00:00",
+  "purpose": "Final selected verified source after rejecting regressing experiments",
   "target": 90,
+  "minimum_target": 88,
   "target_achieved": false,
+  "runtime_equivalent_commit": "330340c9a6206948500bf6f594b5431a129c8ee3",
   "tracks": {
     "a": {
       "source_revision": "7b28c32",
@@ -13,7 +15,11 @@
         "main.cpp": "b2470c2a995f821ac26a295fc992370278d04a1a8de430cedad3e8b713c53e61"
       },
       "proof": "benchmarks/committed-release-7b28c32.json",
-      "native_ci": 41439655126
+      "native_ci": 41439655126,
+      "native_checks": 7,
+      "native_ASan_UBSan_checks": 6,
+      "unused_full_seed_runs": 5,
+      "public_runs": 1
     },
     "b": {
       "source_revision": "7b28c32",
@@ -23,17 +29,25 @@
         "main.cpp": "f1ed726d6e8830bde2b83112919f4ddb67841cdd0cc6eeb2695bc7e5cdc46a9c"
       },
       "proof": "benchmarks/committed-release-7b28c32.json",
-      "native_ci": 41439655126
+      "native_ci": 41439655126,
+      "native_checks": 17,
+      "native_ASan_UBSan_checks": 15,
+      "unused_full_seed_runs": 5,
+      "public_runs": 1
     },
     "c": {
-      "source_revision": "1397636",
+      "source_revision": "330340c",
       "runtime_inputs": {
         "Dockerfile": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
         ".speed-demon.toml": "82561d3cf9545bb00643eeefd7b29b1fb3e4c636831858ac1eac013927e94ad8",
-        "main.cpp": "7efd1e76363fcf580d114e9843b3e004dafc35b8a30d7036289a913dc303f898"
+        "main.cpp": "cf51e0b5c7d4a39b3832bfa7fd4c9bab9cac081d3bd4fa29a49f7e60b9b7130e"
       },
-      "proof": "benchmarks/committed-release-1397636.json",
-      "native_ci": 41449471565
+      "proof": "benchmarks/committed-release-aeeee4e.json",
+      "native_ci": 41456311760,
+      "native_checks": 9,
+      "native_ASan_UBSan_checks": 8,
+      "unused_full_seed_runs": 5,
+      "public_runs": 1
     },
     "d": {
       "source_revision": "7b28c32",
@@ -43,15 +57,14 @@
         "main.cpp": "055f90aca740e30b7acf3b28092176e8e4f23b6364018b6d4d9c9cded52fd226"
       },
       "proof": "benchmarks/committed-release-7b28c32.json",
-      "native_ci": 41439655126
+      "native_ci": 41439655126,
+      "native_checks": 11,
+      "native_ASan_UBSan_checks": 10,
+      "unused_full_seed_runs": 5,
+      "public_runs": 1
     }
   },
-  "runtime_verified": true,
-  "native_sanitizers_verified": true,
-  "observed_commit": "cda897a318b6cbe6b7d4751bc70d346fa4608480",
-  "observed_overall": 72.99666120129679,
-  "historical_best_overall": 73.43138044615472,
-  "board_receipt": "benchmarks/board/2026-11-02T132724.472348Z.json",
-  "updated_utc": "2026-11-02T13:29:00.136629+00:00",
-  "visibility": "public; explicitly authorized and verified by GitHub API2026-11-02T13:30Z"
+  "visibility": "public; user approved and GitHub verified MIT",
+  "all_runtime_gates_passed": true,
+  "fresh_final_head_run": "pending restoration push"
 }

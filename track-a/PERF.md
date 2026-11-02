@@ -303,3 +303,10 @@ Proof artifacts in benchmarks/lto-alderlake-trial.json. Fallback8c5b801.
 S443/D1/K39.551012/points79.85788. Compared with8c5b801,
 A/B/D lose and C differs only+.021point. Restore all original Dockerfiles;
 this build line is exhausted. Actual receipt2026-11-02T134312.498999Z.
+
+## MAP_POPULATE experiment — rejected locally
+
+Fixtures UBSan/bounds12 and five paired public hashes pass. QEMU means
+0.505407->0.507064s. A is neutral; C regresses.
+No native trial justified before freeze; retain original file mapping. Source
+c50e111e0cad3f34097fd6b997f53abca15370f90dfe57f83e2225f005dbf8fd; record.work/linux-compare/a-f69a614c5d.

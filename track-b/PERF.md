@@ -455,3 +455,11 @@ pass. QEMU means2.512348->2.178001s; local cgroup313,081,856->310,087,680B
 includes emulator/cache, never official T/M. First unbounded inline variant
 only1% faster and7MB larger; rejected. Current S859/D1. Native
 result/ASan pending; keep/revert using full axes. Proof inline-bool-summary-trial.json.
+
+### Inline Boolean native trial — rejected
+
+aeeee4e/run-86a385b8bee9: all gates pass, T0.363484s/M40189952B/
+S859/D1/K19.443064/64.438235points. Despite lower memory
+and faster QEMU, native execution regressed versus330 B66.571274. Restore
+previous B source exactly; this inline-query line is exhausted after two
+substantial local variants and the native trial. Do not repeat it.

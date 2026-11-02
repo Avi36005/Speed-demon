@@ -29,7 +29,45 @@
     "baseline": 313081856,
     "candidate": 310087680
   },
-  "official_result": null,
-  "native_sanitizers": "pending exact-source native CI",
-  "decision": "one tested native trial; compare complete axes and restore verified B if it loses"
+  "official_result": {
+    "receipt": "benchmarks/board/2026-11-02T140412.364955Z.json",
+    "run": {
+      "run_id": "run-86a385b8bee9",
+      "commit": "aeeee4e1d6088fec7586c4b942a09bae1a4254e8",
+      "pushed_at": "2026-11-02T14:01:57Z",
+      "dispatched_at": "2026-11-02T14:02:30Z",
+      "started_at": "2026-11-02T14:03:05Z",
+      "ended_at": "2026-11-02T14:03:10Z",
+      "queue_latency_s": 68.0,
+      "ok": true,
+      "stage": "scored",
+      "gates": {
+        "check": true,
+        "build": true,
+        "correctness": true,
+        "timeout": true,
+        "sandbox": true
+      },
+      "T_s": 0.363484,
+      "M_bytes": 40189952,
+      "S": 859,
+      "D": 1,
+      "K": 19.443064,
+      "points": 64.438235,
+      "static_axes": "measured",
+      "timeout_s": 169.057,
+      "build_s": 13.01,
+      "image_bytes": 118255802,
+      "failure": null,
+      "lang": [
+        "C++"
+      ]
+    }
+  },
+  "native_sanitizers": {
+    "passed": true,
+    "run_id": 41458042088,
+    "artifact": "benchmarks/native-ci/41458042088"
+  },
+  "decision": "rejected: native64.438235 versus source-parent66.571274; restored330340c B"
 }

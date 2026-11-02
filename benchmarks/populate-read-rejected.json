@@ -1,0 +1,24 @@
+{
+  "utc": "2026-11-02T14:09:26.556309+00:00",
+  "tracks": {
+    "a": {
+      "source_sha256": "c50e111e0cad3f34097fd6b997f53abca15370f90dfe57f83e2225f005dbf8fd",
+      "comparison": ".work/linux-compare/a-f69a614c5d",
+      "means": {
+        "baseline": 0.5054068613333333,
+        "candidate": 0.5070642363333334
+      },
+      "decision": "rejected: no credible local gain"
+    },
+    "c": {
+      "source_sha256": "d3a3a53eb6df9c14117c94c6257ea67a1dd0bc8d1ec054257398bad0e60a24ad",
+      "comparison": ".work/linux-compare/c-207e03ede3",
+      "means": {
+        "baseline": 0.5360960976666667,
+        "candidate": 0.6205318196666666
+      },
+      "decision": "rejected: no credible local gain"
+    }
+  },
+  "selected": false
+}

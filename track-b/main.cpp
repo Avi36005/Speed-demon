@@ -350,52 +350,24 @@ int main(int argc, char** argv) {
         // Phrases are matched during the scan, exactly, by token ids around
         // each occurrence of an anchor: the phrase term rarest in the sample.
         // A phrase with a term no vocabulary holds matches nothing.
-        std::vector<uint32_t> inline_of(queries.size(), NONE), anchor_at(V + 2), anchors, offset;
-        std::vector<const Query*> inline_queries;
+        std::vector<uint32_t> phrase_of(queries.size(), NONE), anchor_at(V + 2), anchors, offset;
+        std::vector<const Query*> phrases;
         for (size_t q = 0; q < queries.size(); ++q) {
             const Query& query = queries[q];
+            if (!query.phrase) continue;
             const uint32_t* t = all_terms.data() + query.at;
-            const char* ops = all_ops.data() + query.at;
+            if (std::find(t, t + query.n, NONE) != t + query.n) continue;
             uint32_t j = 0;
-            if (query.phrase) {
-                if (std::find(t, t + query.n, NONE) != t + query.n) continue;
-                for (uint32_t i = 1; i < query.n; ++i) if (sdf[t[i]] < sdf[t[j]]) j = i;
-            } else {
-                // A no-OR query can match only documents containing every
-                // positive operand. Sample frequency chooses the cheapest
-                // positive anchor; exact per-document membership decides.
-                bool eligible = t[0] != NONE;
-                for (uint32_t i = 1; i < query.n; ++i) {
-                    if (ops[i - 1] == 'O') eligible = false;
-                    if (ops[i - 1] == 'A') {
-                        if (t[i] == NONE) eligible = false;
-                        else if (t[j] != NONE && sdf[t[i]] < sdf[t[j]]) j = i;
-                    }
-                }
-                if (!eligible || uint64_t{sdf[t[j]]} * 200 > total) continue;
-            }
-            inline_of[q] = static_cast<uint32_t>(inline_queries.size());
-            inline_queries.push_back(&query);
+            for (uint32_t i = 1; i < query.n; ++i) if (sdf[t[i]] < sdf[t[j]]) j = i;
+            phrase_of[q] = static_cast<uint32_t>(phrases.size());
+            phrases.push_back(&query);
             offset.push_back(j);
             ++anchor_at[t[j] + 2];
         }
         for (size_t t = 0; t < V; ++t) anchor_at[t + 2] += anchor_at[t + 1];
         for (size_t t = 0; t < V; ++t) if (anchor_at[t + 2] != anchor_at[t + 1]) is_anchor[t / 64] |= 1ull << (t % 64);
-        anchors.resize(inline_queries.size());
-        for (uint32_t p = 0; p < inline_queries.size(); ++p) anchors[anchor_at[all_terms[inline_queries[p]->at + offset[p]] + 1]++] = p;
-        // Only the remaining BOOL queries need posting sets. Inline plans
-        // still retain every token ID and position for exact membership/inline_queries.
-        std::vector<uint8_t> need_postings(V);
-        for (size_t q = 0; q < queries.size(); ++q)
-            if (!queries[q].phrase && inline_of[q] == NONE)
-                for (uint32_t i = 0; i < queries[q].n; ++i) {
-                    uint32_t t = all_terms[queries[q].at + i];
-                    if (t != NONE) need_postings[t] = 1;
-                }
-        nbitmaps = 0;
-        std::fill(bitmap_of.begin(), bitmap_of.end(), NONE);
-        for (size_t t = 0; t < V; ++t)
-            if (need_postings[t] && sdf[t] * 40 > total) bitmap_of[t] = static_cast<uint32_t>(nbitmaps++);
+        anchors.resize(phrases.size());
+        for (uint32_t p = 0; p < phrases.size(); ++p) anchors[anchor_at[all_terms[phrases[p]->at + offset[p]] + 1]++] = p;
         std::vector<std::vector<uint64_t>> matched(R);  // phrase << 32 | document, per range in document order
         auto* bitmaps = static_cast<uint64_t*>(calloc(nbitmaps * most + 1, 8));
         // Sparse hits of each 8192-document block are packed as (term << 13 |
@@ -427,7 +399,7 @@ int main(int argc, char** argv) {
           State& st = states[w];
           auto& hits = st.hits;
           auto& at = st.at;
-          if (at.empty()) at.assign(V, 0), st.seen.assign(inline_queries.size(), NONE), st.touched.assign(V / 64 + 1, 0);
+          if (at.empty()) at.assign(V, 0), st.seen.assign(phrases.size(), NONE), st.touched.assign(V / 64 + 1, 0);
           auto& touched = st.touched;
           for (size_t r; (r = claim.fetch_add(1)) < (ph + 1) * PR;) {
             uint32_t base = first[r];
@@ -453,32 +425,16 @@ int main(int argc, char** argv) {
             scan(r, st, SIZE_MAX, [&](uint32_t doc, const char*, uint32_t id) {
                 if (id == NONE) {
                     if (doc - base == BLOCK) flush(), base = doc;
-                } else if (!need_postings[id]) return;
-                else if (bitmap_of[id] != NONE) bitmaps[bitmap_of[id] * words + (doc - pbase) / 64] |= 1ull << (doc % 64);
+                } else if (bitmap_of[id] != NONE) bitmaps[bitmap_of[id] * words + (doc - pbase) / 64] |= 1ull << (doc % 64);
                 else hits.push_back(id << 13 | (doc - base));
             }, [&](uint32_t doc, const uint32_t* ids, size_t n, const std::vector<uint32_t>& hot) {
                 for (size_t i : hot) {
                     for (uint32_t e = anchor_at[ids[i]]; e < anchor_at[ids[i] + 1]; ++e) {
-                        uint32_t ph = anchors[e], j = offset[ph], k = inline_queries[ph]->n;
-                        if (seen[ph] == doc) continue;
-                        const uint32_t* want = all_terms.data() + inline_queries[ph]->at;
-                        bool match;
-                        if (inline_queries[ph]->phrase) {
-                            if (i < j || i - j + k > n) continue;
-                            match = std::equal(want, want + k, ids + (i - j));
-                        } else {
-                            // All token IDs have already updated this worker's
-                            // document marks before whole() is called. Evaluate
-                            // one time per document, even if the anchor repeats.
-                            seen[ph] = doc;
-                            match = st.last[want[0]] == doc;
-                            const char* ops = all_ops.data() + inline_queries[ph]->at;
-                            for (uint32_t z = 1; match && z < k; ++z) {
-                                bool present = want[z] != NONE && st.last[want[z]] == doc;
-                                match = ops[z - 1] == 'A' ? present : !present;
-                            }
-                        }
-                        if (match) seen[ph] = doc, mine.push_back(uint64_t{ph} << 32 | doc);
+                        uint32_t ph = anchors[e], j = offset[ph], k = phrases[ph]->n;
+                        if (i < j || i - j + k > n || seen[ph] == doc) continue;
+                        const uint32_t* want = all_terms.data() + phrases[ph]->at;
+                        if (std::equal(want, want + k, ids + (i - j)))
+                            seen[ph] = doc, mine.push_back(uint64_t{ph} << 32 | doc);
                     }
                 }
             });
@@ -562,7 +518,7 @@ int main(int argc, char** argv) {
                         for (uint32_t d : l) sum += d;
                         for (; nsmall < 10 && nsmall < l.size(); ++nsmall) smallest[nsmall] = l[nsmall];
                     };
-                    if (query.phrase || inline_of[q] != NONE) continue;  // inline plans are tallied after the last phase
+                    if (query.phrase) continue;  // phrases are tallied once, after the last phase
                     // A guaranteed-empty prefix stays empty through AND/NOT;
                     // only a nonempty OR term revives it. A revival discards
                     // that proven-empty prefix, preserving strict LTR semantics.
@@ -655,41 +611,23 @@ int main(int argc, char** argv) {
                     for (uint32_t i = 0; i < nsmall && t.n < 10; ++i) t.smallest[t.n++] = smallest[i];
                 }
         });
-        // Boolean inline matches need only a summary. Consume this phase's
-        // disjoint ranges in document order and release their match storage;
-        // retain positional phrase matches for the existing final merge.
-        for (size_t r = ph * PR; r < (ph + 1) * PR; ++r) {
-            auto& mine = matched[r];
-            size_t keep = 0;
-            for (uint64_t m : mine) {
-                uint32_t plan = static_cast<uint32_t>(m >> 32), doc = static_cast<uint32_t>(m);
-                if (inline_queries[plan]->phrase) mine[keep++] = m;
-                else {
-                    Tally& out = tally[static_cast<size_t>(inline_queries[plan] - queries.data())];
-                    ++out.count, out.sum += doc;
-                    if (out.n < 10) out.smallest[out.n++] = doc;
-                }
-            }
-            if (!keep) std::vector<uint64_t>().swap(mine);
-            else mine.resize(keep), mine.shrink_to_fit();
-        }
         }  // phases
         // Each phrase's matching documents, ascending: workers in order, then counting by phrase.
-        std::vector<uint32_t> inline_at(inline_queries.size() + 1), inline_docs;
-        for (auto& list : matched) for (uint64_t m : list) ++inline_at[(m >> 32) + 1];
-        for (size_t ph = 0; ph < inline_queries.size(); ++ph) inline_at[ph + 1] += inline_at[ph];
-        inline_docs.resize(inline_at.back());
+        std::vector<uint32_t> phrase_at(phrases.size() + 1), phrase_docs;
+        for (auto& list : matched) for (uint64_t m : list) ++phrase_at[(m >> 32) + 1];
+        for (size_t ph = 0; ph < phrases.size(); ++ph) phrase_at[ph + 1] += phrase_at[ph];
+        phrase_docs.resize(phrase_at.back());
         {
-            std::vector<uint32_t> fill(inline_at.begin(), inline_at.end() - 1);
-            for (auto& list : matched) for (uint64_t m : list) inline_docs[fill[m >> 32]++] = static_cast<uint32_t>(m);
+            std::vector<uint32_t> fill(phrase_at.begin(), phrase_at.end() - 1);
+            for (auto& list : matched) for (uint64_t m : list) phrase_docs[fill[m >> 32]++] = static_cast<uint32_t>(m);
         }
         std::string all;
         for (size_t q = 0; q < queries.size(); ++q) {
             Tally t = tally[q];
-            if (inline_of[q] != NONE) {
-                for (uint32_t i = inline_at[inline_of[q]]; i < inline_at[inline_of[q] + 1]; ++i, ++t.count) {
-                    t.sum += inline_docs[i];
-                    if (t.n < 10) t.smallest[t.n++] = inline_docs[i];
+            if (queries[q].phrase && phrase_of[q] != NONE) {
+                for (uint32_t i = phrase_at[phrase_of[q]]; i < phrase_at[phrase_of[q] + 1]; ++i, ++t.count) {
+                    t.sum += phrase_docs[i];
+                    if (t.n < 10) t.smallest[t.n++] = phrase_docs[i];
                 }
             }
             all += std::to_string(t.count) + ' ' + std::to_string(t.sum);

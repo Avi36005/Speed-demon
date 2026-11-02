@@ -350,3 +350,10 @@ probe. UBSan/bounds fixtures1/12, full7, offline image public5 and unused full
 ->0.350537s. Decision:
 native trial. Native gain unclaimed. S358/D1.
 Proof benchmarks/late-hotpath-trial.json; original source preserved8c5b801.
+
+## MAP_POPULATE experiment — rejected locally
+
+Fixtures UBSan/bounds12 and five paired public hashes pass. QEMU means
+0.536096->0.620532s. A is neutral; C regresses.
+No native trial justified before freeze; retain original file mapping. Source
+d3a3a53eb6df9c14117c94c6257ea67a1dd0bc8d1ec054257398bad0e60a24ad; record.work/linux-compare/c-207e03ede3.

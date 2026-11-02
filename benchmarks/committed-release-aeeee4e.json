@@ -1,0 +1,32 @@
+{
+  "utc": "2026-11-02T14:02:00.817088+00:00",
+  "commit": "aeeee4e1d6088fec7586c4b942a09bae1a4254e8",
+  "archive_sha256": "822132b9631acfcd71c4459b7cd9fc5593f22a69cadc056c0c6316d183710a88",
+  "seed": 20261102,
+  "checks": {
+    "b": {
+      "source_sha256": "8e8d9a5337f6107710cb5dcd56c878e80955624820f9968f7af75c3d041174c8",
+      "dockerfile_sha256": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
+      "tag": "kryptonite/track-b:committed-aeeee4e",
+      "fresh_runs": 5,
+      "public_runs": 1,
+      "logs": [
+        ".work/b-late-committed-unused.stdout",
+        ".work/b-late-committed-public.stdout"
+      ]
+    },
+    "c": {
+      "source_sha256": "cf51e0b5c7d4a39b3832bfa7fd4c9bab9cac081d3bd4fa29a49f7e60b9b7130e",
+      "dockerfile_sha256": "82a6e840f1e81380f5f1db5ad1dbdae52cb65c4a622cd7718bc2ded6d31ac5b4",
+      "tag": "kryptonite/track-c:committed-aeeee4e",
+      "fresh_runs": 5,
+      "public_runs": 1,
+      "logs": [
+        ".work/c-late-committed-unused.stdout",
+        ".work/c-late-committed-public.stdout"
+      ]
+    }
+  },
+  "complete": true,
+  "unchanged_A_D_proof": "benchmarks/committed-release-7b28c32.json"
+}

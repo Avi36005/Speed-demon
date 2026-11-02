@@ -18,7 +18,7 @@
 ---
 
 > **Verified fallback `8c5b801`:** all four tracks pass native gates and sanitizer checks.
-> The LTO build trial was rejected. C passed native checks; a verified B query-plan trial now awaits native scoring.
+> Final experiments are complete: regressing B and build variants were rejected; the verified source is restored.
 > Observed assembled-head overall **72.997** · Historical best-three **73.431**.
 > Target **90** remains unmet. Each selected image passes an unused full seed five times.
 > [Verification report](SUBMISSION_REPORT.md) · [Source and evidence manifest](benchmarks/final-assembly.json)

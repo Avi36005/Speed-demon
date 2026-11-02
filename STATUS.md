@@ -1,44 +1,38 @@
-# Kryptonite — last substantive B native trial
+# Kryptonite — final verified source restoration
 
-Updated 2026-11-02T14:00:48.365037+00:00.
-Target88 minimum/90 preferred unmet. Freeze15:00UTC/20:30IST, now~one hour.
-User explicitly prioritized continued improvement; preserve verification and
-fallback, no untested final changes. Repo PUBLIC/MIT with approved visibility.
+Updated 2026-11-02T14:11:32.239997+00:00.88 minimum/90 preferred NOT achieved.
+Freeze15:00UTC/20:30IST. No further structural experiments. Repo PUBLIC/MIT,
+authorized and verified. Official speed-demon branch; A/B/C/D all registered.
 
-## Current selected source, next push
+## Current source / next push
 
-A/D verified source8c5b801 unchanged. C monotone membership330340c kept:
-74.197390 run-4fbffa7f5a30, native CI41456311760 passed. Artifacts saved.
-B now isolated tested inline Boolean summary candidate8e8d9a5337f6107710cb5dcd56c878e80955624820f9968f7af75c3d041174c8, S859/D1.
-Only rare no-OR queries use positive anchors and exact document membership;
-other queries retain strict LTR set path. Omit unused posting sets and release
-Boolean match storage per phase. Proof inline-bool-summary-trial.json.
-Fixtures UBSan/bounds1/12, independent phase/oracle, full7 at1/12, exact offline
-public5/unused20261102x5 pass. QEMU2.512348->2.178001s (screen only), local
-peak313,081,856->310,087,680 includes emulator, NOT official axes.
+All runtime/build inputs now EXACTLY match correct330340c. Restore B from330
+because inline trialaeeee4e scored64.438235 vs66.571274. A/D source7b unchanged;
+C330 monotone membership retained. final-assembly.json pins exact source/build
+hashes and per-track proof. Next commit/push restoration, then wait for exact
+watched-head native run, record actual final scores and leave tree clean.
 
-Next: push tested B, run native workflow trackb B12, observe exact native board
-and CI. Keep if complete T/M/S/D improves; otherwise restore330 Bf1ed726...
-No further structural rewrites after this; reserve remaining time for clean
-committed source/image/native proof and watched-head confirmation before freeze.
-All Dockerfiles are restored original8c flags (LTO trial267 lost and rejected).
+## All selected verification complete
 
-## Actual latest native snapshot / limitations
+Native A/B/D CI41439655126; selected C CI41456311760 PASSED, exact hashes.
+All selected clean committed images pass unused full20261102 FIVE times and
+public checks. B restored image additionally passes new inline-phase fixture.
+C clean committed proof fromaeeee4e archive; A/B/D from7b archive. Metadata,
+Dockerfiles, libs, nonroot/read-only/no-network/8GB limits and exact outputs pass.
+No hidden-seed/judge score or current rank claimed. Actual source-equivalent330
+native overall73.283363; restored final-head run pending. Historical best-three
+must be recalculated from final receipt; it is not a final-head measurement.
 
-330340c all gates pass, all four registered. A79.678412/B66.571274/C74.197390/
-D56.409919, overall73.283363. A/B/D runtime identical to8c; differences are
-native run variation. Historical best-three must be recalculated from final
-receipt; do not report88 or90 or current rank from a screenshot.
-Original final native proofs: A/D and Bfallback CI41439655126, C330 CI41456311760.
-All original selected clean committed images pass unused full seed20261102x5.
-New B native ASan is PENDING; new B exact-image tests already pass.
+## Rejected experiments retained
 
-## Rejections / continuity
+LTO267 native lost ->all original build flags restored.
+B inline query redesign passed native ASan CI41458042088 but lost native score;
+restored old B. D fused probe passed but slower locally; unselected. A/C
+MAP_POPULATE fixture/full checks passed, Aneutral/Cslower ->unselected.
+Earlier cache, rare-AND, lookahead, six-worker, keyline tests also recorded.
+No fake scores/backdates/force pushes. All source is inside its scored track.
 
-CompilerLTO267 lost ->all original builds restored. D single-probe source passed
-correctness but12% slower locally ->unselected. B unbounded inline first variant
-passed but+7MB/1% time benefit ->unselected; phase summaries fix that tradeoff.
-All source/cmds/raw checks retained in benchmarks and PERF.md. No official files
-changed, no fake/backdated commits, no force push, no paid resources or agents.
-No new ZIP handed off. Python3.13; Docker isolated .work/docker-public-config,
-DOCKER_HOST unix:///Users/avinashgehi3/.docker/run/docker.sock.
+Publication is complete. No new ZIP handed off under user's score-first request;
+old project ZIP remains historical. Board reads GitHub branch; no upload needed
+for code updates. Use Python3.13, Docker .work/docker-public-config and
+unix:///Users/avinashgehi3/.docker/run/docker.sock. No agents/goals/automations.

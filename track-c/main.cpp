@@ -58,7 +58,7 @@ static uint32_t quotes(const char* p) {
     return (x * 10000 + (x >> 32)) & 0xFFFFFFFFull;
 }
 
-struct Group {
+struct alignas(64) Group {
     uint64_t count = 0, ids = 0, name_bytes = 0, note_bytes = 0;
     int64_t sum = 0, min = INT64_MAX, max = INT64_MIN;
 };
@@ -135,8 +135,9 @@ int main(int argc, char** argv) {
 
         // Exact chunk starts: a byte is inside quotes iff an odd number of
         // quotes precede it. Each chunk begins after its first outside LF.
-        std::vector<size_t> cut(workers + 1, size);
-        std::vector<uint32_t> parity(workers + 1, 0);
+        const size_t pieces = workers * 8;  // claimed in turn, for an even finish
+        std::vector<size_t> cut(pieces + 1, size);
+        std::vector<uint32_t> parity(pieces + 1, 0);
         std::vector<std::thread> list;
         auto run = [&](auto f) {
             for (size_t i = 1; i < workers; ++i) list.emplace_back(f, i);
@@ -145,31 +146,34 @@ int main(int argc, char** argv) {
             list.clear();
         };
         run([&](size_t w) {
-            size_t a = size * w / workers & ~size_t{31}, b = w + 1 == workers ? size : size * (w + 1) / workers & ~size_t{31};
-            uint32_t n = 0;
-            for (size_t i = a; i < b; i += 32) {
-                uint32_t m = quotes(data + i);
-                if (i + 32 > b) m &= (1u << (b - i)) - 1;
-                n += static_cast<uint32_t>(__builtin_popcount(m));
+            for (size_t c = w; c < pieces; c += workers) {
+                size_t a = size * c / pieces & ~size_t{31}, b = c + 1 == pieces ? size : size * (c + 1) / pieces & ~size_t{31};
+                uint32_t n = 0;
+                for (size_t i = a; i < b; i += 32) {
+                    uint32_t m = quotes(data + i);
+                    if (i + 32 > b) m &= (1u << (b - i)) - 1;
+                    n += static_cast<uint32_t>(__builtin_popcount(m));
+                }
+                parity[c + 1] = n & 1;
             }
-            parity[w + 1] = n & 1;
         });
         cut[0] = static_cast<size_t>(static_cast<const char*>(memchr(data, '\n', size)) - data) + 1;  // header has no quotes
-        for (size_t w = 1; w < workers; ++w) {
-            size_t p = size * w / workers & ~size_t{31};
-            uint32_t inside = 0;
-            for (size_t v = 1; v <= w; ++v) inside ^= parity[v];
+        uint32_t inside = 0;
+        for (size_t c = 1; c < pieces; ++c) {
+            size_t p = size * c / pieces & ~size_t{31};
+            uint32_t state = inside ^= parity[c];
             for (; p < size; ++p) {
-                if (data[p] == '"') inside ^= 1;
-                else if (data[p] == '\n' && !inside) break;
+                if (data[p] == '"') state ^= 1;
+                else if (data[p] == '\n' && !state) break;
             }
-            cut[w] = std::max(cut[w - 1], std::min(p + 1, size));
+            cut[c] = std::max(cut[c - 1], std::min(p + 1, size));
         }
 
         // Shared name table. A slot holds a 16-bit hash tag and a pointer to an
         // arena record {id, length, bytes}: the inserting worker writes the
         // record, then publishes it with a release CAS; readers acquire it.
         auto* slots = static_cast<std::atomic<uint64_t>*>(calloc(SLOTS, 8));
+        std::atomic<size_t> claim{0};
         std::atomic<uint32_t> next_id{0};
         std::vector<std::vector<std::unique_ptr<char[]>>> arenas(workers);  // live until exit
         std::vector<std::vector<Group>> part(workers, std::vector<Group>(G));
@@ -221,7 +225,7 @@ int main(int argc, char** argv) {
             // Bits are set a further eight names late, after prefetching their words.
             size_t bitring[8], nbits = 0;
             auto set = [&](size_t bit) {
-                if (!(abits[bit / 64].load(std::memory_order_relaxed) >> (bit % 64) & 1)) abits[bit / 64].fetch_or(1ull << (bit % 64), std::memory_order_relaxed);
+                abits[bit / 64].fetch_or(1ull << (bit % 64), std::memory_order_relaxed);
             };
             auto resolve = [&](const Pending& q) {
                 size_t bit = size_t{q.k} * IDS + intern(q.s, q.len, q.h, arena, room);
@@ -230,9 +234,9 @@ int main(int argc, char** argv) {
                 if (nbits > 8) set(slot);
                 slot = bit;
             };
-            const char* p = data + cut[w];
-            const char* end = data + cut[w + 1];
-            while (p < end) {
+            for (size_t c; (c = claim.fetch_add(1)) < pieces;)
+            for (const char *p = data + cut[c], *end = data + cut[c + 1]; p < end;) {
+                __builtin_prefetch(p + 2048);  // the hardware prefetcher stops at page ends
                 if (static_cast<unsigned char>(p[0]) == 0xEF && static_cast<unsigned char>(p[1]) == 0xBB &&
                     static_cast<unsigned char>(p[2]) == 0xBF)
                     p += 3;
@@ -269,8 +273,8 @@ int main(int argc, char** argv) {
             }
             for (uint32_t i = pending > 8 ? pending - 8 : 0; i < pending; ++i) resolve(ring[i % 8]);
             for (size_t i = nbits > 8 ? nbits - 8 : 0; i < nbits; ++i) set(bitring[i % 8]);
-            drop(data + cut[w], data + cut[w + 1]);  // names live in the arenas now
         });
+        run([&](size_t w) { drop(data + size * w / workers, data + size * (w + 1) / workers); });  // names live in the arenas
         std::vector<uint64_t> distinct(G);
         for (uint32_t k = 0; k < G; ++k)
             for (size_t i = 0; i < IDS / 64; ++i) distinct[k] += static_cast<uint64_t>(__builtin_popcountll(abits[size_t{k} * (IDS / 64) + i].load()));

@@ -305,6 +305,8 @@ int main(int argc, char** argv) {
             ++anchor_at[t[j] + 2];
         }
         for (size_t t = 0; t < V; ++t) anchor_at[t + 2] += anchor_at[t + 1];
+        std::vector<uint64_t> is_anchor((V + 63) / 64);  // an L1-sized filter before the anchor lists
+        for (size_t t = 0; t < V; ++t) if (anchor_at[t + 2] != anchor_at[t + 1]) is_anchor[t / 64] |= 1ull << (t % 64);
         anchors.resize(phrases.size());
         for (uint32_t p = 0; p < phrases.size(); ++p) anchors[anchor_at[all_terms[phrases[p]->at + offset[p]] + 1]++] = p;
         std::vector<std::vector<uint64_t>> matched(workers);  // phrase << 32 | document, per worker in document order
@@ -346,7 +348,7 @@ int main(int argc, char** argv) {
                 else hits.push_back(id << 13 | (doc - base));
             }, [&](uint32_t doc, const std::vector<uint32_t>& ids) {
                 for (size_t i = 0; i < ids.size(); ++i) {
-                    if (ids[i] == NONE) continue;
+                    if (ids[i] == NONE || !(is_anchor[ids[i] / 64] >> (ids[i] % 64) & 1)) continue;
                     for (uint32_t e = anchor_at[ids[i]]; e < anchor_at[ids[i] + 1]; ++e) {
                         uint32_t ph = anchors[e], j = offset[ph], k = phrases[ph]->n;
                         if (i < j || i - j + k > ids.size() || seen[ph] == doc) continue;

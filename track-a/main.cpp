@@ -220,33 +220,44 @@ int main(int argc, char** argv) {
         Threads threads;
         threads.run(workers, [&](size_t w) {
             Worker& me = part[w];
-            const __m256i space = _mm256_set1_epi8(' ');
-            const __m128i newline = _mm_set1_epi8('\n');
-            for (size_t c; (c = claim.fetch_add(1)) < pieces;)
-                for (const char *p = data + cut[c], *end = data + cut[c + 1]; p < end;) {
-                    uint32_t hour = hour_of(p);
-                    uint64_t m = load8(p + 31) ^ 0x2020202020202020ull;  // methods are 3 to 7 bytes
-                    const char* s = p + 32 + (__builtin_ctzll((m - 0x0101010101010101ull) & ~m & 0x8080808080808080ull) >> 3);
-                    __m256i v[2] = {load32(s), load32(s + 32)};
-                    uint64_t sp = eq64(v, space, space);
-                    uint32_t len = sp ? static_cast<uint32_t>(__builtin_ctzll(sp)) : 64;
-                    while (s[len] != ' ') ++len;
-                    uint32_t id = names->lookup(s, len, v);
-                    const char* e = s + len;
-                    uint32_t digits = static_cast<uint32_t>(__builtin_ctz(_mm_movemask_epi8(_mm_cmpeq_epi8(load16(e + 5), newline))));
+            const __m256i lf = _mm256_set1_epi8('\n');
+            const __m128i space = _mm_set1_epi8(' ');
+            for (size_t c; (c = claim.fetch_add(1)) < pieces;) {
+                const char *p = data + cut[c], *end = data + cut[c + 1], *block = p;
+                Bucket* b = nullptr;
+                auto lfs = [&](const char* q) {
+                    __m256i v[2] = {load32(q), load32(q + 32)};
+                    return eq64(v, lf, lf);
+                };
+                uint64_t stamp = ~0ull, ends = p < end ? lfs(block) : 0;
+                for (; p < end; ends &= ends - 1) {
+                    // Line ends come from one LF mask per 64 bytes; a line is
+                    // then read from both ends.
+                    while (!ends) {
+                        _mm_prefetch(block + 1024, _MM_HINT_NTA);
+                        ends = lfs(block += 64);
+                    }
+                    const char* e = block + __builtin_ctzll(ends);
+                    if (load8(p + 5) != stamp) stamp = load8(p + 5), b = &me.hours[hour_of(p)];  // month, day and hour bytes
+                    const char* name = p + 29 + __builtin_ctz(static_cast<uint32_t>(_mm_movemask_epi8(_mm_cmpeq_epi8(load16(p + 28), space))));
+                    uint32_t tail = static_cast<uint32_t>(_mm_movemask_epi8(_mm_cmpeq_epi8(load16(e - 16), space)));
+                    uint32_t digits = static_cast<uint32_t>(__builtin_clz(tail)) - 16;  // after the last space
+                    const char* ne = e - digits - 5;  // the space before the status
                     uint32_t latency = 0;
                     if (digits <= 8) {
-                        uint64_t d = (load8(e + 5) << (64 - 8 * digits)) & 0x0F0F0F0F0F0F0F0Full;
+                        uint64_t d = load8(e - 8) >> (64 - 8 * digits) << (64 - 8 * digits) & 0x0F0F0F0F0F0F0F0Full;
                         d = (d * 10 + (d >> 8)) & 0x00FF00FF00FF00FFull;
                         d = (d * 100 + (d >> 16)) & 0x0000FFFF0000FFFFull;
                         latency = static_cast<uint32_t>(d * 10000 + (d >> 32));
                     } else
-                        for (uint32_t i = 0; i < digits; ++i) latency = latency * 10 + static_cast<uint32_t>(e[5 + i] - '0');
-                    Bucket& b = me.hours[hour];
-                    me.push(b, id << 20 | uint32_t{e[1] == '5'} << 19 | std::min(latency, ESC));
-                    if (latency >= ESC) me.push(b, latency);  // escape: the full value follows
-                    p = e + 6 + digits;
+                        for (const char* q = e - digits; q < e; ++q) latency = latency * 10 + static_cast<uint32_t>(*q - '0');
+                    __m256i v[2] = {load32(name), load32(name + 32)};
+                    uint32_t id = names->lookup(name, static_cast<uint32_t>(ne - name), v);
+                    me.push(*b, id << 20 | uint32_t{ne[1] == '5'} << 19 | std::min(latency, ESC));
+                    if (latency >= ESC) me.push(*b, latency);  // escape: the full value follows
+                    p = e + 1;
                 }
+            }
         });
         // Exact byte order of every endpoint (prefixes first).
         const uint32_t E = std::min(names->next.load(), CAP);

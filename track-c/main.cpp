@@ -168,7 +168,16 @@ int main(int argc, char** argv) {
         std::vector<std::vector<std::unique_ptr<char[]>>> arenas(workers);  // live until exit
         std::vector<std::vector<Group>> part(workers, std::vector<Group>(G));
         // One bit per (group, name); set at most once, so contention stays low.
-        auto* abits = static_cast<std::atomic<uint64_t>*>(calloc(size_t{G} * IDS / 64, 8));
+        // Except the name bitsets: read and written at random and fully used,
+        // they sit on 2 MiB pages, allowed only while they are first touched.
+        size_t bitset_bytes = (size_t{G} * IDS / 8 + (2u << 20) - 1) & ~size_t{(2u << 20) - 1};
+        char* raw = static_cast<char*>(mmap(nullptr, bitset_bytes + (2u << 20), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
+        if (raw == MAP_FAILED) throw std::runtime_error("mmap failed");
+        auto* abits = reinterpret_cast<std::atomic<uint64_t>*>((reinterpret_cast<uintptr_t>(raw) + (2u << 20) - 1) & ~uintptr_t{(2u << 20) - 1});
+        prctl(PR_SET_THP_DISABLE, 0, 0, 0, 0);
+        madvise(abits, bitset_bytes, MADV_HUGEPAGE);
+        memset(static_cast<void*>(abits), 0, bitset_bytes);
+        prctl(PR_SET_THP_DISABLE, 1, 0, 0, 0);
         // Branch-free hash of the first 16 and last 8 bytes and the length;
         // the full byte comparison in intern() keeps equality exact.
         auto hash = [](const char* s, uint32_t len) {

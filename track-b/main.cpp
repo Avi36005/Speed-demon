@@ -27,12 +27,13 @@ static const char* map_file(const std::string& path, size_t& size) {
     struct stat st{};
     if (fd < 0 || fstat(fd, &st) != 0) throw std::runtime_error("cannot open " + path);
     size = static_cast<size_t>(st.st_size);
-    // Vector loads may read past the end: back the mapping with zero pages.
-    void* base = mmap(nullptr, size + 8192, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    if (base == MAP_FAILED || (size && mmap(base, size, PROT_READ, MAP_PRIVATE | MAP_FIXED, fd, 0) == MAP_FAILED))
+    // Word loads may read a few bytes before the start or past the end: the
+    // mapping sits between anonymous zero pages.
+    char* base = static_cast<char*>(mmap(nullptr, size + 12288, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
+    if (base == MAP_FAILED || (size && mmap(base + 4096, size, PROT_READ, MAP_PRIVATE | MAP_FIXED, fd, 0) == MAP_FAILED))
         throw std::runtime_error("mmap failed");
     close(fd);
-    return static_cast<const char*>(base);
+    return base + 4096;
 }
 
 static __m256i in_range(__m256i v, char lo, char hi) {
@@ -216,12 +217,15 @@ int main(int argc, char** argv) {
         for (uint32_t& t : all_terms) if (t != NONE) t = ids[t];
         const size_t V = vocab.keys.size();
 
-        // Document ranges start at multiples of 64 so bitmap words are private.
-        std::vector<const char*> cut(workers + 1, docs + dsize);
-        std::vector<uint32_t> first(workers + 1, 0);
+        // The corpus is indexed and queried in phases, so the whole index never
+        // exists at once. Each phase is split into one range per worker; ranges
+        // start at multiples of 64 documents so bitmap words are private.
+        const size_t phases = 8, R = phases * workers;
+        std::vector<const char*> cut(R + 1, docs + dsize);
+        std::vector<uint32_t> first(R + 1, 0);
         cut[0] = docs;
-        for (size_t i = 1; i < workers; ++i) {
-            const char* p = std::max(cut[i - 1], docs + dsize * i / workers);
+        for (size_t i = 1; i < R; ++i) {
+            const char* p = std::max(cut[i - 1], docs + dsize * i / R);
             while (p > docs && p < docs + dsize && p[-1] != '\n') ++p;
             for (; p < docs + dsize; p = static_cast<const char*>(memchr(p, '\n', docs + dsize - p)) + 1) {
                 uint32_t id = 0;
@@ -239,7 +243,11 @@ int main(int argc, char** argv) {
             for (; *p != '\t'; ++p) N = N * 10 + static_cast<uint32_t>(*p - '0');
             ++N;
         }
-        const size_t words = (N + 63) / 64;
+        for (size_t i = 0; i < R; ++i) first[i] = std::min(first[i], N);
+        first[R] = N;
+        size_t words = 0, most = 0;  // bitmap words of the current phase, and of the largest
+        uint32_t pbase = 0;
+        for (size_t ph = 0; ph < phases; ++ph) most = std::max<size_t>(most, (first[(ph + 1) * workers] - first[ph * workers] + 63) / 64);
         Threads threads;
         auto scan = [&](size_t w, size_t limit, auto&& hit, auto&& whole) {
             std::vector<uint32_t> last(V, NONE);
@@ -280,7 +288,7 @@ int main(int argc, char** argv) {
         std::vector<uint32_t> sampled(workers);
         const size_t per = std::max<size_t>(64, 8192 / workers);
         threads.run(workers, [&](size_t w) {
-            scan(w, per, [&](uint32_t, const char*, uint32_t id) { id == NONE ? ++sampled[w] : ++counts[w][id]; },
+            scan(w * phases, per, [&](uint32_t, const char*, uint32_t id) { id == NONE ? ++sampled[w] : ++counts[w][id]; },
                  [](uint32_t, const std::vector<uint32_t>&) {});
         });
         std::vector<uint32_t> bitmap_of(V, NONE), df(V);
@@ -313,8 +321,8 @@ int main(int argc, char** argv) {
         for (size_t t = 0; t < V; ++t) if (anchor_at[t + 2] != anchor_at[t + 1]) is_anchor[t / 64] |= 1ull << (t % 64);
         anchors.resize(phrases.size());
         for (uint32_t p = 0; p < phrases.size(); ++p) anchors[anchor_at[all_terms[phrases[p]->at + offset[p]] + 1]++] = p;
-        std::vector<std::vector<uint64_t>> matched(workers);  // phrase << 32 | document, per worker in document order
-        auto* bitmaps = static_cast<uint64_t*>(calloc(nbitmaps * words + 1, 8));
+        std::vector<std::vector<uint64_t>> matched(R);  // phrase << 32 | document, per range in document order
+        auto* bitmaps = static_cast<uint64_t*>(calloc(nbitmaps * most + 1, 8));
         // Sparse hits of each 8192-document block are packed as (term << 13 |
         // local document), radix-sorted by term (stably, so documents stay
         // ascending) and kept as compact 16-bit runs.
@@ -326,9 +334,22 @@ int main(int argc, char** argv) {
         };
         std::vector<std::vector<Block>> blocks(workers);
         counts.clear();
+        struct Tally {
+            uint64_t count = 0, sum = 0;
+            uint32_t n = 0, smallest[10];
+        };
+        std::vector<Tally> tally(queries.size());
+        for (size_t ph = 0; ph < phases; ++ph) {
+        pbase = first[ph * workers];
+        words = (first[(ph + 1) * workers] - pbase + 63) / 64;
+        if (!words) continue;  // a phase without documents adds nothing
+        memset(bitmaps, 0, nbitmaps * words * 8);
+        std::fill(df.begin(), df.end(), 0);
+        for (auto& list : blocks) list.clear();
         threads.run(workers, [&](size_t w) {
+            const size_t r = ph * workers + w;
             std::vector<uint32_t> hits, at(V);
-            uint32_t base = first[w] == NONE ? 0 : first[w];
+            uint32_t base = first[r];
             auto flush = [&] {
                 // Counting sort by term: stable, so documents stay ascending.
                 for (uint32_t h : hits) ++at[h >> 13];
@@ -344,11 +365,11 @@ int main(int argc, char** argv) {
                 hits.clear();
             };
             std::vector<uint32_t> seen(phrases.size(), NONE);
-            auto& mine = matched[w];
-            scan(w, SIZE_MAX, [&](uint32_t doc, const char*, uint32_t id) {
+            auto& mine = matched[r];
+            scan(r, SIZE_MAX, [&](uint32_t doc, const char*, uint32_t id) {
                 if (id == NONE) {
                     if (doc - base == BLOCK) flush(), base = doc;
-                } else if (bitmap_of[id] != NONE) bitmaps[bitmap_of[id] * words + doc / 64] |= 1ull << (doc % 64);
+                } else if (bitmap_of[id] != NONE) bitmaps[bitmap_of[id] * words + (doc - pbase) / 64] |= 1ull << (doc % 64);
                 else hits.push_back(id << 13 | (doc - base));
             }, [&](uint32_t doc, const std::vector<uint32_t>& ids) {
                 for (size_t i = 0; i < ids.size(); ++i) {
@@ -363,6 +384,7 @@ int main(int argc, char** argv) {
                 }
             });
             if (!hits.empty()) flush();
+            drop(cut[r], cut[r + 1]);  // this range is never read again
         });
         // Document frequencies: run lengths for lists, popcounts for bitmaps.
         for (auto& list : blocks)
@@ -371,15 +393,6 @@ int main(int argc, char** argv) {
         for (size_t t = 0; t < V; ++t)
             if (bitmap_of[t] != NONE)
                 for (size_t k = 0; k < words; ++k) df[t] += static_cast<uint32_t>(__builtin_popcountll(bitmaps[bitmap_of[t] * words + k]));
-        // Each phrase's matching documents, ascending: workers in order, then counting by phrase.
-        std::vector<uint32_t> phrase_at(phrases.size() + 1), phrase_docs;
-        for (auto& list : matched) for (uint64_t m : list) ++phrase_at[(m >> 32) + 1];
-        for (size_t ph = 0; ph < phrases.size(); ++ph) phrase_at[ph + 1] += phrase_at[ph];
-        phrase_docs.resize(phrase_at.back());
-        {
-            std::vector<uint32_t> fill(phrase_at.begin(), phrase_at.end() - 1);
-            for (auto& list : matched) for (uint64_t m : list) phrase_docs[fill[m >> 32]++] = static_cast<uint32_t>(m);
-        }
         // Per term, its runs in document order: (block << 20 | run).
         std::vector<const Block*> runs_of;
         for (auto& list : blocks) for (auto& blk : list) runs_of.push_back(&blk);
@@ -391,12 +404,11 @@ int main(int argc, char** argv) {
             for (uint32_t r = 0; r < runs_of[k]->ids.size(); ++r) refs[cursor[runs_of[k]->ids[r]]++] = k << 20 | r;
         std::vector<uint32_t>().swap(cursor);
 
-        // Answers are formatted into private slots and written in query order.
-        std::vector<std::string> answers(queries.size());
+        // Every BOOL query is answered on this phase and added to its tally.
         std::atomic<size_t> next{0};
         auto dense = [&](uint32_t t) { return t != NONE && bitmap_of[t] != NONE; };
         auto bits_of = [&](uint32_t t) { return bitmaps + size_t{bitmap_of[t]} * words; };
-        auto test = [](const uint64_t* b, uint32_t d) { return (b[d / 64] >> (d % 64)) & 1; };
+        auto test = [&](const uint64_t* b, uint32_t d) { return (b[(d - pbase) / 64] >> (d % 64)) & 1; };
         auto materialize = [&](uint32_t t, std::vector<uint32_t>& out) {
             out.resize(t == NONE ? 0 : df[t]);
             uint32_t* o = out.data();
@@ -437,7 +449,7 @@ int main(int argc, char** argv) {
         };
         threads.run(workers, [&](size_t) {
             std::vector<uint32_t> list, other, merged, found;
-            std::vector<uint64_t> own(words), spare(words);
+            std::vector<uint64_t> own(words + 1), spare(words + 1);
             for (size_t qi; (qi = next.fetch_add(16)) < queries.size();)
                 for (size_t q = qi; q < std::min(qi + 16, queries.size()); ++q) {
                     const Query& query = queries[q];
@@ -480,14 +492,14 @@ int main(int argc, char** argv) {
                                 } else {
                                     if (bits != own.data()) std::copy(bits, bits + words, own.data()), bits = own.data();
                                     for (uint32_t x : other)
-                                        if (op == 'O') own[x / 64] |= 1ull << (x % 64);
-                                        else own[x / 64] &= ~(1ull << (x % 64));
+                                        if (op == 'O') own[(x - pbase) / 64] |= 1ull << (x % 64);
+                                        else own[(x - pbase) / 64] &= ~(1ull << (x % 64));
                                 }
                             } else if (dense(t)) {
                                 const uint64_t* b = bits_of(t);
                                 if (op == 'O') {
                                     std::copy(b, b + words, own.data());
-                                    for (uint32_t x : list) own[x / 64] |= 1ull << (x % 64);
+                                    for (uint32_t x : list) own[(x - pbase) / 64] |= 1ull << (x % 64);
                                     bits = own.data();
                                 } else {
                                     uint64_t keep = op == 'A';
@@ -517,26 +529,41 @@ int main(int argc, char** argv) {
                                 if (!x) continue;
                                 uint64_t c = static_cast<uint64_t>(__builtin_popcountll(x));
                                 count += c;
-                                sum += c * 64 * k;
+                                sum += c * (pbase + 64 * k);
                                 for (int j = 0; j < 6; ++j) sum += static_cast<uint64_t>(__builtin_popcountll(x & M[j])) << j;
-                                for (; x && nsmall < 10; x &= x - 1) smallest[nsmall++] = static_cast<uint32_t>(k * 64 + __builtin_ctzll(x));
+                                for (; x && nsmall < 10; x &= x - 1) smallest[nsmall++] = static_cast<uint32_t>(pbase + k * 64 + __builtin_ctzll(x));
                             }
                         } else report(list);
-                    } else {
-                        found.clear();
-                        if (uint32_t ph = phrase_of[q]; ph != NONE)
-                            found.assign(phrase_docs.begin() + phrase_at[ph], phrase_docs.begin() + phrase_at[ph + 1]);
-                        report(found);
-                    }
-                    std::string& out = answers[q];
-                    out = std::to_string(count) + ' ' + std::to_string(sum);
-                    for (uint32_t i = 0; i < nsmall; ++i) out += ' ' + std::to_string(smallest[i]);
-                    out += '\n';
+                    } else
+                        continue;  // phrases are tallied once, after the last phase
+                    Tally& t = tally[q];
+                    t.count += count, t.sum += sum;
+                    for (uint32_t i = 0; i < nsmall && t.n < 10; ++i) t.smallest[t.n++] = smallest[i];
                 }
         });
-        threads.run(workers, [&](size_t w) { drop(cut[w], cut[w + 1]); });
+        }  // phases
+        // Each phrase's matching documents, ascending: workers in order, then counting by phrase.
+        std::vector<uint32_t> phrase_at(phrases.size() + 1), phrase_docs;
+        for (auto& list : matched) for (uint64_t m : list) ++phrase_at[(m >> 32) + 1];
+        for (size_t ph = 0; ph < phrases.size(); ++ph) phrase_at[ph + 1] += phrase_at[ph];
+        phrase_docs.resize(phrase_at.back());
+        {
+            std::vector<uint32_t> fill(phrase_at.begin(), phrase_at.end() - 1);
+            for (auto& list : matched) for (uint64_t m : list) phrase_docs[fill[m >> 32]++] = static_cast<uint32_t>(m);
+        }
         std::string all;
-        for (auto& a : answers) all += a;
+        for (size_t q = 0; q < queries.size(); ++q) {
+            Tally t = tally[q];
+            if (queries[q].phrase && phrase_of[q] != NONE) {
+                for (uint32_t i = phrase_at[phrase_of[q]]; i < phrase_at[phrase_of[q] + 1]; ++i, ++t.count) {
+                    t.sum += phrase_docs[i];
+                    if (t.n < 10) t.smallest[t.n++] = phrase_docs[i];
+                }
+            }
+            all += std::to_string(t.count) + ' ' + std::to_string(t.sum);
+            for (uint32_t i = 0; i < t.n; ++i) all += ' ' + std::to_string(t.smallest[i]);
+            all += '\n';
+        }
         int fd = open((out_dir + "/results.txt").c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if (fd < 0) throw std::runtime_error("cannot create results.txt");
         for (size_t off = 0; off < all.size();) {

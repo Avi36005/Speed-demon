@@ -1,56 +1,42 @@
 # Track B — query-driven exact search
 
-C++20, standard library and POSIX mmap, zero third-party runtime dependencies.
-Read `/data/docs.txt` and `/data/queries.txt`; write `/out/results.txt`.
-Native testing supports `--data DIR --out DIR`. MIT; see ../LICENSE.
+C++20, standard library, POSIX `mmap` and AVX2/BMI2 intrinsics; zero
+third-party dependencies. Reads `/data/docs.txt` and `/data/queries.txt`, writes
+`/out/results.txt`. Local runs may pass `--data DIR --out DIR --workers N`.
 
-Queries are parsed first and their actual terms interned in a compact probing
-table. A fingerprint filters probes; complete byte equality resolves every
-collision. Query-backed keys remain mapped for the whole run.
-Only those terms are indexed. Documents are scanned in ID order; the last
-seen ID suppresses repeated occurrences within a document. Worker ranges align
-to bitmap words. Private sparse lists encode ascending document-ID gaps in
-16 bits with an exact uint32 escape for large gaps. Final merged sparse lists
-retain uint32 IDs for direct query access. A frequent private term promotes to a range bitmap and releases
-its redundant posting list. Global frequencies select the final sparse/dense
-layout. Ordered ranges merge into exact sorted postings or disjoint bitmap
-words, and each private term buffer is released after its global merge.
-Sparse lists and dense intermediate sets use exact membership tests or
-bitwise operations as appropriate. Boolean intersections, unions and differences
-run strictly left to right. An empty intermediate set can still grow at a later OR.
+## How it works
 
-For each phrase, the term with the lowest actual document frequency anchors
-the candidate scan. Its sorted posting or bitmap is enumerated exactly; each
-candidate must contain all terms before exact token-sequence verification.
-Unneeded tokens occupy sentinel positions and cannot create false adjacency.
-Repeated terms require repeated positions; document boundaries never overlap.
-On x86-64, bounded SSE2 blocks classify and ASCII-fold sixteen bytes at a
-time; a scalar tail and ARM fallback preserve the same tokenizer. Maximal
-tokens can cross blocks, including the 32-byte limit; no block reads past its
-document view. ASCII A–Z alone are lowercased, ASCII letters/digits form tokens,
-every other byte separates. Stopwords and zero-padded numbers retain their literal identity.
+1. **Query vocabulary.** Queries are parsed into flat term and operator
+   arrays. Every distinct term is interned in a 2^18-slot table: 14-bit
+   fingerprints filter probes, and a full 32-byte comparison of the
+   zero-padded key decides. Terms longer than 32 bytes cannot match any token.
+2. **One tokenizing pass.** Workers own disjoint document ranges that start at
+   multiples of 64, so bitmap words are private. Each document is
+   ASCII-lowercased and classified 32 bytes at a time with AVX2, giving one
+   token bit per byte. Tokens are cut from those bit masks, including tokens
+   that cross 64-byte blocks. Their hashes are computed first and their slots
+   prefetched, then they are resolved. A per-term "last document" check counts
+   each document once.
+3. **Two representations.** A sample of 8,192 documents predicts the common
+   terms (more than 1/40 of documents), which get bitmaps that are written
+   during the scan. All other terms keep their hits per 8192-document block,
+   counting-sorted by term into 16-bit document runs. A per-term run index
+   lists the runs in document order. The prediction only chooses a layout;
+   every answer is exact either way.
+4. **Boolean queries** run strictly left to right. The running set is a sorted
+   list or a bitmap, which stays a zero-copy view of a term's bitmap until it
+   is first written. AND, OR and NOT use word operations, bit tests or
+   branch-free merges. A small list ANDed or NOTed with a large one uses direct
+   run membership tests. Bitmap results report the exact count, the id sum
+   from six bit-position popcounts per word, and the ten smallest ids.
+5. **Phrase queries.** The rarest term seeds the candidates, and every other
+   term must be present (bit test or run search). A candidate is then verified
+   exactly in its raw text: each occurrence of the rarest term is found with
+   an AVX2 two-byte scan and checked as a full token, then its neighbouring
+   tokens are read backwards and forwards with the same byte rules. Repeated
+   terms, overlaps, sentence separators and non-ASCII bytes are handled exactly.
 
-Sparse/phrase results accumulate exact counts and 64-bit ID sums. Dense final
-bitmaps are summarized directly: popcounts give counts, six bit-position masks
-sum IDs exactly, and only the ten smallest IDs are enumerated. The x86 summary
-function enables POPCNT, available on the published Intel scoring CPU; ARM uses
-its normal C++20 popcount implementation.
-Input-backed keys and document views live as long as their mappings. Hash
-collisions compare actual term bytes. All index work happens in the timed run.
-Six workers build the index, then independently claim small query batches over
-immutable indexes. Each query owns its temporary result and writes one dedicated
-answer slot. Joining before serialization preserves the original query order.
-`--workers 1..12` overrides the provisional default of six.
+Tokenization follows the spec byte for byte: only `A`–`Z` are lowercased, and
+every byte outside `[a-z0-9]` (including all bytes ≥ 0x80) is a separator.
 
-Pinned allowlisted GCC 15 builds offline, with libstdc++/libgcc linked statically;
-Debian 13 supplies glibc. See ../STATUS.md for final runtime and board evidence.
-Source counts are versioned in PERF.md and static-axis receipts; declared D=1
-has an unverified basis.
-The clean amd64 image passes five full public sandbox runs and full seed 7;
-these are ARM-host emulation checks. The original baseline passed the official live board; updated candidate
-measurements and checks appear in PERF.md.
-
-With another 24 hours: profile vocabulary lookup and phrase re-tokenization,
-compare direct token matching with ID lookup inside candidate documents, and
-repeat worker selection on the scoring CPU. Raw document views keep the design
-smaller than a full positional index. The x86 optimum remains unknown.
+See [PERF.md](PERF.md) for measurements.

@@ -1,97 +1,63 @@
 # Kryptonite — current checkpoint
 
-Updated 2026-11-01 20:06 UTC. Target: **92 overall live-board machine points**.
-Registered latest/best overall: **57.177641** (calculated geometric mean). Target not achieved. The user requested
-no new file/ZIP handoff until 92 is measured. Existing project ZIP is an outdated
-historical release; do not present it as current.
+Updated 2026-11-02 04:35 UTC. Target requested: **92 overall live-board points**.
+Not reached: 92 is above the board's best entry on every track (best A 88.3,
+B 82.4, C 84.9, D 76.3 at 02:50 UTC). Previous status: `benchmarks/status-history/2026-11-01T200600Z.md`.
 
-## Repository and deadline
+## How the score works (harness/scoring.py, frozen)
 
-- Entrant repo: https://github.com/Avi36005/Speed-demon.git, branch `speed-demon`.
-- Latest pushed/board-tested commit: `5c216d18b8063310c47295fce70d8408865b4b4a`.
-- A/B/C registered. D is implemented, passed, and scored, but registered:false.
-- Repository private at last check. MIT notice retained. No visibility change or
-  new form submission performed. Do not attest to unverified registration facts.
-- Freeze: 2026-11-02 15:00 UTC / 20:30 IST. Stop tuning by 13:00 UTC to reserve
-  final proof. Public licence/visibility requirement still needs attention.
-- User authorized real commits/pushes, then said goodnight/bye; no cancellation.
+`K = (T_ref/T)^0.5 · min(M_ref/M, 50)^0.2 · min(S_ref/S, 1)^0.15 · (D_ref/D)^0.15`,
+`points = 50·log10(K)`, overall = geometric mean of the best three registered
+tracks. 92 points needs K ≈ 69 on every track. S is `scc` code lines after
+`clang-format --style=LLVM` (80 columns), Dockerfile included; prose is free.
+The board's `/out` is tmpfs, so the output file counts towards M.
 
-## Latest actual board run —5c216d1
+## Live-board runs this session (full public seed 1, one run per push)
 
-Registered overall **57.177641**, all gates passed. Immutable receipt
-`benchmarks/board/2026-11-01T200313.061179Z.json`; source proof round6-manifest.
-A13/B11/C9 are retained because each exceeded its previous measured best.
+| Commit | A | B | C | D (unregistered) |
+|---|---:|---:|---:|---:|
+| `5c216d1` (previous best) | 65.83 | 49.57 | 57.29 | 46.04 |
+| `b6fb4a7` A two-pass rewrite | 67.26 | 50.02 | 56.67 | 46.29 |
+| `b1d2ca3` B and C rewrites | 69.41 | 63.93 | 69.12 | 45.14 |
+| `71f59b0` A per-hour design | **74.61** | 63.87 | 69.06 | 51.71 |
+| `a8f69d1` B prefetch, C tables, D 32-bit | 72.35 | 63.76 | 69.71 | **54.31** |
+| `c624b2e` C bit prefetch, B flat queries | 72.83 | 65.10 | **70.85** | 54.29 |
+| `35d1a42` A in-place, D owner fill | 74.21 | 63.58 | 70.60 | 51.32 |
+| `3f87fd9` B counting-sort blocks | 73.41 | **65.95** | 70.81 | 51.80 |
 
-| Track | Points | T seconds | cgroup M bytes | S | Run |
-|---|---:|---:|---:|---:|---|
-| A13 | 65.828285 | .079049 | 63,434,752 | 254 | run-8e4a8338a92d |
-| B11 | 49.567895 | .976826 | 160,452,608 | 545 | run-3717e5314522 |
-| C9 | 57.288266 | .170541 | 17,289,216 | 390 | run-751108049e14 |
-| D3 | 46.037492 | 1.116187 | 210,255,872 | 239 | run-ed34233348c5 |
+Registered overall (A/B/C): **57.18 → ≈70.0** at `3f87fd9` (≈70.3 from each
+track's best run). Identical code varies by up to ~15% in T between runs (for
+example B at 0.248 s and 0.290 s), so single-run differences under about
+2 points are not meaningful. Receipts: `benchmarks/board/`.
 
-D remains unregistered; its unchanged runtime varied in time. Original baseline
-43.243. Local ARM RSS/emulated times never stand in for official T/cgroup M.
-Final five-run hidden-holdout and judge results remain unknown.
+Latest axes at `3f87fd9`:
 
-## Passing submitted implementations
+| Track | T (s) | M (bytes) | S | Points |
+|---|---:|---:|---:|---:|
+| A | 0.048994 | 29,573,120 | 338 | 73.41 |
+| B | 0.245680 | 96,985,088 | 695 | 65.95 |
+| C | 0.055050 | 13,545,472 | 368 | 70.81 |
+| D | 0.580435 | 272,244,736 | 255 | 51.80 |
 
-- A12: mmap, twelve line parsers, exact endpoint keys, contiguous count/prefix/
-  scatter latency groups, independent hour sorting/formatting, ordered write.
-- B8-free: six workers, exact query vocabulary, SSE2 bounded ASCII tokenizer on
-  x86 (scalar ARM), local sparse/dense postings, merge-and-free, strict LTR
-  Boolean operations, rarest-anchor phrase checks with exact streaming KMP.
-- C6: six quote-safe CSV parsers, shared sharded exact owned-name/country table,
-  private integer aggregates, exact unescaping/BOM/cents semantics.
-- D3: four query workers, two-pass forward/reverse CSR, exact bidirectional
-  binary-heap Dijkstra, stale-frontier purges, touched-distance reset.
+## Verification for every pushed change
 
-All exact runtime source hashes and verification matrix pinned by
-`benchmarks/round4-manifest.json`. Current1429 runtime has passed native
-worked/edge/sanitizer/tiny/sample1/2/3/42/full1/full7, deterministic repeats,
-worker sweeps, clean offline amd64 image builds and five restricted full-public
-container runs plus independent full7. B SSE2 also passed actual x86 sanitizer
-fixtures. Mac process RSS/emulated Docker times are never official measurements.
-New concurrency and bitmap-summary fixtures are included in the latest candidate
-native matrix; the original1429 manifest remains immutable.
+- Official fixtures (worked examples, edge cases, targeted cases) under
+  AddressSanitizer + UndefinedBehaviorSanitizer, at several worker counts
+  (1, 3, 5, 7, 12, 33).
+- Generated tiny and sample seeds compared with the untouched official
+  reference; full seed 1 output compared with the published hash.
+- The board's own correctness, timeout and sandbox gates passed on every run above.
 
-## Current B13 candidate proof passed, pending push
+Local tooling notes: `tools/dev.py` accepts `SD_CXX=g++` (the container's
+clang lacks ASan runtimes) and adds `-mavx2 -mbmi2` on x86-64. Run sanitizer
+suites with `ASAN_OPTIONS=detect_leaks=0`: allocations are intentionally
+released at process exit.
 
-B13 uses exact16-bit gaps with uint32 escapes only for private sparse postings.
-Final query representations/semantics stay unchanged. Five ARM pairs .561669
-->.554578s are inconclusive in time, RSS423.61 ->392.23MB. New large-gap fixture
-including exactly65535 and large first IDs passes native workers1/12 sanitizer
-and actual x86 worker1 sanitizers. Independent full7 five repeats and full
-current native matrix pass. Clean offline amd64 build, five full1 plus full7
-restricted runs pass; S574/D1. round7-manifest pins all source/build/input proof.
-Next: push reviewed B13-only runtime trial, capture actual score and retain or
-revert relative toB11. A13/C9/D3 are unchanged from5c216d1.
+## Open items
 
-C9 high-contention exact fixture passed ThreadSanitizer at12workers; raw proof
-in benchmarks/track-c/concurrency.jsonl. New four-track README banner rendered
-and visually inspected in an isolated headless browser; file remains nativeSVG.
-
-Isolated/unselected `.work/candidates/c10.cpp` borrows unescaped name bytes from
-the live mapping and copies only decoded scratch keys. Suite/paired comparison
-active. B12 early tokenization exit was within noise and unselected. D4 radix
-heaps regressed and were rejected. Keep all passing fallback commits.
-
-No new ZIP/file handoff until actual92, as requested. No form or visibility
-change has been performed. Continue prioritizing measured B index cost; stop
-inconclusive paths and preserve the final verification window.
-
-## Tooling and resumption
-
-Use python3.13. Docker needs isolated anonymous config and explicit local socket:
-`DOCKER_CONFIG="$PWD/.work/docker-public-config"`
-`DOCKER_HOST=unix:///Users/avinashgehi3/.docker/run/docker.sock`.
-Docker/gh/network calls require sandbox escalation with authorized justification.
-
-`tools/dev.py --reuse-reference` reuses only fully hashed prior official oracle
-outputs; candidate byte comparison still mandatory. `tools/container_check.py`
-supports separate --context/--tag and records every non-MD build-context digest.
-`tools/board_receipt.py` saves only this team with cache-busting/length checks;
-extend build-input digest capture for PGO's generator. `tools/report.py` is an
-OLD release generator and refuses changed runtime; do not overwrite evidence.
-README/report need final current-source refresh after selection. No new archive.
-
-Full prior status history: benchmarks/status-history/2026-11-01T194640Z.md.
+- D is implemented and scored, but the board still shows it unregistered.
+  Entering it needs the team form updated by a team member; it would only
+  count if it beat the lowest of A/B/C.
+- The repository must be public under MIT within the hour after the freeze
+  (2026-11-02 15:00 UTC), and the final commit must be on `speed-demon` by then.
+- Final scoring uses a private holdout seed; these are public-seed numbers.

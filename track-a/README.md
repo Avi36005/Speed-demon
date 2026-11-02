@@ -1,43 +1,44 @@
 # Track A — exact log ingestion
 
-C++20, standard library and POSIX mmap only. Read `/data/requests.log` and write
-`/out/summary.txt`. Local checks may pass `--data DIR --out DIR`.
+C++20, standard library, POSIX `mmap` and AVX2 intrinsics; zero third-party
+dependencies. Reads `/data/requests.log`, writes `/out/summary.txt`. Local runs
+may pass `--data DIR --out DIR --workers N` (default: the CPUs in the affinity mask).
 
-The program parses the documented timestamp fields directly, discovers endpoint
-strings from the input, and stores unsigned 32-bit latencies in contiguous endpoint/hour slices. Twelve workers in the current scoring-box trial (override with `--workers 1..12`) parse independent
-whole-line ranges into private count tables and row buffers. Prefix sums assign
-disjoint slices, then workers scatter exact latencies into one contiguous array. Hour tasks then select the three exact ranks within disjoint buckets and format
-independent strings in parallel. Ascending nth_element calls reuse the proven
-right partition; repeated ranks reuse the selected value.
-The final write visits those strings chronologically. Each bucket yields the
-three exact nearest ranks.
-Errors are precisely 500–599; counts and ppm arithmetic use 64 bits. Endpoints
-are sorted by ASCII bytes and hours emitted chronologically. Duplicate lines
-are retained. Empty input produces a zero-byte file.
+## How it works
 
-All input views refer to a read-only mapping whose lifetime encloses aggregation
-and serialization. Standard hash tables resolve collisions by exact string
-equality. No public-seed answer tables or endpoint catalogue is compiled in.
+1. **Block hour summary (pass one).** The file is split at 16 KiB block
+   boundaries, one range per worker. Each worker walks its lines (a newline
+   search starting 39 bytes in, since lines are at least 40 bytes) and records,
+   for every block, the set of hours that start a line there and the offset of
+   the block's first line. Ranges start on block boundaries, so no block is
+   shared between workers.
+2. **One hour at a time (pass two).** Workers claim hours in order. For hour
+   `h` a worker reads only the blocks whose summary contains `h` (3% more lines
+   than the hour itself at seed 1) and skips other hours' lines. For each line
+   of `h` it finds the method end with a word test, the endpoint end with two
+   AVX2 compares, and parses the latency with SWAR arithmetic.
+3. **Exact endpoints.** Each worker keeps an open-addressing table keyed by a
+   hash of the endpoint's first 16 and last 8 bytes. A hit is confirmed by an
+   exact byte comparison against a zero-padded 64-byte copy, and the tail of
+   longer endpoints is compared against the input itself. Endpoints are never
+   normalised; the 1,842-endpoint catalogue is discovered, not compiled in.
+4. **Exact percentiles.** The hour's `(endpoint, latency)` rows are
+   counting-sorted in place by endpoint (endpoints ordered by exact bytes, so
+   prefixes sort first), and the three nearest ranks `(p*n + 99) / 100` are
+   selected with a branch-free Lomuto quickselect. Each rank search reuses the
+   right partition of the previous one.
+5. **Ordered output.** Each finished hour is formatted with a two-digit lookup
+   table. Whoever finishes an hour writes every consecutive finished hour, so
+   workers never wait on each other to write.
 
-Build: the allowlisted GCC 15 image first instruments this C++20 program, then
-runs it on a build-time `sample` generated with seed8675309 by the byte-identical
-official `a_ingest.py`. The second compile uses that profile with coverage and
-missing-profile warnings treated as errors. The generator SHA is
-`d82b43b8f617016808f85cbe9be86af1fee8466296a0848ab8e6908ee3c4b0b4`.
-Python and training data stay in build stages; only the C++ binary enters the
-Debian 13 runtime. No inputs or answers are retained in the runtime image.
+Errors are statuses 500–599 (499 is not), counts and ppm use 64-bit
+arithmetic, duplicate lines count twice, and an empty input gives an empty file.
 
-All base images are pinned to allowlisted digests. The build runs offline and
-statically links libstdc++ and compiler support; glibc remains supplied by
-Debian. A clean amd64 build from this directory and five restricted public-full
-runs passed, together with independent full seed7 and tiny/sample1/2/3/42 checks
-on the identical prototype build. These are compatibility/correctness checks;
-emulated times do not predict the official scoring-box effect of PGO.
+## Memory
 
-Dependencies: zero non-standard-library runtime dependencies (declared D=1;
-the harness marks this declaration unverified). MIT, see repository LICENSE.
-Native Mac timings are not scoring-box evidence. See PERF.md and ../STATUS.md.
+Only one hour's rows (at most 73k at seed 1) are held per worker, plus a small
+endpoint table. There is no global latency array. The 10 MB output is the
+largest single allocation, and it is charged to the run either way because
+the board's `/out` is tmpfs.
 
-With another 24 hours: compare allocation and output costs and
-repeat the 1/2/4/6/12 worker sweep on the scoring CPU. The selected worker count
-comes from native ARM64 measurements, so its x86 optimum remains unknown.
+See [PERF.md](PERF.md) for measurements.

@@ -17,13 +17,10 @@
 
 ---
 
-> **Verified board checkpoint:** all four tracks passed at `5c216d1`, scoring
-> **57.18 overall** across registered A/B/C. The requested 92 target remains
-> unmet. Exact selection, dense-result summaries and atomic name arenas have current
-> correctness and runtime evidence in the round-six manifest. A smaller private
-> posting representation is being evaluated for B.
-> D is implemented and measured, but its registration is still pending.
-> See [STATUS.md](STATUS.md) for exact current evidence.
+> **Live-board checkpoint (`3f87fd9`, 2026-11-02):** all four tracks pass every
+> gate. Registered A/B/C score **≈70.0 overall** (A 73.4, B 65.9, C 70.8), up from
+> 57.2. The requested 92 is not reached: it is above the board's best entry on
+> every track. See [STATUS.md](STATUS.md) for every run and the scoring formula.
 
 ## The entry
 
@@ -44,45 +41,39 @@ all indexing, parsing and aggregation performed from the actual inputs at runtim
 
 ### Engineering decisions
 
-**A — exact aggregation with independent workers.** Workers parse complete
-log-line ranges into private endpoint/hour count tables. Prefix sums and
-disjoint scatter slices pack the latency values into one contiguous array;
-independent hour tasks select and format the exact nearest-rank results. Endpoint strings are discovered from the input and compared exactly.
+**A — one hour at a time.** Pass one records which hours start a line in each
+16 KiB block. Pass two answers each hour from only its blocks, with AVX2
+endpoint scanning, exact zero-padded key comparison and in-place grouping.
+Exact nearest ranks come from a branch-free quickselect. No global latency
+array is kept.
 
-**C — a CSV parser that preserves the data.** Quote-aware workers handle
-escaped quotes, multiline fields, mixed line endings and record-boundary BOMs.
-Amounts use integer cents. A shared exact table owns decoded names in parser arenas; release/acquire
-publication and atomic country-membership bits give exact distinct counts.
+**C — exact parallel CSV.** Quote parity gives exact chunk boundaries despite
+embedded LFs. Names are interned by their raw quoted bytes (unescaping is
+injective) in a lock-free shared table with prefetched lookups. Distinct names
+use atomic per-group bitsets; amounts are integer cents parsed with SWAR.
 
-**B — build only the index the queries need.** Query terms determine the
-vocabulary. Workers build sorted postings over disjoint document ranges;
-frequent terms use compact bitmaps. Boolean operations retain strict
-left-to-right order. Phrase candidates use streaming exact token matching,
-including overlaps and repeated words, without allocating token-ID sequences.
-Independent query workers write separate answer slots before ordered output.
+**B — one tokenizing pass.** AVX2 lowercasing and classification, prefetched
+fingerprint lookups of the query vocabulary only, bitmaps for terms a sample
+predicts to be common, and 16-bit block runs for the rest. Boolean operators
+run strictly left to right; phrases are verified exactly in the raw text around
+the rarest term.
 
-**D — exact bidirectional graph search.** Two-pass forward and reverse CSR
-retain all directed edges. Four independent query workers run bidirectional
-Dijkstra with stale-frontier removal, valid lower-bound stopping and touched
-distance resets. A first meeting is an upper bound, never a stopping condition.
+**D — bidirectional Dijkstra.** Parallel CSR build, 32-bit distances with an
+exact side map for very large values, and a stopping rule that treats a
+meeting only as an upper bound.
 
 ## Official live-board measurements
 
-Checkpoint `5c216d1` passed every build, correctness, timeout and sandbox gate.
-Registered A/B/C machine scores give **57.177641 overall**, up from **43.243**
-at the first baseline. The requested92 target is not achieved. These are single
-public-data runs; final holdout and judging remain separate. D is measured but
-still marked unregistered in the feed.
-
-| Track | Machine points | Time | cgroup peak | Real run ID |
+| Track | Machine points | Time | cgroup peak | Commit |
 | :--- | ---: | ---: | ---: | :--- |
-| A | 65.828285 | 0.079049 s | 63,434,752 B | `run-8e4a8338a92d` |
-| B | 49.567895 | 0.976826 s | 160,452,608 B | `run-3717e5314522` |
-| C | 57.288266 | 0.170541 s | 17,289,216 B | `run-751108049e14` |
-| D | 46.037492 | 1.116187 s | 210,255,872 B | `run-ed34233348c5` |
+| A | 73.405801 | 0.048994 s | 29,573,120 B | `3f87fd9` |
+| B | 65.948586 | 0.245680 s | 96,985,088 B | `3f87fd9` |
+| C | 70.813991 | 0.055050 s | 13,545,472 B | `3f87fd9` |
+| D | 51.803895 | 0.580435 s | 272,244,736 B | `3f87fd9` (unregistered) |
 
-[Checkpoint receipt](benchmarks/board/2026-11-01T200313.061179Z.json) ·
-[First baseline receipt](benchmarks/board/2026-11-01-first-public-run.json) ·
+Single public-data runs; identical code varies by up to ~15% in time between
+runs. Final holdout scoring and judging are separate.
+[Receipts](benchmarks/board) ·
 [Kryptonite on the live board](https://speeddemon.dev/board/#kryptonite-96429f)
 
 ## Verification

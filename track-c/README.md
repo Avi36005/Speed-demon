@@ -1,42 +1,34 @@
-# Track C — exact concurrent CSV join
+# Track C — exact hostile-CSV join
 
-C++20 and POSIX mmap, zero third-party runtime dependencies. Read
-`/data/records.csv` and `/data/regions.csv`; write only `/out/aggregates.txt`.
-Local paths: `--data DIR --out DIR`; workers: `--workers 1..12` (default six for the current scoring-box trial).
-MIT; see ../LICENSE.
+C++20, standard library, POSIX `mmap` and AVX2 intrinsics; zero third-party
+dependencies. Reads `/data/records.csv` and `/data/regions.csv`, writes
+`/out/aggregates.txt`. Local runs may pass `--data DIR --out DIR --workers N`.
 
-Each parser consumes complete CSV fields, scans literal quoted runs in bounded
-bulk operations and decodes escaped quote pairs exactly. BOMs are skipped only
-at record starts; embedded LFs/BOMs remain field bytes. Mixed LF/CRLF, empty
-names, meaningful trailing spaces and an unterminated final record are handled.
-Quote parity over the actual bytes locates chunk boundaries at LFs outside
-quotes. Escaped pairs flip twice, so physical newlines alone never split records.
+## How it works
 
-A dense region lookup maps known IDs to discovered country IDs and holes or
-above-range IDs to `_UNMATCHED`. Each worker owns numeric country aggregates
-with 64-bit counts/sums and integer cents, including negative fractions.
+1. **Lookup.** `regions.csv` maps each region id to a dense country index; ids
+   ascend, so the table is sized from the last line. Unknown or out-of-range
+   ids go to `_UNMATCHED`. Countries are printed in code order, with
+   `_UNMATCHED` last.
+2. **Exact parallel record boundaries.** A byte is inside a quoted field
+   exactly when an odd number of `"` precede it, because `""` pairs and field
+   delimiters both contribute evenly. Workers count quotes in parallel. From
+   the prefix parity, each chunk start scans to its first LF outside quotes,
+   so embedded LFs, commas and quotes never cause a misplaced split.
+3. **Parsing.** Each record skips an optional BOM at its start, parses `id`,
+   `region_id` and the amount's integer part with SWAR digit arithmetic, and
+   scans quoted fields for `"` with AVX2, counting `""` pairs. Amounts are
+   integer cents. CRLF, LF and an unterminated final record are accepted.
+4. **Exact distinct names.** Two names are equal after unescaping exactly
+   when their raw quoted bytes are equal, because unescaping is injective. An
+   empty unquoted name and `""` are both empty. Names are interned by their
+   raw bytes in one shared lock-free table: a slot holds a 16-bit tag and a
+   pointer to an arena record `{id, length, bytes}`, published with a
+   release/acquire CAS. Lookups are pipelined (hash and prefetch eight
+   records ahead), and each `(group, name)` bit is set in an atomic per-group
+   bitset after its word has been prefetched.
+5. **Aggregates.** Each worker keeps private per-group sums, min and max, and
+   byte totals (raw length minus `""` pairs). These are combined at the end;
+   `names_distinct` is the popcount of each group's bitset.
 
-Decoded names are copied into private parser arenas and published in one
-shared exact table. Immutable entries and keys remain alive until all threads
-join. Atomic bucket slots use release/acquire publication; full byte equality
-resolves hash collisions. Buckets have monotonic overflow chains, so name count
-is not capped by the initial root-table allocation.
-
-Country-membership bits only change from zero to one. Exactly the first atomic
-fetch-or for a name/country pair increments a worker's private distinct count;
-joining and summing those counts is exact. Membership stride follows the actual
-country count. No name pool, country catalogue or public answer table is
-compiled in. Construction, parsing and lookup run inside the timed process.
-
-GCC 15 and Debian 13 are pinned to allowed digests; builds are offline and C++
-runtime libraries link statically. This arena/publication trial passes native
-hostile grammar and full-seed7 checks, twelve-worker native and x86 sanitizer
-fixtures, forced overflow contention, a clean offline amd64 build, five exact
-public-full sandbox runs and independent full7. Docker runs here use ARM-host
-emulation. Actual scoring-box effect remains pending; see PERF.md for real run
-IDs and all earlier source versions.
-
-Next: compare synchronization and numeric parsing costs on the scoring CPU.
-Arena storage trades the original per-name allocation/destruction overhead for
-bulk lifetime management. The previous sharded implementation remains in git
-for direct time/memory/source comparisons and recovery.
+See [PERF.md](PERF.md) for measurements.

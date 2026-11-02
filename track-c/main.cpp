@@ -102,20 +102,23 @@ int main(int argc, char** argv) {
         const char* data = map_file(data_dir + "/records.csv", size);
 
         // region_id -> group: country codes in byte order, then _UNMATCHED.
-        std::vector<uint16_t> region, group(26 * 26 * 26, NONE);
+        constexpr uint8_t MISSING = 255;  // the frozen lookup has 240 countries
+        std::vector<uint8_t> region;
+        std::vector<uint16_t> group(26 * 26 * 26, NONE);
         if (rsize > 1) {  // ids ascend, so the last line holds the largest
             const char* last = regions + rsize - 1;
             while (last > regions && last[-1] != '\n') --last;
-            if (static_cast<unsigned char>(*last - '0') < 10) region.assign(digits(last) + 1, NONE);
+            if (static_cast<unsigned char>(*last - '0') < 10) region.assign(digits(last) + 1, MISSING);
         }
         std::vector<uint32_t> codes;
         for (const char *p = static_cast<const char*>(memchr(regions, '\n', rsize)) + 1, *end = regions + rsize; p < end;) {
             uint64_t id = digits(p);
-            if (id >= region.size()) region.resize(std::max<size_t>(id + 1, region.size() * 2), NONE);
-            region[id] = static_cast<uint16_t>(((p[1] - 'A') * 26 + p[2] - 'A') * 26 + p[3] - 'A');
-            uint16_t& k = group[region[id]];
-            if (k == NONE) k = static_cast<uint16_t>(codes.size()), codes.push_back(region[id]);
-            region[id] = k;
+            if (id >= region.size()) region.resize(std::max<size_t>(id + 1, region.size() * 2), MISSING);
+            uint32_t code = static_cast<uint32_t>(((p[1] - 'A') * 26 + p[2] - 'A') * 26 + p[3] - 'A');
+            uint16_t& k = group[code];
+            if (k == NONE) k = static_cast<uint16_t>(codes.size()), codes.push_back(code);
+            if (k >= MISSING) throw std::runtime_error("too many countries");
+            region[id] = static_cast<uint8_t>(k);
             p += 5;
         }
         const uint32_t G = static_cast<uint32_t>(codes.size()) + 1;
@@ -241,7 +244,7 @@ int main(int argc, char** argv) {
                 if (negative) cents = -cents;
                 p += *p == '\r';
                 p += p < end && *p == '\n';
-                Group& x = g[r < region.size() && region[r] != NONE ? region[r] : G - 1];
+                Group& x = g[r < region.size() && region[r] != MISSING ? region[r] : G - 1];
                 ++x.count;
                 x.ids += id;
                 x.sum += cents;
